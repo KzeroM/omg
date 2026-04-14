@@ -53,20 +53,20 @@ export function Chart() {
   }, []);
 
   return (
-    <section id="chart" className="rounded-2xl bg-[#141414] p-6 ring-1 ring-[#1f1f1f]">
+    <section id="chart" className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-white">실시간 TOP 5 차트</h2>
+        <h2 className="text-lg font-bold text-[var(--color-text-primary)]">실시간 TOP 5 차트</h2>
         {live && (
-          <span className="flex items-center gap-1.5 rounded-full bg-[#A855F7]/10 px-3 py-1 text-xs font-medium text-[#A855F7]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#A855F7] animate-pulse" />
+          <span className="flex items-center gap-1.5 rounded-full bg-[var(--color-accent-subtle)] px-3 py-1 text-xs font-medium text-[var(--color-accent)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)] animate-pulse" />
             LIVE
           </span>
         )}
       </div>
       {tracks.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[#1f1f1f] py-12 text-center">
-          <p className="text-sm text-zinc-500">아직 재생 기록이 없어요.</p>
-          <p className="mt-1 text-sm text-zinc-600">곡을 재생하면 차트에 반영됩니다.</p>
+        <div className="rounded-xl border border-dashed border-[var(--color-border)] py-12 text-center">
+          <p className="text-sm text-[var(--color-text-muted)]">아직 재생 기록이 없어요.</p>
+          <p className="mt-1 text-sm text-[var(--color-text-muted)]">곡을 재생하면 차트에 반영됩니다.</p>
         </div>
       ) : (
         <ul className="grid grid-cols-1 gap-2">
@@ -75,22 +75,22 @@ export function Chart() {
               key={track.id}
               onClick={() => void playSingleTrack(track as any)}
               className={`flex items-center gap-4 rounded-xl py-3 px-4 transition cursor-pointer ${
-                currentTrack?.id === track.id ? "bg-white/10" : "hover:bg-white/5"
+                currentTrack?.id === track.id ? "bg-white/10" : "hover:bg-[var(--color-bg-hover)]"
               }`}
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#A855F7]/20 text-sm font-bold text-[#A855F7]">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-subtle)] text-sm font-bold text-[var(--color-accent)]">
                 {track.rank}
               </span>
               <div
                 className={`h-12 w-12 shrink-0 rounded-lg bg-gradient-to-br ${track.coverColor}`}
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-white">{track.title}</p>
-                <p className="flex flex-wrap items-center gap-2 truncate text-sm text-zinc-400">
+                <p className="truncate font-medium text-[var(--color-text-primary)]">{track.title}</p>
+                <p className="flex flex-wrap items-center gap-2 truncate text-sm text-[var(--color-text-secondary)]">
                   <Link
                     href={`/artist/${encodeURIComponent(track.uploader_nickname ?? track.artist)}`}
                     onClick={(e) => e.stopPropagation()}
-                    className="hover:text-[#A855F7] transition"
+                    className="hover:text-[var(--color-accent)] transition"
                   >
                     {track.artist}
                   </Link>
@@ -99,7 +99,7 @@ export function Chart() {
                 </p>
               </div>
               {track.play_count != null && (
-                <span className="flex shrink-0 items-center gap-1 text-xs text-zinc-500">
+                <span className="flex shrink-0 items-center gap-1 text-xs text-[var(--color-text-muted)]">
                   <Play className="h-3 w-3" strokeWidth={1.5} />
                   {track.play_count.toLocaleString()}
                 </span>

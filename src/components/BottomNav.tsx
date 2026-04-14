@@ -12,12 +12,12 @@ const items = [
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-[#1f1f1f] bg-[#0d0d0d]/95 backdrop-blur safe-area-pb lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-[var(--color-border)] bg-[var(--color-bg-base)]/95 backdrop-blur safe-area-pb lg:hidden">
       {items.map(({ label, href, icon: Icon }) => (
         <Link
           key={label}
           href={href}
-          className="flex flex-col items-center gap-1 py-3 px-4 text-zinc-400 transition-colors hover:text-white"
+          className="flex flex-col items-center gap-1 py-3 px-4 text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-primary)]"
         >
           <Icon className="h-6 w-6" strokeWidth={1.5} />
           <span className="text-xs">{label}</span>

@@ -1,21 +1,45 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
-  --electric-purple: #A855F7;
-  --electric-purple-dim: #9333ea;
-  --sidebar-bg: #0d0d0d;
-  --card-bg: #141414;
-  --border-dark: #1f1f1f;
+  /* 배경 */
+  --color-bg-base: #0a0a0a;
+  --color-bg-surface: #141414;
+  --color-bg-elevated: #1f1f1f;
+  --color-bg-hover: rgba(255, 255, 255, 0.05);
+
+  /* 강조 색상 */
+  --color-accent: #A855F7;
+  --color-accent-hover: #9333ea;
+  --color-accent-subtle: rgba(168, 85, 247, 0.1);
+
+  /* 텍스트 */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+
+  /* 경계선 */
+  --color-border: #1f1f1f;
+
+  /* 레거시 (하위 호환성) */
+  --background: var(--color-bg-base);
+  --foreground: var(--color-text-primary);
+  --electric-purple: var(--color-accent);
+  --electric-purple-dim: var(--color-accent-hover);
+  --sidebar-bg: var(--color-bg-base);
+  --card-bg: var(--color-bg-surface);
+  --border-dark: var(--color-border);
   --gold-badge: #fbbf24;
   --gold-badge-glow: rgba(251, 191, 36, 0.4);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-electric-purple: var(--electric-purple);
+  --color-background: var(--color-bg-base);
+  --color-foreground: var(--color-text-primary);
+  --color-electric-purple: var(--color-accent);
+  --color-electric-purple-hover: var(--color-accent-hover);
+  --color-electric-purple-subtle: var(--color-accent-subtle);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

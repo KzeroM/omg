@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { usePlayer } from "@/context/PlayerContext";
-import { UploadButton } from "./UploadButton";
 import { LikeButton } from "./LikeButton";
 import { ShareButton } from "./ShareButton";
 import { TierBadge } from "./TierBadge";
@@ -46,7 +45,6 @@ export function NewReleases() {
           <h2 className="text-lg font-bold text-white">최신 등록 곡</h2>
           <p className="mt-0.5 text-sm text-zinc-500">New Releases</p>
         </div>
-        <UploadButton />
       </div>
 
       {/* 검색 바 */}

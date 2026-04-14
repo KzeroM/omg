@@ -256,3 +256,35 @@ export async function getPlayHistory(limit = 20): Promise<HistoryTrack[]> {
     })
     .filter((t) => t !== undefined) as HistoryTrack[];
 }
+
+/** 로그인 사용자가 좋아요한 트랙 목록을 최신순으로 반환합니다. 비로그인 시 빈 배열. */
+export async function getLikedTracks(): Promise<PlaylistTrack[]> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("track_likes")
+    .select("created_at, tracks(id, title, artist, file_path, like_count, play_count)")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return [];
+
+  return data
+    .filter(row => row.tracks)
+    .map(row => {
+      const t = row.tracks as any;
+      return {
+        id: t.id,
+        rank: 0,
+        title: t.title ?? "제목 없음",
+        artist: t.artist ?? "Unknown Artist",
+        coverColor: pickCoverColor(t.id),
+        isFoundingMember: false,
+        file_path: t.file_path,
+        like_count: t.like_count,
+        play_count: t.play_count,
+      } satisfies PlaylistTrack;
+    });
+}

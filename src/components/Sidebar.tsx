@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Home, BarChart2, Search, FolderOpen } from "lucide-react";
+import { Home, BarChart2, Search, FolderOpen, Heart } from "lucide-react";
 
 const menus = [
   { label: "홈", href: "/", icon: Home },
   { label: "인기 차트", href: "/#chart", icon: BarChart2 },
   { label: "그룹 찾기", href: "/#", icon: Search },
   { label: "내 보관함", href: "/library", icon: FolderOpen },
+  { label: "좋아요한 곡", href: "/my", icon: Heart },
 ];
 
 export function Sidebar() {

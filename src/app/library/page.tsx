@@ -7,6 +7,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import type { DbTrack, PlaylistTrack, HistoryTrack } from "@/types/player";
 import { Toast } from "@/components/Toast";
 import { EditTrackModal } from "@/components/EditTrackModal";
+import { UploadButton } from "@/components/UploadButton";
 import Link from "next/link";
 import { pickCoverColor } from "@/utils/coverColor";
 import { getPlayHistory } from "@/utils/supabase/tracks";
@@ -172,9 +173,12 @@ export default function LibraryPage() {
     <div className="mx-auto max-w-5xl space-y-8 px-6 py-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">내 보관함</h1>
-        <Link href="/" className="text-sm text-zinc-400 transition hover:text-[#A855F7]">
-          홈으로
-        </Link>
+        <div className="flex items-center gap-3">
+          <UploadButton onUploadSuccess={fetchMyTracks} />
+          <Link href="/" className="text-sm text-zinc-400 transition hover:text-[#A855F7]">
+            홈으로
+          </Link>
+        </div>
       </div>
 
       {recentHistory.length > 0 && (
@@ -219,10 +223,7 @@ export default function LibraryPage() {
         <p className="text-zinc-500">불러오는 중…</p>
       ) : tracks.length === 0 ? (
         <div className="rounded-2xl bg-[#141414] p-8 text-center ring-1 ring-[#1f1f1f]">
-          <p className="text-zinc-500">업로드한 곡이 없습니다.</p>
-          <Link href="/" className="mt-3 inline-block text-sm text-[#A855F7] hover:underline">
-            곡 올리기
-          </Link>
+          <p className="text-zinc-500">아직 업로드한 곡이 없습니다.</p>
         </div>
       ) : (
         <>

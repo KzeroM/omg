@@ -75,9 +75,9 @@ async function extractId3Tags(file: File): Promise<{ title?: string; artist?: st
   }
 }
 
-export function UploadButton() {
+export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { addUploadedTrack, addTrack } = usePlayer();
+  const { addTrack, loadTracksFromDB } = usePlayer();
   const [toast, setToast] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -128,6 +128,8 @@ export function UploadButton() {
           setUploadStep(step);
         });
         addTrack(track);
+        await loadTracksFromDB();
+        onUploadSuccess?.();
         setToast("업로드 성공");
       } catch (err) {
         const msg = err instanceof Error ? err.message
@@ -139,7 +141,7 @@ export function UploadButton() {
         setLoading(false);
       }
     } else {
-      addUploadedTrack(file, artist);
+      setToast("로그인 후 업로드할 수 있습니다.");
     }
   };
 

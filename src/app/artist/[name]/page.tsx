@@ -1,0 +1,371 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import { use } from "react";
+import { Trash2, Play, Pause, Heart, Pencil, ArrowLeft, Instagram, Twitter, Youtube, Music } from "lucide-react";
+import Link from "next/link";
+import { createClient } from "@/utils/supabase/client";
+import { getTracksByArtist, getTracksByUserId } from "@/utils/supabase/tracks";
+import { usePlayer } from "@/context/PlayerContext";
+import { fetchArtistProfile } from "@/utils/user";
+import { FollowButton } from "@/components/FollowButton";
+import type { DbTrack, PlaylistTrack } from "@/types/player";
+import type { ArtistTier } from "@/types/tier";
+import type { SocialLinks } from "@/types/user";
+import { Toast } from "@/components/Toast";
+import { EditTrackModal } from "@/components/EditTrackModal";
+import { ShareButton } from "@/components/ShareButton";
+import { TierBadge } from "@/components/TierBadge";
+import { pickCoverColor } from "@/utils/coverColor";
+
+const MUSIC_BUCKET = "omg-tracks";
+
+function toPlaylistTrack(t: DbTrack): PlaylistTrack {
+  return {
+    id: t.id,
+    rank: 0,
+    title: t.title ?? "제목 없음",
+    artist: t.artist ?? "Unknown Artist",
+    coverColor: pickCoverColor(t.id),
+    isFoundingMember: false,
+    file_path: t.file_path,
+    artist_tier: t.artist_tier,
+  };
+}
+
+export default function ArtistPage({
+  params,
+}: {
+  params: Promise<{ name: string }>;
+}) {
+  const { name: encodedName } = use(params);
+  const [artistName, setArtistName] = useState<string | null>(null);
+  const [artistTier, setArtistTier] = useState<ArtistTier>('basic');
+  const [tracks, setTracks] = useState<DbTrack[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const [editingTrack, setEditingTrack] = useState<DbTrack | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [artistUserId, setArtistUserId] = useState<string | null>(null);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [artistBio, setArtistBio] = useState<string | null>(null);
+  const [artistSocialLinks, setArtistSocialLinks] = useState<SocialLinks | null>(null);
+  const { currentTrack, isPlaying, addTrack, playTrack, newReleases, updateTrackMeta } = usePlayer();
+
+  const fetchData = useCallback(async (decoded: string) => {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // 1차: nickname 기반 조회
+    const { data: userRow } = await supabase
+      .from("users")
+      .select("user_id, nickname, follower_count")
+      .ilike("nickname", decoded)
+      .maybeSingle();
+
+    let tracksResult: DbTrack[] = [];
+    let displayName = decoded;
+
+    if (userRow) {
+      // nickname 일치 → user_id로 tracks 조회
+      tracksResult = await getTracksByUserId(userRow.user_id);
+      displayName = userRow.nickname;
+      setArtistUserId(userRow.user_id);
+      setFollowerCount(userRow.follower_count ?? 0);
+
+      // 프로필 정보 조회
+      const profileData = await fetchArtistProfile(supabase, userRow.user_id);
+      if (profileData) {
+        setArtistBio(profileData.bio ?? null);
+        setArtistSocialLinks(profileData.social_links ?? null);
+      }
+
+      // 현재 사용자가 팔로우 중인지 확인
+      if (user && user.id !== userRow.user_id) {
+        const { data: followData } = await supabase
+          .from("follows")
+          .select("1", { count: "exact" })
+          .eq("follower_id", user.id)
+          .eq("following_id", userRow.user_id)
+          .maybeSingle();
+        setIsFollowing(!!followData);
+      }
+    } else {
+      // 2차 폴백: artist 텍스트 ilike
+      tracksResult = await getTracksByArtist(decoded);
+      displayName = decodeURIComponent(decoded);
+    }
+
+    if (tracksResult.length > 0) {
+      setArtistTier((tracksResult[0].artist_tier as ArtistTier) ?? 'basic');
+    }
+
+    setArtistName(displayName);
+    setTracks(tracksResult);
+    setCurrentUserId(user?.id ?? null);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    try {
+      const decoded = decodeURIComponent(encodedName);
+      void fetchData(decoded);
+    } catch (e) {
+      console.error(e);
+      setLoading(false);
+    }
+  }, [encodedName, fetchData]);
+
+  const handlePlay = (track: DbTrack) => {
+    const pt = toPlaylistTrack(track);
+    const existingIndex = newReleases.findIndex((t) => t.id === track.id);
+    if (existingIndex !== -1) {
+      playTrack(existingIndex);
+    } else {
+      addTrack(pt);
+    }
+  };
+
+  const handleDelete = async (track: DbTrack) => {
+    if (!window.confirm(`"${track.title ?? "이 곡"}"을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
+    setDeletingId(track.id);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || track.user_id !== user.id) {
+        setToast("권한이 없습니다.");
+        return;
+      }
+      await supabase.storage.from(MUSIC_BUCKET).remove([track.file_path]);
+      const { error } = await supabase.from("tracks").delete().eq("id", track.id);
+      if (error) throw error;
+      setTracks((prev) => prev.filter((t) => t.id !== track.id));
+    } catch (e) {
+      console.error(e);
+      setToast("삭제에 실패했습니다. 다시 시도해 주세요.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleEditSaved = async (title: string, artist: string) => {
+    if (!editingTrack) return;
+    try {
+      await updateTrackMeta(editingTrack.id, title, artist);
+      setTracks((prev) =>
+        prev.map((t) =>
+          t.id === editingTrack.id ? { ...t, title, artist } : t
+        )
+      );
+      setToast("곡 정보가 업데이트되었습니다.");
+    } catch (error) {
+      console.error(error);
+      setToast("곡 정보 업데이트에 실패했습니다.");
+    }
+  };
+
+
+  return (
+    <>
+      {editingTrack && (
+        <EditTrackModal
+          track={editingTrack}
+          isOpen={true}
+          onClose={() => setEditingTrack(null)}
+          onSaved={handleEditSaved}
+        />
+      )}
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
+      <div className="mx-auto max-w-5xl space-y-8 px-6 py-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="text-sm text-zinc-400 transition hover:text-[#A855F7]"
+              aria-label="뒤로가기"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                {artistName ?? "로딩 중..."}
+                <TierBadge tier={artistTier} size="md" />
+              </h1>
+              {artistUserId && (
+                <p className="text-xs text-zinc-500 mt-1">
+                  팔로워 <span className="text-white font-semibold">{followerCount}</span>명
+                </p>
+              )}
+            </div>
+          </div>
+          {artistUserId && currentUserId !== artistUserId && (
+            <FollowButton
+              artistId={artistUserId}
+              initialFollowing={isFollowing}
+              initialFollowerCount={followerCount}
+            />
+          )}
+        </div>
+
+        {(artistBio || artistSocialLinks) && (
+          <div className="rounded-2xl bg-[#141414] p-6 ring-1 ring-[#1f1f1f]">
+            {artistBio && (
+              <p className="text-sm text-zinc-300 line-clamp-2">{artistBio}</p>
+            )}
+            {artistSocialLinks && (
+              <div className="flex gap-3 mt-3">
+                {artistSocialLinks.instagram && (
+                  <a
+                    href={artistSocialLinks.instagram}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition hover:text-[#A855F7]"
+                    aria-label="Instagram"
+                  >
+                    <Instagram className="h-5 w-5 text-zinc-400 hover:text-[#A855F7] transition" />
+                  </a>
+                )}
+                {artistSocialLinks.twitter && (
+                  <a
+                    href={artistSocialLinks.twitter}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition hover:text-[#A855F7]"
+                    aria-label="Twitter"
+                  >
+                    <Twitter className="h-5 w-5 text-zinc-400 hover:text-[#A855F7] transition" />
+                  </a>
+                )}
+                {artistSocialLinks.youtube && (
+                  <a
+                    href={artistSocialLinks.youtube}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition hover:text-[#A855F7]"
+                    aria-label="YouTube"
+                  >
+                    <Youtube className="h-5 w-5 text-zinc-400 hover:text-[#A855F7] transition" />
+                  </a>
+                )}
+                {artistSocialLinks.soundcloud && (
+                  <a
+                    href={artistSocialLinks.soundcloud}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition hover:text-[#A855F7]"
+                    aria-label="SoundCloud"
+                  >
+                    <Music className="h-5 w-5 text-zinc-400 hover:text-[#A855F7] transition" />
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {loading ? (
+          <p className="text-zinc-500">불러오는 중…</p>
+        ) : tracks.length === 0 ? (
+          <div className="rounded-2xl bg-[#141414] p-8 text-center ring-1 ring-[#1f1f1f]">
+            <p className="text-zinc-500">이 아티스트의 곡이 없습니다.</p>
+            <Link href="/" className="mt-3 inline-block text-sm text-[#A855F7] hover:underline">
+              홈으로 돌아가기
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="rounded-2xl bg-[#141414] p-5 ring-1 ring-[#1f1f1f] flex flex-col gap-1">
+                <p className="text-xs text-zinc-500 uppercase tracking-wide">트랙</p>
+                <p className="text-xl sm:text-2xl font-bold text-white">{tracks.length}</p>
+                <p className="text-xs text-zinc-600">곡</p>
+              </div>
+              <div className="rounded-2xl bg-[#141414] p-5 ring-1 ring-[#1f1f1f] flex flex-col gap-1">
+                <p className="text-xs text-zinc-500 uppercase tracking-wide">총 재생</p>
+                <p className="text-xl sm:text-2xl font-bold text-white">{tracks.reduce((s, t) => s + (t.play_count ?? 0), 0).toLocaleString()}</p>
+                <p className="text-xs text-zinc-600">회</p>
+              </div>
+              <div className="rounded-2xl bg-[#141414] p-5 ring-1 ring-[#1f1f1f] flex flex-col gap-1">
+                <p className="text-xs text-zinc-500 uppercase tracking-wide">총 좋아요</p>
+                <p className="text-xl sm:text-2xl font-bold text-[#A855F7]">{tracks.reduce((s, t) => s + (t.like_count ?? 0), 0).toLocaleString()}</p>
+                <p className="text-xs text-zinc-600">개</p>
+              </div>
+            </div>
+            <section className="rounded-2xl bg-[#141414] p-6 ring-1 ring-[#1f1f1f]">
+              <ul className="grid grid-cols-1 gap-2">
+                {tracks.map((track) => {
+                  const isCurrentTrack = currentTrack?.id === track.id;
+                  const canEdit = currentUserId !== null && currentUserId === track.user_id;
+                  return (
+                    <li
+                      key={track.id}
+                      className={`flex items-center gap-4 rounded-xl py-3 px-4 transition hover:bg-white/5 ${
+                        isCurrentTrack ? "bg-white/5 ring-1 ring-[#A855F7]/30" : ""
+                      }`}
+                    >
+                      <div
+                        className={`h-12 w-12 shrink-0 rounded-lg bg-gradient-to-br ${pickCoverColor(track.id)}`}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium text-white">
+                          {track.title ?? "제목 없음"}
+                        </p>
+                        <p className="text-sm text-zinc-500">{track.artist ?? "Unknown Artist"}</p>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0 text-xs text-zinc-500">
+                        <span className="flex items-center gap-1">
+                          <Play className="h-3 w-3" strokeWidth={1.5} />
+                          {(track.play_count ?? 0).toLocaleString()}
+                        </span>
+                        <span className="flex items-center gap-1 text-zinc-500">
+                          <Heart className="h-3 w-3" strokeWidth={1.5} />
+                          {(track.like_count ?? 0).toLocaleString()}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handlePlay(track)}
+                        className="rounded-lg p-2 text-zinc-400 transition hover:bg-[#A855F7]/10 hover:text-[#A855F7]"
+                        aria-label="재생"
+                      >
+                        {isCurrentTrack && isPlaying ? (
+                          <Pause className="h-5 w-5" strokeWidth={1.5} />
+                        ) : (
+                          <Play className="h-5 w-5" strokeWidth={1.5} />
+                        )}
+                      </button>
+                      <ShareButton trackId={track.id} artistName={track.artist ?? "Unknown Artist"} />
+                      {canEdit && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setEditingTrack(track)}
+                            className="rounded-lg p-2 text-zinc-400 transition hover:bg-[#A855F7]/10 hover:text-[#A855F7]"
+                            aria-label="편집"
+                          >
+                            <Pencil className="h-5 w-5" strokeWidth={1.5} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(track)}
+                            disabled={deletingId === track.id}
+                            className="rounded-lg p-2 text-zinc-400 transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+                            aria-label="삭제"
+                          >
+                            <Trash2 className="h-5 w-5" strokeWidth={1.5} />
+                          </button>
+                        </>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          </>
+        )}
+      </div>
+    </>
+  );
+}

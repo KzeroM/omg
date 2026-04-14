@@ -1,0 +1,209 @@
+"use client";
+
+import { useRef, useCallback } from "react";
+import { SkipBack, Play, Pause, SkipForward, Volume2, Loader2, Shuffle, Repeat } from "lucide-react";
+import { usePlayer } from "@/context/PlayerContext";
+
+function formatTime(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+export function PlayerBar() {
+  const {
+    newReleases,
+    currentIndex,
+    currentTrack,
+    upNextTrack,
+    isPlaying,
+    isLoading,
+    currentTime,
+    duration,
+    volume,
+    togglePlay,
+    seek,
+    setVolume,
+    prev,
+    next,
+    playTrack,
+    shuffleEnabled,
+    repeatMode,
+    toggleShuffle,
+    setRepeatMode,
+  } = usePlayer();
+
+  const progressRef = useRef<HTMLDivElement>(null);
+  const current = currentTrack;
+  const canPlay = current?.blobUrl != null || current?.file_path != null;
+  const progressFraction = duration > 0 ? currentTime / duration : 0;
+
+  const handleSeek = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!progressRef.current || !canPlay) return;
+      const rect = progressRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const fraction = Math.max(0, Math.min(1, x / rect.width));
+      seek(fraction);
+    },
+    [canPlay, seek]
+  );
+
+  return (
+    <footer className="fixed bottom-14 left-0 right-0 z-50 border-t border-[#1f1f1f] bg-[#0d0d0d]/95 backdrop-blur lg:bottom-0">
+      {/* 모바일 seekbar — footer 상단 얇은 progress bar */}
+      <div
+        className="absolute top-0 left-0 right-0 h-0.5 cursor-pointer bg-zinc-800 lg:hidden"
+        onClick={handleSeek}
+      >
+        <div
+          className="h-full bg-[#A855F7] transition-all"
+          style={{ width: `${progressFraction * 100}%` }}
+        />
+      </div>
+      {/* 모바일: 간소화 (곡 제목 + 재생 버튼 위주), 터치하기 쉬운 높이 */}
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 lg:h-20 lg:gap-6 lg:px-6">
+        {/* 곡 정보 */}
+        <div className="flex min-w-0 flex-1 items-center gap-3 lg:gap-4">
+          <div
+            className={`h-10 w-10 shrink-0 rounded-lg bg-gradient-to-br lg:h-12 lg:w-12 ${current?.coverColor ?? "from-[#1f1f1f] to-[#141414]"}`}
+          />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-white lg:text-base">
+              {current?.title ?? "곡을 선택하세요"}
+            </p>
+            <p className="truncate text-xs text-zinc-400 lg:text-sm">
+              {current?.artist ?? ""}
+            </p>
+          </div>
+        </div>
+
+        {/* 재생 컨트롤 - 데스크톱에서 더 넓게 */}
+        <div className="flex flex-1 flex-col items-center gap-1 lg:gap-2">
+          <div className="flex items-center gap-2 lg:gap-4">
+            {/* Shuffle 버튼 */}
+            <button
+              type="button"
+              onClick={toggleShuffle}
+              className={`rounded-full p-2 transition ${shuffleEnabled ? "text-[#A855F7]" : "text-zinc-400 hover:text-white"}`}
+              style={{ transitionDuration: "150ms" }}
+              aria-label={shuffleEnabled ? "셔플 비활성화" : "셔플 활성화"}
+            >
+              <Shuffle className="h-5 w-5 lg:h-5 lg:w-5" strokeWidth={2} />
+            </button>
+            <button
+              type="button"
+              onClick={prev}
+              className="rounded-full p-2 text-zinc-400 transition hover:text-white"
+              aria-label="이전 곡"
+            >
+              <SkipBack className="h-5 w-5 lg:h-5 lg:w-5" strokeWidth={2} />
+            </button>
+            <button
+              type="button"
+              onClick={canPlay ? togglePlay : () => current != null && playTrack(currentIndex)}
+              disabled={current == null || isLoading}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-[#A855F7] text-white transition hover:bg-[#9333ea] disabled:opacity-50 lg:h-12 lg:w-12"
+              aria-label={isLoading ? "로딩 중" : isPlaying ? "일시 정지" : "재생"}
+            >
+              {isLoading ? (
+                <Loader2 className="h-5 w-5 animate-spin lg:h-6 lg:w-6" strokeWidth={2} />
+              ) : isPlaying ? (
+                <Pause className="h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
+              ) : (
+                <Play className="ml-0.5 h-5 w-5 lg:h-6 lg:w-6" strokeWidth={2} />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              className="rounded-full p-2 text-zinc-400 transition hover:text-white"
+              aria-label="다음 곡"
+            >
+              <SkipForward className="h-5 w-5 lg:h-5 lg:w-5" strokeWidth={2} />
+            </button>
+            {/* Repeat 버튼 */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  const modes: Array<'none' | 'all' | 'one'> = ['none', 'all', 'one'];
+                  const currentModeIndex = modes.indexOf(repeatMode);
+                  const nextMode = modes[(currentModeIndex + 1) % modes.length];
+                  setRepeatMode(nextMode);
+                }}
+                className={`rounded-full p-2 transition ${repeatMode !== 'none' ? "text-[#A855F7]" : "text-zinc-400 hover:text-white"}`}
+                style={{ transitionDuration: "150ms" }}
+                aria-label={
+                  repeatMode === 'none'
+                    ? "반복 모드: 반복 없음"
+                    : repeatMode === 'all'
+                      ? "반복 모드: 전체 반복"
+                      : "반복 모드: 한곡 반복"
+                }
+              >
+                <Repeat className="h-5 w-5 lg:h-5 lg:w-5" strokeWidth={2} />
+              </button>
+              {/* Repeat 'one' 모드 배지 */}
+              {repeatMode === 'one' && (
+                <span className="absolute bottom-1.5 right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#A855F7] text-[10px] font-bold text-white">
+                  1
+                </span>
+              )}
+            </div>
+          </div>
+          {/* Seekbar - 데스크톱에서만 전체 표시, 모바일은 생략 또는 짧게 */}
+          <div className="hidden w-full max-w-md items-center gap-2 text-xs text-zinc-500 lg:flex">
+            <span className="w-8 shrink-0 text-right">{formatTime(currentTime)}</span>
+            <div
+              ref={progressRef}
+              role="slider"
+              tabIndex={0}
+              aria-valuenow={progressFraction}
+              aria-valuemin={0}
+              aria-valuemax={1}
+              className="relative h-1 flex-1 cursor-pointer rounded-full bg-zinc-700"
+              onClick={handleSeek}
+            >
+              <div
+                className="h-full rounded-full bg-[#A855F7] transition-all"
+                style={{ width: `${progressFraction * 100}%` }}
+              />
+            </div>
+            <span className="w-8 shrink-0">{formatTime(duration)}</span>
+          </div>
+        </div>
+
+        {/* 볼륨 - 데스크톱만 */}
+        <div className="hidden flex-1 items-center justify-end gap-2 lg:flex">
+          <Volume2 className="h-5 w-5 shrink-0 text-zinc-400" strokeWidth={1.5} />
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={volume}
+            onChange={(e) => setVolume(Number(e.target.value))}
+            className="h-1.5 w-24 cursor-pointer appearance-none rounded-full bg-zinc-700 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#A855F7]"
+          />
+        </div>
+
+        {/* Up Next - 데스크톱만 */}
+        <div className="hidden items-center gap-3 border-l border-[#1f1f1f] pl-6 lg:flex lg:w-48">
+          {shuffleEnabled && !upNextTrack ? (
+            <p className="text-xs text-zinc-500">셔플 중…</p>
+          ) : upNextTrack ? (
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-zinc-500">Up Next</p>
+              <p className="truncate text-sm text-zinc-300">{upNextTrack.title}</p>
+              <p className="truncate text-xs text-zinc-500">{upNextTrack.artist}</p>
+            </div>
+          ) : (
+            <p className="text-sm text-zinc-500">—</p>
+          )}
+        </div>
+      </div>
+    </footer>
+  );
+}

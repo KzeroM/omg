@@ -32,20 +32,20 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-[#1f1f1f] bg-[#0d0d0d]/95 px-4 backdrop-blur lg:px-6">
-        <Link href="/" className="text-xl font-bold tracking-tight text-white">
-          <span className="text-[#A855F7]">OMG</span>
+      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-bg-base)]/95 px-4 backdrop-blur lg:px-6">
+        <Link href="/" className="text-xl font-bold tracking-tight text-[var(--color-text-primary)]">
+          <span className="text-[var(--color-accent)]">OMG</span>
         </Link>
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              <span className="max-w-[120px] truncate text-sm text-zinc-400 lg:max-w-[200px]">
+              <span className="max-w-[120px] truncate text-sm text-[var(--color-text-secondary)] lg:max-w-[200px]">
                 {user.user_metadata?.nickname || user.user_metadata?.name || user.email}
               </span>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-zinc-400 transition hover:bg-white/5 hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-[var(--color-text-secondary)] transition hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]"
               >
                 <LogOut className="h-4 w-4" strokeWidth={1.5} />
                 로그아웃
@@ -59,7 +59,7 @@ export function Header() {
                   setAuthModalMode("login");
                   setAuthModalOpen(true);
                 }}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-zinc-400 transition hover:bg-white/5 hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-[var(--color-text-secondary)] transition hover:bg-[var(--color-bg-hover)] hover:text-[var(--color-text-primary)]"
               >
                 <LogIn className="h-4 w-4" strokeWidth={1.5} />
                 로그인
@@ -70,7 +70,7 @@ export function Header() {
                   setAuthModalMode("signup");
                   setAuthModalOpen(true);
                 }}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#A855F7] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#9333ea]"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--color-accent)] px-3 py-2 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)]"
               >
                 <UserPlus className="h-4 w-4" strokeWidth={1.5} />
                 회원가입

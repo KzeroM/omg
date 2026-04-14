@@ -46,20 +46,20 @@ export function EditTrackModal({
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-sm rounded-2xl bg-[#141414] p-6 ring-1 ring-[#1f1f1f]">
+      <div className="w-full max-w-sm rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-semibold text-white">곡 정보 수정</h3>
+          <h3 className="font-semibold text-[var(--color-text-primary)]">곡 정보 수정</h3>
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="rounded-lg p-1 text-zinc-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
+            className="rounded-lg p-1 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <label className="mb-1 block text-xs text-zinc-500">곡 제목</label>
+        <label className="mb-1 block text-xs text-[var(--color-text-muted)]">곡 제목</label>
         <input
           type="text"
           value={title}
@@ -67,11 +67,11 @@ export function EditTrackModal({
           onKeyDown={(e) => e.key === "Enter" && !loading && handleSave()}
           placeholder="곡 제목을 입력하세요"
           disabled={loading}
-          className="mb-3 w-full rounded-xl bg-[#1f1f1f] px-4 py-2.5 text-sm text-white placeholder-zinc-600 outline-none ring-1 ring-[#2a2a2a] focus:ring-[#A855F7] disabled:opacity-60 disabled:cursor-not-allowed"
+          className="mb-3 w-full rounded-xl bg-[var(--color-bg-elevated)] px-4 py-2.5 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none ring-1 ring-[var(--color-border)] focus:ring-[var(--color-accent)] disabled:opacity-60 disabled:cursor-not-allowed"
           autoFocus
         />
 
-        <label className="mb-1 block text-xs text-zinc-500">아티스트명</label>
+        <label className="mb-1 block text-xs text-[var(--color-text-muted)]">아티스트명</label>
         <input
           type="text"
           value={artist}
@@ -79,7 +79,7 @@ export function EditTrackModal({
           onKeyDown={(e) => e.key === "Enter" && !loading && handleSave()}
           placeholder="아티스트명을 입력하세요"
           disabled={loading}
-          className="mb-3 w-full rounded-xl bg-[#1f1f1f] px-4 py-2.5 text-sm text-white placeholder-zinc-600 outline-none ring-1 ring-[#2a2a2a] focus:ring-[#A855F7] disabled:opacity-60 disabled:cursor-not-allowed"
+          className="mb-3 w-full rounded-xl bg-[var(--color-bg-elevated)] px-4 py-2.5 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none ring-1 ring-[var(--color-border)] focus:ring-[var(--color-accent)] disabled:opacity-60 disabled:cursor-not-allowed"
         />
 
         {error && (
@@ -91,7 +91,7 @@ export function EditTrackModal({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="flex-1 rounded-xl bg-[#1f1f1f] py-2.5 text-sm text-zinc-400 transition hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 rounded-xl bg-[var(--color-bg-elevated)] py-2.5 text-sm text-[var(--color-text-secondary)] transition hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             취소
           </button>
@@ -99,7 +99,7 @@ export function EditTrackModal({
             type="button"
             onClick={handleSave}
             disabled={loading || !title.trim()}
-            className="flex-1 rounded-xl bg-[#A855F7] py-2.5 text-sm font-medium text-white transition hover:bg-[#9333ea] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 rounded-xl bg-[var(--color-accent)] py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "저장 중…" : "저장"}
           </button>

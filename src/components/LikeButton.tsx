@@ -41,22 +41,22 @@ export function LikeButton({ trackId, initialLikeCount }: LikeButtonProps) {
   return (
     <>
       <button
-        className="flex shrink-0 items-center gap-1.5 rounded-lg p-2 transition-colors duration-150 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex shrink-0 items-center gap-1.5 rounded-lg p-2 transition-colors duration-150 hover:bg-[var(--color-bg-hover)] disabled:cursor-not-allowed disabled:opacity-40"
         onClick={handleClick}
         disabled={isDisabled || isPending}
       >
         <Heart
           className={`h-4 w-4 transition-all duration-150 active:scale-110 ${
             liked
-              ? "fill-[#A855F7] text-[#A855F7]"
-              : "fill-none text-zinc-500 hover:text-zinc-300"
+              ? "fill-[var(--color-accent)] text-[var(--color-accent)]"
+              : "fill-none text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
           } ${isPending ? "opacity-70" : ""}`}
           strokeWidth={2}
         />
         {!isDisabled && (
           <span
             className={`min-w-[1.5ch] text-xs tabular-nums ${
-              liked ? "text-[#A855F7]" : "text-zinc-500"
+              liked ? "text-[var(--color-accent)]" : "text-[var(--color-text-muted)]"
             }`}
           >
             {likeCount}

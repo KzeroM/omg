@@ -172,18 +172,18 @@ export default function LibraryPage() {
     {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     <div className="mx-auto max-w-5xl space-y-8 px-6 py-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">내 보관함</h1>
+        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">내 보관함</h1>
         <div className="flex items-center gap-3">
           <UploadButton onUploadSuccess={fetchMyTracks} />
-          <Link href="/" className="text-sm text-zinc-400 transition hover:text-[#A855F7]">
+          <Link href="/" className="text-sm text-[var(--color-text-secondary)] transition hover:text-[var(--color-accent)]">
             홈으로
           </Link>
         </div>
       </div>
 
       {recentHistory.length > 0 && (
-        <section className="rounded-2xl bg-[#141414] p-6 ring-1 ring-[#1f1f1f]">
-          <h3 className="text-lg font-bold text-white mb-4">최근 재생</h3>
+        <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
+          <h3 className="text-lg font-bold text-[var(--color-text-primary)] mb-4">최근 재생</h3>
           <ul className="grid grid-cols-1 gap-2">
             {recentHistory.map((track) => {
               const isCurrentTrack = currentTrack?.id === track.id;
@@ -191,23 +191,23 @@ export default function LibraryPage() {
                 <li
                   key={track.id}
                   className={`flex items-center gap-4 rounded-xl py-3 px-4 transition ${
-                    isCurrentTrack ? "bg-white/5 ring-1 ring-[#A855F7]/30" : "hover:bg-white/5"
+                    isCurrentTrack ? "bg-white/5 ring-1 ring-[var(--color-accent)]/30" : "hover:bg-[var(--color-bg-hover)]"
                   }`}
                 >
                   <div
                     className={`h-12 w-12 shrink-0 rounded-lg bg-gradient-to-br ${track.coverColor}`}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-white">{track.title}</p>
-                    <p className="text-sm text-zinc-500">{track.artist}</p>
+                    <p className="truncate font-medium text-[var(--color-text-primary)]">{track.title}</p>
+                    <p className="text-sm text-[var(--color-text-muted)]">{track.artist}</p>
                   </div>
-                  <span className="shrink-0 text-xs text-zinc-500">
+                  <span className="shrink-0 text-xs text-[var(--color-text-muted)]">
                     {formatRelativeTime(track.played_at)}
                   </span>
                   <button
                     type="button"
                     onClick={() => playSingleTrack(track)}
-                    className="rounded-lg p-2 text-zinc-400 transition hover:bg-[#A855F7]/10 hover:text-[#A855F7]"
+                    className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
                     aria-label="재생"
                   >
                     <Play className="h-5 w-5" strokeWidth={1.5} />
@@ -220,56 +220,56 @@ export default function LibraryPage() {
       )}
 
       {loading ? (
-        <p className="text-zinc-500">불러오는 중…</p>
+        <p className="text-[var(--color-text-muted)]">불러오는 중…</p>
       ) : tracks.length === 0 ? (
-        <div className="rounded-2xl bg-[#141414] p-8 text-center ring-1 ring-[#1f1f1f]">
-          <p className="text-zinc-500">아직 업로드한 곡이 없습니다.</p>
+        <div className="rounded-2xl bg-[var(--color-bg-surface)] p-8 text-center ring-1 ring-[var(--color-border)]">
+          <p className="text-[var(--color-text-muted)]">아직 업로드한 곡이 없습니다.</p>
         </div>
       ) : (
         <>
         <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-2xl bg-[#141414] p-5 ring-1 ring-[#1f1f1f] flex flex-col gap-1">
-            <p className="text-xs text-zinc-500 uppercase tracking-wide">트랙</p>
-            <p className="text-xl sm:text-2xl font-bold text-white">{tracks.length}</p>
-            <p className="text-xs text-zinc-600">곡</p>
+          <div className="rounded-2xl bg-[var(--color-bg-surface)] p-5 ring-1 ring-[var(--color-border)] flex flex-col gap-1">
+            <p className="text-xs text-[var(--color-text-muted)] uppercase tracking-wide">트랙</p>
+            <p className="text-xl sm:text-2xl font-bold text-[var(--color-text-primary)]">{tracks.length}</p>
+            <p className="text-xs text-[var(--color-text-muted)]">곡</p>
           </div>
-          <div className="rounded-2xl bg-[#141414] p-5 ring-1 ring-[#1f1f1f] flex flex-col gap-1">
-            <p className="text-xs text-zinc-500 uppercase tracking-wide">총 재생</p>
-            <p className="text-xl sm:text-2xl font-bold text-white">{tracks.reduce((s, t) => s + (t.play_count ?? 0), 0).toLocaleString()}</p>
-            <p className="text-xs text-zinc-600">회</p>
+          <div className="rounded-2xl bg-[var(--color-bg-surface)] p-5 ring-1 ring-[var(--color-border)] flex flex-col gap-1">
+            <p className="text-xs text-[var(--color-text-muted)] uppercase tracking-wide">총 재생</p>
+            <p className="text-xl sm:text-2xl font-bold text-[var(--color-text-primary)]">{tracks.reduce((s, t) => s + (t.play_count ?? 0), 0).toLocaleString()}</p>
+            <p className="text-xs text-[var(--color-text-muted)]">회</p>
           </div>
-          <div className="rounded-2xl bg-[#141414] p-5 ring-1 ring-[#1f1f1f] flex flex-col gap-1">
-            <p className="text-xs text-zinc-500 uppercase tracking-wide">총 좋아요</p>
-            <p className="text-xl sm:text-2xl font-bold text-[#A855F7]">{tracks.reduce((s, t) => s + (t.like_count ?? 0), 0).toLocaleString()}</p>
-            <p className="text-xs text-zinc-600">개</p>
+          <div className="rounded-2xl bg-[var(--color-bg-surface)] p-5 ring-1 ring-[var(--color-border)] flex flex-col gap-1">
+            <p className="text-xs text-[var(--color-text-muted)] uppercase tracking-wide">총 좋아요</p>
+            <p className="text-xl sm:text-2xl font-bold text-[var(--color-accent)]">{tracks.reduce((s, t) => s + (t.like_count ?? 0), 0).toLocaleString()}</p>
+            <p className="text-xs text-[var(--color-text-muted)]">개</p>
           </div>
         </div>
-        <section className="rounded-2xl bg-[#141414] p-6 ring-1 ring-[#1f1f1f]">
+        <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
           <ul className="grid grid-cols-1 gap-2">
             {tracks.map((track) => {
               const isCurrentTrack = currentTrack?.id === track.id;
               return (
                 <li
                   key={track.id}
-                  className={`flex items-center gap-4 rounded-xl py-3 px-4 transition hover:bg-white/5 ${
-                    isCurrentTrack ? "bg-white/5 ring-1 ring-[#A855F7]/30" : ""
+                  className={`flex items-center gap-4 rounded-xl py-3 px-4 transition hover:bg-[var(--color-bg-hover)] ${
+                    isCurrentTrack ? "bg-white/5 ring-1 ring-[var(--color-accent)]/30" : ""
                   }`}
                 >
                   <div
                     className={`h-12 w-12 shrink-0 rounded-lg bg-gradient-to-br ${pickCoverColor(track.id)}`}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-white">
+                    <p className="truncate font-medium text-[var(--color-text-primary)]">
                       {track.title ?? "제목 없음"}
                     </p>
-                    <p className="text-sm text-zinc-500">{track.artist ?? "Unknown Artist"}</p>
+                    <p className="text-sm text-[var(--color-text-muted)]">{track.artist ?? "Unknown Artist"}</p>
                   </div>
-                  <div className="flex items-center gap-3 shrink-0 text-xs text-zinc-500">
+                  <div className="flex items-center gap-3 shrink-0 text-xs text-[var(--color-text-muted)]">
                     <span className="flex items-center gap-1">
                       <Play className="h-3 w-3" strokeWidth={1.5} />
                       {(track.play_count ?? 0).toLocaleString()}
                     </span>
-                    <span className="flex items-center gap-1 text-zinc-500">
+                    <span className="flex items-center gap-1 text-[var(--color-text-muted)]">
                       <Heart className="h-3 w-3" strokeWidth={1.5} />
                       {(track.like_count ?? 0).toLocaleString()}
                     </span>
@@ -277,7 +277,7 @@ export default function LibraryPage() {
                   <button
                     type="button"
                     onClick={() => handlePlay(track)}
-                    className="rounded-lg p-2 text-zinc-400 transition hover:bg-[#A855F7]/10 hover:text-[#A855F7]"
+                    className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
                     aria-label="재생"
                   >
                     {isCurrentTrack && isPlaying ? (
@@ -289,7 +289,7 @@ export default function LibraryPage() {
                   <button
                     type="button"
                     onClick={() => setEditingTrack(track)}
-                    className="rounded-lg p-2 text-zinc-400 transition hover:bg-[#A855F7]/10 hover:text-[#A855F7]"
+                    className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
                     aria-label="편집"
                   >
                     <Pencil className="h-5 w-5" strokeWidth={1.5} />
@@ -298,7 +298,7 @@ export default function LibraryPage() {
                     type="button"
                     onClick={() => handleDelete(track)}
                     disabled={deletingId === track.id}
-                    className="rounded-lg p-2 text-zinc-400 transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+                    className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
                     aria-label="삭제"
                   >
                     <Trash2 className="h-5 w-5" strokeWidth={1.5} />

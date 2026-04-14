@@ -51,14 +51,14 @@ export function PlayerBar() {
   );
 
   return (
-    <footer className="fixed bottom-14 left-0 right-0 z-50 border-t border-[#1f1f1f] bg-[#0d0d0d]/95 backdrop-blur lg:bottom-0">
+    <footer className="fixed bottom-14 left-0 right-0 z-50 border-t border-[var(--color-border)] bg-[var(--color-bg-base)]/95 backdrop-blur lg:bottom-0">
       {/* 모바일 seekbar — footer 상단 얇은 progress bar */}
       <div
         className="absolute top-0 left-0 right-0 h-0.5 cursor-pointer bg-zinc-800 lg:hidden"
         onClick={handleSeek}
       >
         <div
-          className="h-full bg-[#A855F7] transition-all"
+          className="h-full bg-[var(--color-accent)] transition-all"
           style={{ width: `${progressFraction * 100}%` }}
         />
       </div>
@@ -67,13 +67,13 @@ export function PlayerBar() {
         {/* 곡 정보 */}
         <div className="flex min-w-0 flex-1 items-center gap-3 lg:gap-4">
           <div
-            className={`h-10 w-10 shrink-0 rounded-lg bg-gradient-to-br lg:h-12 lg:w-12 ${current?.coverColor ?? "from-[#1f1f1f] to-[#141414]"}`}
+            className={`h-10 w-10 shrink-0 rounded-lg bg-gradient-to-br lg:h-12 lg:w-12 ${current?.coverColor ?? "from-[var(--color-border)] to-[var(--color-bg-surface)]"}`}
           />
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-white lg:text-base">
+            <p className="truncate text-sm font-medium text-[var(--color-text-primary)] lg:text-base">
               {current?.title ?? "곡을 선택하세요"}
             </p>
-            <p className="truncate text-xs text-zinc-400 lg:text-sm">
+            <p className="truncate text-xs text-[var(--color-text-secondary)] lg:text-sm">
               {current?.artist ?? ""}
             </p>
           </div>
@@ -86,7 +86,7 @@ export function PlayerBar() {
             <button
               type="button"
               onClick={toggleShuffle}
-              className={`rounded-full p-2 transition ${shuffleEnabled ? "text-[#A855F7]" : "text-zinc-400 hover:text-white"}`}
+              className={`rounded-full p-2 transition ${shuffleEnabled ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"}`}
               style={{ transitionDuration: "150ms" }}
               aria-label={shuffleEnabled ? "셔플 비활성화" : "셔플 활성화"}
             >
@@ -95,7 +95,7 @@ export function PlayerBar() {
             <button
               type="button"
               onClick={prev}
-              className="rounded-full p-2 text-zinc-400 transition hover:text-white"
+              className="rounded-full p-2 text-[var(--color-text-secondary)] transition hover:text-[var(--color-text-primary)]"
               aria-label="이전 곡"
             >
               <SkipBack className="h-5 w-5 lg:h-5 lg:w-5" strokeWidth={2} />
@@ -104,7 +104,7 @@ export function PlayerBar() {
               type="button"
               onClick={canPlay ? togglePlay : () => current != null && playTrack(currentIndex)}
               disabled={current == null || isLoading}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-[#A855F7] text-white transition hover:bg-[#9333ea] disabled:opacity-50 lg:h-12 lg:w-12"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-accent)] text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)] disabled:opacity-50 lg:h-12 lg:w-12"
               aria-label={isLoading ? "로딩 중" : isPlaying ? "일시 정지" : "재생"}
             >
               {isLoading ? (
@@ -118,7 +118,7 @@ export function PlayerBar() {
             <button
               type="button"
               onClick={next}
-              className="rounded-full p-2 text-zinc-400 transition hover:text-white"
+              className="rounded-full p-2 text-[var(--color-text-secondary)] transition hover:text-[var(--color-text-primary)]"
               aria-label="다음 곡"
             >
               <SkipForward className="h-5 w-5 lg:h-5 lg:w-5" strokeWidth={2} />
@@ -133,7 +133,7 @@ export function PlayerBar() {
                   const nextMode = modes[(currentModeIndex + 1) % modes.length];
                   setRepeatMode(nextMode);
                 }}
-                className={`rounded-full p-2 transition ${repeatMode !== 'none' ? "text-[#A855F7]" : "text-zinc-400 hover:text-white"}`}
+                className={`rounded-full p-2 transition ${repeatMode !== 'none' ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"}`}
                 style={{ transitionDuration: "150ms" }}
                 aria-label={
                   repeatMode === 'none'
@@ -147,14 +147,14 @@ export function PlayerBar() {
               </button>
               {/* Repeat 'one' 모드 배지 */}
               {repeatMode === 'one' && (
-                <span className="absolute bottom-1.5 right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#A855F7] text-[10px] font-bold text-white">
+                <span className="absolute bottom-1.5 right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[var(--color-accent)] text-[10px] font-bold text-[var(--color-text-primary)]">
                   1
                 </span>
               )}
             </div>
           </div>
           {/* Seekbar - 데스크톱에서만 전체 표시, 모바일은 생략 또는 짧게 */}
-          <div className="hidden w-full max-w-md items-center gap-2 text-xs text-zinc-500 lg:flex">
+          <div className="hidden w-full max-w-md items-center gap-2 text-xs text-[var(--color-text-muted)] lg:flex">
             <span className="w-8 shrink-0 text-right">{formatTime(currentTime)}</span>
             <div
               ref={progressRef}
@@ -167,7 +167,7 @@ export function PlayerBar() {
               onClick={handleSeek}
             >
               <div
-                className="h-full rounded-full bg-[#A855F7] transition-all"
+                className="h-full rounded-full bg-[var(--color-accent)] transition-all"
                 style={{ width: `${progressFraction * 100}%` }}
               />
             </div>
@@ -177,7 +177,7 @@ export function PlayerBar() {
 
         {/* 볼륨 - 데스크톱만 */}
         <div className="hidden flex-1 items-center justify-end gap-2 lg:flex">
-          <Volume2 className="h-5 w-5 shrink-0 text-zinc-400" strokeWidth={1.5} />
+          <Volume2 className="h-5 w-5 shrink-0 text-[var(--color-text-secondary)]" strokeWidth={1.5} />
           <input
             type="range"
             min={0}
@@ -185,22 +185,22 @@ export function PlayerBar() {
             step={0.01}
             value={volume}
             onChange={(e) => setVolume(Number(e.target.value))}
-            className="h-1.5 w-24 cursor-pointer appearance-none rounded-full bg-zinc-700 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#A855F7]"
+            className="h-1.5 w-24 cursor-pointer appearance-none rounded-full bg-zinc-700 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--color-accent)]"
           />
         </div>
 
         {/* Up Next - 데스크톱만 */}
-        <div className="hidden items-center gap-3 border-l border-[#1f1f1f] pl-6 lg:flex lg:w-48">
+        <div className="hidden items-center gap-3 border-l border-[var(--color-border)] pl-6 lg:flex lg:w-48">
           {shuffleEnabled && !upNextTrack ? (
-            <p className="text-xs text-zinc-500">셔플 중…</p>
+            <p className="text-xs text-[var(--color-text-muted)]">셔플 중…</p>
           ) : upNextTrack ? (
             <div className="min-w-0 flex-1">
-              <p className="text-xs text-zinc-500">Up Next</p>
-              <p className="truncate text-sm text-zinc-300">{upNextTrack.title}</p>
-              <p className="truncate text-xs text-zinc-500">{upNextTrack.artist}</p>
+              <p className="text-xs text-[var(--color-text-muted)]">Up Next</p>
+              <p className="truncate text-sm text-[var(--color-text-secondary)]">{upNextTrack.title}</p>
+              <p className="truncate text-xs text-[var(--color-text-muted)]">{upNextTrack.artist}</p>
             </div>
           ) : (
-            <p className="text-sm text-zinc-500">—</p>
+            <p className="text-sm text-[var(--color-text-muted)]">—</p>
           )}
         </div>
       </div>

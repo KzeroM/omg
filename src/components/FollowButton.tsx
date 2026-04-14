@@ -72,8 +72,8 @@ export function FollowButton({
           transition-colors duration-150 disabled:opacity-60
           ${
             following
-              ? "bg-[#A855F7]/20 text-[#A855F7] hover:bg-[#A855F7]/30"
-              : "bg-[#A855F7] text-white hover:bg-[#9333ea]"
+              ? "bg-[var(--color-accent-subtle)] text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)]/75"
+              : "bg-[var(--color-accent)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent-hover)]"
           }
         `}
       >

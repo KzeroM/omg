@@ -182,24 +182,24 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
           onClick={closeAndReset}
         >
           <div
-            className="w-full max-w-sm rounded-2xl bg-[#141414] p-6 ring-1 ring-[#1f1f1f]"
+            className="w-full max-w-sm rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-white">회원가입 완료</h2>
+              <h2 className="text-lg font-bold text-[var(--color-text-primary)]">회원가입 완료</h2>
               <button
                 type="button"
                 onClick={closeAndReset}
-                className="rounded-lg p-1 text-zinc-400 hover:bg-white/10 hover:text-white"
+                className="rounded-lg p-1 text-[var(--color-text-secondary)] hover:bg-white/10 hover:text-[var(--color-text-primary)]"
                 aria-label="닫기"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <p className="mb-4 text-sm leading-relaxed text-zinc-300">
+            <p className="mb-4 text-sm leading-relaxed text-[var(--color-text-secondary)]">
               인증 메일을 발송했습니다. 메일함을 확인하여 인증을 완료해주세요.
             </p>
-            <p className="mb-4 truncate rounded-lg bg-white/5 px-3 py-2 text-xs text-zinc-500">
+            <p className="mb-4 truncate rounded-lg bg-white/5 px-3 py-2 text-xs text-[var(--color-text-muted)]">
               {signupSuccessEmail}
             </p>
             <div className="flex flex-col gap-2">
@@ -207,7 +207,7 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
                 type="button"
                 onClick={handleResend}
                 disabled={resendLoading}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#A855F7]/50 bg-[#A855F7]/10 py-2.5 text-sm font-medium text-[#A855F7] transition hover:bg-[#A855F7]/20 disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--color-accent)]/50 bg-[var(--color-accent-subtle)] py-2.5 text-sm font-medium text-[var(--color-accent)] transition hover:bg-[var(--color-accent)]/20 disabled:opacity-60"
               >
                 <Mail className="h-4 w-4" strokeWidth={2} />
                 {resendLoading ? "전송 중…" : "인증 메일 다시 보내기"}
@@ -215,7 +215,7 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
               <button
                 type="button"
                 onClick={closeAndReset}
-                className="rounded-xl bg-[#1f1f1f] py-2.5 text-sm text-zinc-400 transition hover:bg-white/10 hover:text-white"
+                className="rounded-xl bg-[var(--color-bg-elevated)] py-2.5 text-sm text-[var(--color-text-secondary)] transition hover:bg-white/10 hover:text-[var(--color-text-primary)]"
               >
                 닫기
               </button>
@@ -236,22 +236,22 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
           onClick={closeAndReset}
         >
           <div
-            className="w-full max-w-sm rounded-2xl bg-[#141414] p-6 ring-1 ring-[#1f1f1f]"
+            className="w-full max-w-sm rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-white">이메일 인증 필요</h2>
+              <h2 className="text-lg font-bold text-[var(--color-text-primary)]">이메일 인증 필요</h2>
               <button
                 type="button"
                 onClick={closeAndReset}
-                className="rounded-lg p-1 text-zinc-400 hover:bg-white/10 hover:text-white"
+                className="rounded-lg p-1 text-[var(--color-text-secondary)] hover:bg-white/10 hover:text-[var(--color-text-primary)]"
                 aria-label="닫기"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <p className="mb-2 text-sm font-medium text-[#f59e0b]">이메일 인증이 필요합니다.</p>
-            <p className="mb-4 text-sm text-zinc-400">
+            <p className="mb-4 text-sm text-[var(--color-text-secondary)]">
               로그인하려면 메일함의 인증 링크를 먼저 확인해주세요.
             </p>
             {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
@@ -260,7 +260,7 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
                 type="button"
                 onClick={handleResend}
                 disabled={resendLoading}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#A855F7] py-2.5 text-sm font-medium text-white transition hover:bg-[#9333ea] disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--color-accent)] py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)] disabled:opacity-60"
               >
                 <Mail className="h-4 w-4" strokeWidth={2} />
                 {resendLoading ? "전송 중…" : "인증 메일 다시 보내기"}
@@ -271,7 +271,7 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
                   setNeedsVerificationEmail(null);
                   setError(null);
                 }}
-                className="rounded-xl bg-[#1f1f1f] py-2.5 text-sm text-zinc-400 transition hover:bg-white/10 hover:text-white"
+                className="rounded-xl bg-[var(--color-bg-elevated)] py-2.5 text-sm text-[var(--color-text-secondary)] transition hover:bg-white/10 hover:text-[var(--color-text-primary)]"
               >
                 로그인 화면으로
               </button>
@@ -291,17 +291,17 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
         onClick={onClose}
       >
         <div
-          className="w-full max-w-sm rounded-2xl bg-[#141414] p-6 ring-1 ring-[#1f1f1f]"
+          className="w-full max-w-sm rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-white">
+            <h2 className="text-lg font-bold text-[var(--color-text-primary)]">
               {mode === "login" ? "로그인" : "회원가입"}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-1 text-zinc-400 hover:bg-white/10 hover:text-white"
+              className="rounded-lg p-1 text-[var(--color-text-secondary)] hover:bg-white/10 hover:text-[var(--color-text-primary)]"
               aria-label="닫기"
             >
               <X className="h-5 w-5" />
@@ -309,7 +309,7 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="auth-email" className="mb-1 block text-sm text-zinc-400">
+              <label htmlFor="auth-email" className="mb-1 block text-sm text-[var(--color-text-secondary)]">
                 이메일
               </label>
               <input
@@ -318,12 +318,12 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full rounded-lg border border-[#1f1f1f] bg-[#0d0d0d] px-3 py-2 text-white placeholder-zinc-500 focus:border-[#A855F7] focus:outline-none"
+                className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-base)] px-3 py-2 text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:border-[var(--color-accent)] focus:outline-none"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label htmlFor="auth-password" className="mb-1 block text-sm text-zinc-400">
+              <label htmlFor="auth-password" className="mb-1 block text-sm text-[var(--color-text-secondary)]">
                 비밀번호
               </label>
               <input
@@ -333,14 +333,14 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full rounded-lg border border-[#1f1f1f] bg-[#0d0d0d] px-3 py-2 text-white placeholder-zinc-500 focus:border-[#A855F7] focus:outline-none"
+                className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-base)] px-3 py-2 text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:border-[var(--color-accent)] focus:outline-none"
                 placeholder="6자 이상"
               />
             </div>
             {mode === "signup" && (
               <>
                 <div>
-                  <label htmlFor="auth-confirm" className="mb-1 block text-sm text-zinc-400">
+                  <label htmlFor="auth-confirm" className="mb-1 block text-sm text-[var(--color-text-secondary)]">
                     비밀번호 확인
                   </label>
                   <input
@@ -350,12 +350,12 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     minLength={6}
-                    className="w-full rounded-lg border border-[#1f1f1f] bg-[#0d0d0d] px-3 py-2 text-white placeholder-zinc-500 focus:border-[#A855F7] focus:outline-none"
+                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-base)] px-3 py-2 text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:border-[var(--color-accent)] focus:outline-none"
                     placeholder="다시 입력"
                   />
                 </div>
                 <div>
-                  <label htmlFor="auth-nickname" className="mb-1 block text-sm text-zinc-400">
+                  <label htmlFor="auth-nickname" className="mb-1 block text-sm text-[var(--color-text-secondary)]">
                     닉네임
                   </label>
                   <input
@@ -368,7 +368,7 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
                     }}
                     onBlur={handleNicknameBlur}
                     required
-                    className="w-full rounded-lg border border-[#1f1f1f] bg-[#0d0d0d] px-3 py-2 text-white placeholder-zinc-500 focus:border-[#A855F7] focus:outline-none"
+                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-base)] px-3 py-2 text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] focus:border-[var(--color-accent)] focus:outline-none"
                     placeholder="닉네임을 입력하세요 (2~30자, 영문/숫자/_/-)"
                   />
                   {nicknameError && (
@@ -385,7 +385,7 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-[#A855F7] py-2.5 text-sm font-medium text-white transition hover:bg-[#9333ea] disabled:opacity-60"
+              className="w-full rounded-xl bg-[var(--color-accent)] py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)] disabled:opacity-60"
             >
               {loading ? "처리 중…" : mode === "login" ? "로그인" : "가입하기"}
             </button>
@@ -396,7 +396,7 @@ export function AuthModal({ initialMode, onClose, onSuccess }: AuthModalProps) {
               setMode(mode === "login" ? "signup" : "login");
               setError(null);
             }}
-            className="mt-4 w-full text-center text-sm text-zinc-400 hover:text-[#A855F7]"
+            className="mt-4 w-full text-center text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-accent)]"
           >
             {mode === "login" ? "계정이 없으신가요? 회원가입" : "이미 계정이 있으신가요? 로그인"}
           </button>

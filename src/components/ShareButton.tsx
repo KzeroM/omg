@@ -33,7 +33,7 @@ export function ShareButton({ trackId, artistName }: ShareButtonProps) {
       <button
         type="button"
         onClick={handleClick}
-        className="rounded-lg p-2 text-zinc-400 transition hover:bg-[#A855F7]/10 hover:text-[#A855F7]"
+        className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
         aria-label="공유"
       >
         <Share2 className="h-5 w-5" strokeWidth={1.5} />

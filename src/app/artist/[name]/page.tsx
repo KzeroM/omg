@@ -179,91 +179,126 @@ export default function ArtistPage({
       )}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
       <div className="mx-auto max-w-5xl space-y-8 px-6 py-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="text-sm text-zinc-400 transition hover:text-[#A855F7]"
-              aria-label="뒤로가기"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                {artistName ?? "로딩 중..."}
-                <TierBadge tier={artistTier} size="md" />
-              </h1>
-              {artistUserId && (
-                <p className="text-xs text-zinc-500 mt-1">
-                  팔로워 <span className="text-white font-semibold">{followerCount}</span>명
-                </p>
-              )}
-            </div>
-          </div>
-          {artistUserId && currentUserId !== artistUserId && (
-            <FollowButton
-              artistId={artistUserId}
-              initialFollowing={isFollowing}
-              initialFollowerCount={followerCount}
-            />
-          )}
-        </div>
+        {/* Artist Banner */}
+        <section className={`relative w-full overflow-hidden rounded-none lg:rounded-2xl bg-gradient-to-br ${pickCoverColor(artistUserId || artistName || 'fallback')} h-64 sm:h-80 lg:h-96 ring-1 ring-[#1f1f1f]`}>
+          {/* Dark gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
 
-        {(artistBio || artistSocialLinks) && (
-          <div className="rounded-2xl bg-[#141414] p-6 ring-1 ring-[#1f1f1f]">
-            {artistBio && (
-              <p className="text-sm text-zinc-300 line-clamp-2">{artistBio}</p>
-            )}
-            {artistSocialLinks && (
-              <div className="flex gap-3 mt-3">
-                {artistSocialLinks.instagram && (
-                  <a
-                    href={artistSocialLinks.instagram}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="transition hover:text-[#A855F7]"
-                    aria-label="Instagram"
-                  >
-                    <Instagram className="h-5 w-5 text-zinc-400 hover:text-[#A855F7] transition" />
-                  </a>
+          {/* Content wrapper */}
+          <div className="relative h-full px-6 lg:px-8 py-6 lg:py-8 flex flex-col justify-between">
+            {/* Top: Back button */}
+            <div className="flex items-center gap-3">
+              <Link
+                href="/"
+                className="text-sm text-zinc-300 transition hover:text-[#A855F7]"
+                aria-label="뒤로가기"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+            </div>
+
+            {/* Bottom: Title, bio, stats, and follow button */}
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+              {/* Left: Title, tier badge, bio, stats */}
+              <div className="flex-1">
+                {/* Artist name + tier badge */}
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
+                    {artistName ?? "로딩 중..."}
+                  </h1>
+                  <TierBadge tier={artistTier} size="md" />
+                </div>
+
+                {/* Bio */}
+                {artistBio && (
+                  <p className="text-sm sm:text-base text-zinc-200 line-clamp-2 max-w-2xl mb-4">
+                    {artistBio}
+                  </p>
                 )}
-                {artistSocialLinks.twitter && (
-                  <a
-                    href={artistSocialLinks.twitter}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="transition hover:text-[#A855F7]"
-                    aria-label="Twitter"
-                  >
-                    <Twitter className="h-5 w-5 text-zinc-400 hover:text-[#A855F7] transition" />
-                  </a>
+
+                {/* Stats pills */}
+                <div className="flex flex-wrap gap-3 sm:gap-4">
+                  {artistUserId && (
+                    <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 ring-1 ring-white/20">
+                      <span className="text-xs sm:text-sm text-zinc-300">팔로워</span>
+                      <span className="font-bold text-white text-sm sm:text-base">
+                        {followerCount.toLocaleString()}명
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 ring-1 ring-white/20">
+                    <span className="text-xs sm:text-sm text-zinc-300">트랙</span>
+                    <span className="font-bold text-white text-sm sm:text-base">
+                      {tracks.length}곡
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: Social links + Follow button */}
+              <div className="flex flex-col items-start lg:items-end gap-3">
+                {/* Social links */}
+                {artistSocialLinks && (
+                  <div className="flex gap-2">
+                    {artistSocialLinks.instagram && (
+                      <a
+                        href={artistSocialLinks.instagram}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="transition hover:text-[#A855F7]"
+                        aria-label="Instagram"
+                      >
+                        <Instagram className="h-5 w-5 text-zinc-300 hover:text-[#A855F7] transition" />
+                      </a>
+                    )}
+                    {artistSocialLinks.twitter && (
+                      <a
+                        href={artistSocialLinks.twitter}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="transition hover:text-[#A855F7]"
+                        aria-label="Twitter"
+                      >
+                        <Twitter className="h-5 w-5 text-zinc-300 hover:text-[#A855F7] transition" />
+                      </a>
+                    )}
+                    {artistSocialLinks.youtube && (
+                      <a
+                        href={artistSocialLinks.youtube}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="transition hover:text-[#A855F7]"
+                        aria-label="YouTube"
+                      >
+                        <Youtube className="h-5 w-5 text-zinc-300 hover:text-[#A855F7] transition" />
+                      </a>
+                    )}
+                    {artistSocialLinks.soundcloud && (
+                      <a
+                        href={artistSocialLinks.soundcloud}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="transition hover:text-[#A855F7]"
+                        aria-label="SoundCloud"
+                      >
+                        <Music className="h-5 w-5 text-zinc-300 hover:text-[#A855F7] transition" />
+                      </a>
+                    )}
+                  </div>
                 )}
-                {artistSocialLinks.youtube && (
-                  <a
-                    href={artistSocialLinks.youtube}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="transition hover:text-[#A855F7]"
-                    aria-label="YouTube"
-                  >
-                    <Youtube className="h-5 w-5 text-zinc-400 hover:text-[#A855F7] transition" />
-                  </a>
-                )}
-                {artistSocialLinks.soundcloud && (
-                  <a
-                    href={artistSocialLinks.soundcloud}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="transition hover:text-[#A855F7]"
-                    aria-label="SoundCloud"
-                  >
-                    <Music className="h-5 w-5 text-zinc-400 hover:text-[#A855F7] transition" />
-                  </a>
+
+                {/* Follow button */}
+                {artistUserId && currentUserId !== artistUserId && (
+                  <FollowButton
+                    artistId={artistUserId}
+                    initialFollowing={isFollowing}
+                    initialFollowerCount={followerCount}
+                  />
                 )}
               </div>
-            )}
+            </div>
           </div>
-        )}
+        </section>
 
         {loading ? (
           <p className="text-zinc-500">불러오는 중…</p>

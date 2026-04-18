@@ -227,8 +227,19 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const togglePlay = useCallback(() => {
     if (!canPlay || !audioRef.current) return;
-    if (audioRef.current.paused) {
-      audioRef.current.play().catch((err) => {
+    const audio = audioRef.current;
+    // 새로고침 후 audio.src가 비어 있으면 (readyState === HAVE_NOTHING)
+    // Signed URL을 재발급받아 src를 세팅한 뒤 재생한다.
+    if (!audio.src || audio.readyState === HTMLMediaElement.HAVE_NOTHING) {
+      if (overrideTrack) {
+        void playSingleTrack(overrideTrack);
+      } else {
+        void loadAndPlay(currentIndex);
+      }
+      return;
+    }
+    if (audio.paused) {
+      audio.play().catch((err) => {
         if (err?.name === "NotAllowedError") {
           showToast("브라우저 자동재생 차단");
         } else {
@@ -236,9 +247,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         }
       });
     } else {
-      audioRef.current.pause();
+      audio.pause();
     }
-  }, [canPlay, showToast]);
+  }, [canPlay, overrideTrack, currentIndex, loadAndPlay, playSingleTrack, showToast]);
 
   const seek = useCallback((fraction: number) => {
     const el = audioRef.current;

@@ -39,6 +39,29 @@ export async function getAlbumsByUserId(userId: string): Promise<DbAlbum[]> {
 }
 
 /**
+ * 전체 공개 앨범 목록을 최신순으로 반환합니다.
+ * user_id 필터 없음 — 모든 유저의 앨범 포함.
+ * 비로그인 포함 누구나 조회 가능 (RLS: SELECT USING(true) 전제).
+ *
+ * @param limit - 최대 반환 개수 (기본값: 20)
+ * @returns AlbumWithTracks[] (없으면 빈 배열)
+ */
+export async function getPublicAlbums(limit = 20): Promise<AlbumWithTracks[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("albums")
+    .select(`
+      id, user_id, title, description, cover_type, cover_image_path, created_at, updated_at,
+      album_tracks(track_id, position, tracks(id, title, artist, file_path, like_count, play_count))
+    `)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error || !data) return [];
+  return data as unknown as AlbumWithTracks[];
+}
+
+/**
  * 앨범 단건 + 트랙 목록(position 순)을 반환합니다.
  *
  * 구현 힌트:

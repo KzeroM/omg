@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { HeroBanner } from "@/components/HeroBanner";
 import { Chart } from "@/components/Chart";
+import { AlbumGrid } from "@/components/AlbumGrid";
 import { NewReleases } from "@/components/NewReleases";
 
 export default function Home() {
@@ -10,6 +11,7 @@ export default function Home() {
         <HeroBanner />
       </Suspense>
       <Chart />
+      <AlbumGrid />
       <NewReleases />
     </div>
   );

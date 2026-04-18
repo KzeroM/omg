@@ -289,6 +289,41 @@ export async function getLikedTracks(): Promise<PlaylistTrack[]> {
     });
 }
 
+export type FollowedArtist = {
+  user_id: string;
+  nickname: string;
+  artist_tier: string;
+  follower_count: number;
+};
+
+/** 로그인 사용자가 팔로우한 아티스트 목록을 최신 팔로우순으로 반환. */
+export async function getFollowedArtists(): Promise<FollowedArtist[]> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("follows")
+    .select("following_id, users!following_id(nickname, artist_tier, follower_count)")
+    .eq("follower_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return [];
+
+  return data
+    .map((row) => {
+      const u = row.users as { nickname?: string; artist_tier?: string; follower_count?: number } | null;
+      if (!u?.nickname) return undefined;
+      return {
+        user_id: row.following_id as string,
+        nickname: u.nickname,
+        artist_tier: u.artist_tier ?? "basic",
+        follower_count: u.follower_count ?? 0,
+      };
+    })
+    .filter((a): a is FollowedArtist => a !== undefined);
+}
+
 export type TopArtist = { artist: string; count: number };
 export type DailyPlay = { date: string; count: number };
 

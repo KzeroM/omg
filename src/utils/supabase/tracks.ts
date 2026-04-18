@@ -288,3 +288,43 @@ export async function getLikedTracks(): Promise<PlaylistTrack[]> {
       } satisfies PlaylistTrack;
     });
 }
+
+export type TopArtist = { artist: string; count: number };
+export type DailyPlay = { date: string; count: number };
+
+export type TasteAnalysis = {
+  topArtists: TopArtist[];
+  last7Days: DailyPlay[];
+  totalPlayed: number;
+};
+
+export async function getTasteAnalysis(): Promise<TasteAnalysis | null> {
+  const history = await getPlayHistory(50);
+  if (!history.length) return null;
+
+  const artistMap = new Map<string, number>();
+  for (const h of history) {
+    artistMap.set(h.artist, (artistMap.get(h.artist) ?? 0) + 1);
+  }
+  const topArtists = [...artistMap.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([artist, count]) => ({ artist, count }));
+
+  const today = new Date();
+  const last7Days: DailyPlay[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = `${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+    const count = history.filter(h => {
+      const pd = new Date(h.played_at);
+      return pd.getFullYear() === d.getFullYear() &&
+             pd.getMonth() === d.getMonth() &&
+             pd.getDate() === d.getDate();
+    }).length;
+    last7Days.push({ date: key, count });
+  }
+
+  return { topArtists, last7Days, totalPlayed: history.length };
+}

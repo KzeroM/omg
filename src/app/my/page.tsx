@@ -7,6 +7,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import type { PlaylistTrack } from "@/types/player";
 import { Toast } from "@/components/Toast";
 import { getLikedTracks } from "@/utils/supabase/tracks";
+import TasteAnalysisSection from "@/components/TasteAnalysis";
 import Link from "next/link";
 
 export default function MyPage() {
@@ -71,6 +72,7 @@ export default function MyPage() {
           </div>
         ) : (
           <>
+            <TasteAnalysisSection />
             <div className="rounded-2xl bg-[var(--color-bg-surface)] p-5 ring-1 ring-[var(--color-border)] flex flex-col gap-1">
               <p className="text-xs text-[var(--color-text-muted)] uppercase tracking-wide">좋아요한 곡</p>
               <p className="text-xl sm:text-2xl font-bold text-[var(--color-accent)]">{likedTracks.length}</p>

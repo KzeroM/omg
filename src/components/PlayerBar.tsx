@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useCallback } from "react";
-import { SkipBack, Play, Pause, SkipForward, Volume2, Loader2, Shuffle, Repeat } from "lucide-react";
+import { useRef, useCallback, useState } from "react";
+import { SkipBack, Play, Pause, SkipForward, Volume2, Loader2, Shuffle, Repeat, ListMusic } from "lucide-react";
 import { usePlayer } from "@/context/PlayerContext";
+import { QueuePanel } from "./QueuePanel";
 
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -34,6 +35,7 @@ export function PlayerBar() {
     setRepeatMode,
   } = usePlayer();
 
+  const [queueOpen, setQueueOpen] = useState(false);
   const progressRef = useRef<HTMLDivElement>(null);
   const current = currentTrack;
   const canPlay = current?.blobUrl != null || current?.file_path != null;
@@ -51,6 +53,7 @@ export function PlayerBar() {
   );
 
   return (
+    <>
     <footer className="fixed bottom-14 left-0 right-0 z-50 border-t border-[var(--color-border)] bg-[var(--color-bg-base)]/95 backdrop-blur lg:bottom-0">
       {/* 모바일 seekbar — footer 상단 얇은 progress bar */}
       <div
@@ -175,8 +178,8 @@ export function PlayerBar() {
           </div>
         </div>
 
-        {/* 볼륨 - 데스크톱만 */}
-        <div className="hidden flex-1 items-center justify-end gap-2 lg:flex">
+        {/* 볼륨 + 큐 버튼 - 데스크톱만 */}
+        <div className="hidden flex-1 items-center justify-end gap-3 lg:flex">
           <Volume2 className="h-5 w-5 shrink-0 text-[var(--color-text-secondary)]" strokeWidth={1.5} />
           <input
             type="range"
@@ -187,7 +190,25 @@ export function PlayerBar() {
             onChange={(e) => setVolume(Number(e.target.value))}
             className="h-1.5 w-24 cursor-pointer appearance-none rounded-full bg-zinc-700 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--color-accent)]"
           />
+          <button
+            type="button"
+            onClick={() => setQueueOpen((prev) => !prev)}
+            className={`rounded-full p-2 transition ${queueOpen ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"}`}
+            aria-label="재생 큐 열기"
+          >
+            <ListMusic className="h-5 w-5" strokeWidth={1.5} />
+          </button>
         </div>
+
+        {/* 큐 버튼 - 모바일만 */}
+        <button
+          type="button"
+          onClick={() => setQueueOpen((prev) => !prev)}
+          className={`rounded-full p-2 transition lg:hidden ${queueOpen ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)]"}`}
+          aria-label="재생 큐 열기"
+        >
+          <ListMusic className="h-5 w-5" strokeWidth={1.5} />
+        </button>
 
         {/* Up Next - 데스크톱만 */}
         <div className="hidden items-center gap-3 border-l border-[var(--color-border)] pl-6 lg:flex lg:w-48">
@@ -205,5 +226,8 @@ export function PlayerBar() {
         </div>
       </div>
     </footer>
+
+    {queueOpen && <QueuePanel onClose={() => setQueueOpen(false)} />}
+    </>
   );
 }

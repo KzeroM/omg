@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Play, Pause, Heart, History, Users, Settings } from "lucide-react";
+import { Play, Pause, Heart, History, Users, Settings, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
@@ -26,6 +26,7 @@ export default function MyPage() {
   const [likedTracks, setLikedTracks] = useState<PlaylistTrack[]>([]);
   const [recentHistory, setRecentHistory] = useState<HistoryTrack[]>([]);
   const [followedArtists, setFollowedArtists] = useState<FollowedArtist[]>([]);
+  const [recommendations, setRecommendations] = useState<PlaylistTrack[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
   const { currentTrack, isPlaying, addTrack, playTrack, newReleases } = usePlayer();
@@ -36,11 +37,12 @@ export default function MyPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
 
-      const [{ data: profile }, liked, history, followed] = await Promise.all([
+      const [{ data: profile }, liked, history, followed, recsRes] = await Promise.all([
         supabase.from("users").select("nickname, bio, artist_tier").eq("user_id", user.id).single(),
-        getLikedTracks().catch(() => []),
-        getPlayHistory(5).catch(() => []),
-        getFollowedArtists().catch(() => []),
+        getLikedTracks().catch(() => [] as PlaylistTrack[]),
+        getPlayHistory(5).catch(() => [] as HistoryTrack[]),
+        getFollowedArtists().catch(() => [] as FollowedArtist[]),
+        fetch("/api/user/recommendations").then((r) => r.json() as Promise<{ tracks?: PlaylistTrack[] }>).catch(() => ({ tracks: [] })),
       ]);
 
       if (profile) {
@@ -53,6 +55,7 @@ export default function MyPage() {
       setLikedTracks(liked);
       setRecentHistory(history);
       setFollowedArtists(followed);
+      setRecommendations(recsRes.tracks ?? []);
       setLoading(false);
     };
 
@@ -185,6 +188,51 @@ export default function MyPage() {
                 return (
                   <li
                     key={`${track.id}-${track.played_at}`}
+                    className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-[var(--color-bg-hover)] ${
+                      isCurrentTrack ? "bg-white/5 ring-1 ring-[var(--color-accent)]/30" : ""
+                    }`}
+                  >
+                    <div className={`h-10 w-10 shrink-0 rounded-lg bg-gradient-to-br ${track.coverColor}`} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-[var(--color-text-primary)]">
+                        {track.title}
+                      </p>
+                      <p className="text-xs text-[var(--color-text-muted)]">{track.artist}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handlePlay(track)}
+                      className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
+                      aria-label="재생"
+                    >
+                      {isCurrentTrack && isPlaying ? (
+                        <Pause className="h-4 w-4" strokeWidth={1.5} />
+                      ) : (
+                        <Play className="h-4 w-4" strokeWidth={1.5} />
+                      )}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+
+        {/* 이런 곡 어때요? — 태그 기반 추천 */}
+        {recommendations.length > 0 && (
+          <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
+            <div className="mb-4 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-[var(--color-accent)]" />
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">
+                이런 곡 어때요?
+              </h2>
+            </div>
+            <ul className="flex flex-col gap-1">
+              {recommendations.slice(0, 6).map((track) => {
+                const isCurrentTrack = currentTrack?.id === track.id;
+                return (
+                  <li
+                    key={track.id}
                     className={`flex items-center gap-4 rounded-xl px-4 py-3 transition hover:bg-[var(--color-bg-hover)] ${
                       isCurrentTrack ? "bg-white/5 ring-1 ring-[var(--color-accent)]/30" : ""
                     }`}

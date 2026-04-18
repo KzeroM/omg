@@ -63,6 +63,12 @@ type PlayerContextValue = {
   setRepeatMode: (mode: 'none' | 'all' | 'one') => void;
   /** 트랙의 제목과 아티스트를 업데이트합니다. */
   updateTrackMeta: (id: string, title: string, artist: string) => Promise<void>;
+  /** 큐에서 특정 인덱스의 트랙을 제거합니다. */
+  removeFromQueue: (index: number) => void;
+  /** 큐 전체를 비우고 재생을 정지합니다. */
+  clearQueue: () => void;
+  /** 큐 내 트랙 순서를 변경합니다. */
+  moveInQueue: (from: number, to: number) => void;
 };
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
@@ -475,6 +481,46 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     setRepeatModeState(mode);
   }, []);
 
+  const removeFromQueue = useCallback((index: number) => {
+    setNewReleases((prev) => {
+      if (index < 0 || index >= prev.length) return prev;
+      const next = [...prev];
+      next.splice(index, 1);
+      return next;
+    });
+    setCurrentIndex((prev) => {
+      if (index < prev) return prev - 1;
+      return prev;
+    });
+  }, []);
+
+  const clearQueue = useCallback(() => {
+    setNewReleases([]);
+    setCurrentIndex(0);
+    setOverrideTrack(null);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.removeAttribute("src");
+    }
+    setIsPlaying(false);
+  }, []);
+
+  const moveInQueue = useCallback((from: number, to: number) => {
+    setNewReleases((prev) => {
+      if (from < 0 || to < 0 || from >= prev.length || to >= prev.length || from === to) return prev;
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      return next;
+    });
+    setCurrentIndex((prev) => {
+      if (prev === from) return to;
+      if (from < prev && to >= prev) return prev - 1;
+      if (from > prev && to <= prev) return prev + 1;
+      return prev;
+    });
+  }, []);
+
   const updateMetaAndSync = useCallback(
     async (id: string, title: string, artist: string) => {
       try {
@@ -568,6 +614,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     toggleShuffle,
     setRepeatMode,
     updateTrackMeta: updateMetaAndSync,
+    removeFromQueue,
+    clearQueue,
+    moveInQueue,
   };
 
   return (

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Instagram, Twitter, Youtube, Music } from "lucide-react";
+import { ArrowLeft, Instagram, Twitter, Youtube, Music, Lock, Trash2 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { Toast } from "@/components/Toast";
 import { validateNickname } from "@/utils/nickname";
@@ -29,6 +29,17 @@ export default function SettingsPage() {
     Record<string, string>
   >({});
   const [savingProfile, setSavingProfile] = useState(false);
+
+  // 비밀번호 변경
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  // 계정 삭제
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -70,6 +81,55 @@ export default function SettingsPage() {
 
     void loadUserProfile();
   }, [router]);
+
+  const handleChangePassword = async () => {
+    if (newPassword.length < 8) {
+      setPasswordError("비밀번호는 8자 이상이어야 합니다.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+    setSavingPassword(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) {
+        setPasswordError(error.message);
+        return;
+      }
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordError(null);
+      setToast("비밀번호가 변경되었습니다.");
+    } catch {
+      setPasswordError("비밀번호 변경 중 오류가 발생했습니다.");
+    } finally {
+      setSavingPassword(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "계정삭제") return;
+    setDeletingAccount(true);
+    try {
+      const res = await fetch("/api/user/delete", { method: "DELETE" });
+      const data = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok || !data.ok) {
+        setToast(data.error ?? "계정 삭제에 실패했습니다.");
+        setDeletingAccount(false);
+        return;
+      }
+      // 로그아웃 후 홈으로
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push("/");
+    } catch {
+      setToast("계정 삭제 중 오류가 발생했습니다.");
+      setDeletingAccount(false);
+    }
+  };
 
   const isProfileChanged =
     newBio !== (currentBio ?? "") ||
@@ -429,6 +489,100 @@ export default function SettingsPage() {
               </button>
             </div>
           </div>
+        </section>
+        {/* 비밀번호 변경 */}
+        <section className="rounded-2xl bg-[#141414] p-6 ring-1 ring-[#1f1f1f] space-y-4">
+          <div className="flex items-center gap-2">
+            <Lock className="h-4 w-4 text-zinc-400" />
+            <h2 className="text-lg font-semibold text-white">비밀번호 변경</h2>
+          </div>
+          <div className="space-y-3">
+            <div>
+              <label htmlFor="new-password" className="mb-1.5 block text-sm text-zinc-400">
+                새 비밀번호
+              </label>
+              <input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => { setNewPassword(e.target.value); setPasswordError(null); }}
+                className="w-full rounded-lg border border-[#1f1f1f] bg-[#0d0d0d] px-3 py-2 text-white placeholder-zinc-500 focus:border-[#A855F7] focus:outline-none"
+                placeholder="8자 이상"
+              />
+            </div>
+            <div>
+              <label htmlFor="confirm-password" className="mb-1.5 block text-sm text-zinc-400">
+                새 비밀번호 확인
+              </label>
+              <input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => { setConfirmPassword(e.target.value); setPasswordError(null); }}
+                className="w-full rounded-lg border border-[#1f1f1f] bg-[#0d0d0d] px-3 py-2 text-white placeholder-zinc-500 focus:border-[#A855F7] focus:outline-none"
+                placeholder="비밀번호 재입력"
+              />
+            </div>
+            {passwordError && <p className="text-xs text-red-400">{passwordError}</p>}
+            <button
+              type="button"
+              onClick={handleChangePassword}
+              disabled={savingPassword || !newPassword || !confirmPassword}
+              className="rounded-xl bg-[#A855F7] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#9333ea] disabled:opacity-60"
+            >
+              {savingPassword ? "변경 중…" : "비밀번호 변경"}
+            </button>
+          </div>
+        </section>
+
+        {/* 계정 삭제 */}
+        <section className="rounded-2xl bg-[#141414] p-6 ring-1 ring-red-900/40 space-y-4">
+          <div className="flex items-center gap-2">
+            <Trash2 className="h-4 w-4 text-red-400" />
+            <h2 className="text-lg font-semibold text-red-400">계정 삭제</h2>
+          </div>
+          <p className="text-sm text-zinc-400">
+            계정을 삭제하면 모든 데이터(업로드한 곡, 좋아요, 팔로우 등)가 영구적으로 삭제되며 복구할 수 없습니다.
+          </p>
+          {!showDeleteConfirm ? (
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="rounded-xl border border-red-800 px-5 py-2 text-sm font-medium text-red-400 transition hover:bg-red-900/30"
+            >
+              계정 삭제
+            </button>
+          ) : (
+            <div className="space-y-3 rounded-xl bg-red-950/30 p-4 ring-1 ring-red-900/50">
+              <p className="text-sm text-red-300">
+                확인을 위해 <strong>계정삭제</strong>를 입력해주세요.
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                className="w-full rounded-lg border border-red-900/60 bg-[#0d0d0d] px-3 py-2 text-white placeholder-zinc-600 focus:border-red-500 focus:outline-none"
+                placeholder="계정삭제"
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}
+                  className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-400 transition hover:border-zinc-500"
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteAccount}
+                  disabled={deleteConfirmText !== "계정삭제" || deletingAccount}
+                  className="rounded-xl bg-red-700 px-5 py-2 text-sm font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
+                >
+                  {deletingAccount ? "삭제 중…" : "영구 삭제"}
+                </button>
+              </div>
+            </div>
+          )}
         </section>
       </div>
     </>

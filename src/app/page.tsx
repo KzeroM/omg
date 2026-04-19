@@ -3,6 +3,7 @@ import { HeroBanner } from "@/components/HeroBanner";
 import { Chart } from "@/components/Chart";
 import { AlbumGrid } from "@/components/AlbumGrid";
 import { NewReleases } from "@/components/NewReleases";
+import { DiscoverySection } from "@/components/DiscoverySection";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
         {/* 메인 (좌측) */}
         <div className="min-w-0 space-y-8">
           <NewReleases />
+          <DiscoverySection />
           <AlbumGrid />
         </div>
 

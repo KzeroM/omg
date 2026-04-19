@@ -81,12 +81,23 @@ export function Chart() {
                 isActive ? "bg-white/10 ring-1 ring-[var(--color-accent)]/30" : "hover:bg-[var(--color-bg-hover)]"
               }`}
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-subtle)] text-sm font-bold text-[var(--color-accent)]">
+              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                track.rank === 1 ? "bg-yellow-400/20 text-yellow-400" :
+                track.rank === 2 ? "bg-slate-400/20 text-slate-300" :
+                track.rank === 3 ? "bg-amber-600/20 text-amber-500" :
+                "bg-[var(--color-accent-subtle)] text-[var(--color-accent)]"
+              }`}>
                 {isActive ? (
                   <span className="flex items-end gap-[2px] h-4">
-                    <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-1" style={{ height: 4 }} />
-                    <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-2" style={{ height: 10 }} />
-                    <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-3" style={{ height: 7 }} />
+                    <span className={`w-[3px] rounded-sm equalizer-bar-1 ${
+                      track.rank <= 3 ? "bg-current" : "bg-[var(--color-accent)]"
+                    }`} style={{ height: 4 }} />
+                    <span className={`w-[3px] rounded-sm equalizer-bar-2 ${
+                      track.rank <= 3 ? "bg-current" : "bg-[var(--color-accent)]"
+                    }`} style={{ height: 10 }} />
+                    <span className={`w-[3px] rounded-sm equalizer-bar-3 ${
+                      track.rank <= 3 ? "bg-current" : "bg-[var(--color-accent)]"
+                    }`} style={{ height: 7 }} />
                   </span>
                 ) : track.rank}
               </span>

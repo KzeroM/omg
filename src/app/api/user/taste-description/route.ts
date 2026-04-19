@@ -13,6 +13,8 @@ const SYSTEM_PROMPT = `당신은 음악 취향 분석 전문가입니다.
 - 150자 이내
 - 태그가 없거나 부족하면 "아직 취향이 분석되지 않았습니다." 반환`;
 
+const CACHE_TTL_HOURS = 24;
+
 export async function POST() {
   try {
     if (!process.env.GROQ_API_KEY) {
@@ -26,6 +28,21 @@ export async function POST() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // 캐시 확인 — 24시간 이내 결과가 있으면 Groq 호출 없이 반환
+    const { data: cached } = await supabase
+      .from("users")
+      .select("taste_description, taste_updated_at")
+      .eq("user_id", user.id)
+      .single();
+
+    if (cached?.taste_description && cached.taste_updated_at) {
+      const updatedAt = new Date(cached.taste_updated_at as string);
+      const hoursAgo = (Date.now() - updatedAt.getTime()) / (1000 * 60 * 60);
+      if (hoursAgo < CACHE_TTL_HOURS) {
+        return NextResponse.json({ description: cached.taste_description, cached: true });
+      }
     }
 
     // 최근 재생 + 좋아요 트랙 ID 조회
@@ -82,6 +99,13 @@ export async function POST() {
     });
 
     const description = response.choices[0]?.message?.content?.trim() ?? "취향 분석에 실패했습니다.";
+
+    // 결과 캐싱 (24시간)
+    await supabase
+      .from("users")
+      .update({ taste_description: description, taste_updated_at: new Date().toISOString() })
+      .eq("user_id", user.id);
+
     return NextResponse.json({ description });
   } catch (err) {
     console.error("[POST /api/user/taste-description]", err);

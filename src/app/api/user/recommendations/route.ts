@@ -7,85 +7,25 @@ export async function GET() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    // ─── 사용자 탑 태그 조회 ─────────────────────────────────
-    let userTopTagIds: string[] = [];
-
-    if (user) {
-      // 재생/좋아요 트랙들의 태그 집계
-      const [{ data: history }, { data: likes }] = await Promise.all([
-        supabase
-          .from("play_history")
-          .select("track_id")
-          .eq("user_id", user.id)
-          .limit(50),
-        supabase
-          .from("track_likes")
-          .select("track_id")
-          .eq("user_id", user.id)
-          .limit(50),
-      ]);
-
-      const interactedTrackIds = [
-        ...new Set([
-          ...(history?.map((r) => r.track_id as string) ?? []),
-          ...(likes?.map((r) => r.track_id as string) ?? []),
-        ]),
-      ];
-
-      if (interactedTrackIds.length > 0) {
-        const { data: trackTags } = await supabase
-          .from("track_tags")
-          .select("tag_id")
-          .in("track_id", interactedTrackIds);
-
-        if (trackTags) {
-          const tagFreq = new Map<string, number>();
-          for (const row of trackTags) {
-            const id = row.tag_id as string;
-            tagFreq.set(id, (tagFreq.get(id) ?? 0) + 1);
-          }
-          userTopTagIds = [...tagFreq.entries()]
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 5)
-            .map(([id]) => id);
-        }
-      }
-    }
-
-    // ─── 추천 트랙 조회 ────────────────────────────────────────
     let recommendedTrackIds: string[] = [];
 
-    if (userTopTagIds.length > 0) {
-      // 태그 기반 추천: 공통 태그 보유 트랙 (이미 상호작용한 것 제외)
-      const { data: tagMatches } = await supabase
-        .from("track_tags")
-        .select("track_id")
-        .in("tag_id", userTopTagIds)
-        .limit(100);
-
-      if (tagMatches) {
-        // 태그 겹침 수로 정렬
-        const trackScore = new Map<string, number>();
-        for (const row of tagMatches) {
-          const id = row.track_id as string;
-          trackScore.set(id, (trackScore.get(id) ?? 0) + 1);
-        }
-        recommendedTrackIds = [...trackScore.entries()]
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 10)
-          .map(([id]) => id);
-      }
+    if (user) {
+      // 단일 RPC 호출로 태그 기반 추천 (기존 5~6 RTT → 1 RTT)
+      const { data: recs } = await supabase.rpc("get_recommendations", {
+        p_user_id: user.id,
+        p_limit: 10,
+      });
+      recommendedTrackIds = (recs ?? []).map((r: { track_id: string }) => r.track_id);
     }
 
-    // ─── 콜드 스타트: 인기 트랙 추천 ────────────────────────────
+    // 비로그인 또는 결과 부족 시 인기 트랙 보충
     if (recommendedTrackIds.length < 5) {
       const { data: popular } = await supabase
         .from("tracks")
         .select("id")
         .order("play_count", { ascending: false })
         .limit(10);
-
-      const popularIds = popular?.map((r) => r.id as string) ?? [];
+      const popularIds = (popular ?? []).map((r) => r.id as string);
       const toAdd = popularIds.filter((id) => !recommendedTrackIds.includes(id));
       recommendedTrackIds = [...recommendedTrackIds, ...toAdd].slice(0, 10);
     }
@@ -94,7 +34,7 @@ export async function GET() {
       return NextResponse.json({ tracks: [] });
     }
 
-    // ─── 트랙 상세 조회 ───────────────────────────────────────
+    // 트랙 상세 조회 (1 RTT)
     const { data: tracks } = await supabase
       .from("tracks")
       .select("id, title, artist, file_path, play_count, like_count, users!user_id(nickname)")

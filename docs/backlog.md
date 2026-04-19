@@ -157,9 +157,9 @@
 
 | # | 작업 | 상태 | Tier | 비고 |
 |---|------|------|------|------|
-| 066 | PlayerContext 분리 (audio 상태 / queue·메타 분리) | 📋 대기 | 1 | `currentTime` timeupdate 이벤트로 초당 수십 번 전체 앱 리렌더. `PlayerAudioContext` + `PlayerQueueContext` 분리 또는 `useMemo` value 안정화 |
-| 067 | Rate Limiter → Supabase RPC 기반 교체 | 📋 대기 | 1 | 인메모리 `Map`은 서버리스 cold start 시 리셋 → 보안 홀. `/api/auth/set-nickname` 등 노출. Supabase 함수로 이전 |
-| 068 | 소규모 버그 패키지 | 📋 대기 | 0 | ① blobUrl revoke 누수 수정 ② `handleDelete` storage 오류체크 추가 ③ `Chart.tsx` `as any` 타입 정리 ④ `onAuthStateChange` TOKEN_REFRESHED 필터링 |
+| 066 | PlayerContext 분리 (audio 상태 / queue·메타 분리) | ✅ 완료 | 1 | `currentTime` timeupdate 이벤트로 초당 수십 번 전체 앱 리렌더. `PlayerAudioContext` + `PlayerQueueContext` 분리 또는 `useMemo` value 안정화 |
+| 067 | Rate Limiter → Supabase RPC 기반 교체 | ✅ 완료 | 1 | 인메모리 `Map`은 서버리스 cold start 시 리셋 → 보안 홀. `/api/auth/set-nickname` 등 노출. Supabase 함수로 이전 |
+| 068 | 소규모 버그 패키지 | ✅ 완료 | 0 | ① blobUrl revoke 누수 수정 ② `handleDelete` storage 오류체크 추가 ③ `Chart.tsx` `as any` 타입 정리 ④ `onAuthStateChange` TOKEN_REFRESHED 필터링 |
 
 ### P1 — 사용자 경험 핵심
 
@@ -189,14 +189,14 @@
 
 | # | 작업 | 상태 | Tier | 비고 |
 |---|------|------|------|------|
-| 078 | BottomNav active 상태 + 마이페이지 탭 추가 | 📋 대기 | 0 | `usePathname()` 미사용 → 현재 페이지 표시 없음. `/my` 탭 없어 모바일에서 마이페이지 접근 불가. "그룹 찾기" `href="/#"` 미구현 링크 제거 |
+| 078 | BottomNav active 상태 + 마이페이지 탭 추가 | ✅ 완료 | 0 | `usePathname()` 미사용 → 현재 페이지 표시 없음. `/my` 탭 없어 모바일에서 마이페이지 접근 불가. "그룹 찾기" `href="/#"` 미구현 링크 제거 |
 
 ### P1 — 모바일/웹 UX 개선 (디자이너 검토)
 
 | # | 작업 | 상태 | Tier | 비고 |
 |---|------|------|------|------|
 | 079 | 모바일 풀스크린 플레이어 | 📋 대기 | 2 | 현재 `h-16` 바 탭해도 무반응. 슬라이드업 풀스크린 전환 (커버 대형 + seekbar 확대 + 아티스트 링크). Spotify iOS 패턴 |
-| 080 | 사이드바 active 상태 표시 | 📋 대기 | 0 | `usePathname()` 미사용. 현재 페이지 하이라이트 없음. 사이드바 하단 "지금 재생 중" 미니 카드 추가 |
+| 080 | 사이드바 active 상태 표시 | ✅ 완료 | 0 | `usePathname()` 미사용. 현재 페이지 하이라이트 없음. 사이드바 하단 "지금 재생 중" 미니 카드 추가 |
 | 081 | HeroBanner CTA 추가 | 📋 대기 | 1 | 아티스트 카드 클릭 시 아무 동작 없음 (`<div>` 태그). `<Link>` 변환 + "대표곡 재생" 버튼 추가 |
 | 082 | 홈 데스크톱 2컬럼 레이아웃 | 📋 대기 | 2 | 단일 컬럼으로 1440px에서 공간 낭비. Chart(좌 40%) + NewReleases(우 60%) 그리드 전환 |
 | 083 | QueuePanel 데스크톱 non-overlay 전환 | 📋 대기 | 2 | 현재 전체화면 오버레이. 데스크톱에서 `layout.tsx` sibling 패널로 전환해 main을 밀어내는 구조 (Spotify 웹 패턴) |
@@ -207,8 +207,8 @@
 |---|------|------|------|------|
 | 084 | `TrackRow` 공통 컴포넌트 추출 | 📋 대기 | 1 | `flex items-center gap-4 rounded-xl py-3 px-4` 패턴이 Chart/NewReleases/MyPage/ArtistPage/Library 5곳 중복 |
 | 085 | Chart 순위 시각화 개선 (금/은/동 + trend 화살표) | 📋 대기 | 1 | 1~3위 색상 차별화, 순위 변동 ↑↓ 표시, rank 숫자 확대 |
-| 086 | 재생 중 equalizer 애니메이션 아이콘 | 📋 대기 | 0 | 현재 재생 트랙은 배경색 변화만. 트랙 번호 자리를 CSS `@keyframes` bar 애니메이션으로 교체 (Apple Music 패턴) |
-| 087 | 디자인시스템 통일 | 📋 대기 | 0 | ① `ArtistPage.tsx` 하드코딩 색상 → CSS 변수 교체 ② 섹션 타이틀 스타일 통일 (`text-lg font-bold` vs `text-sm uppercase` 혼재) |
+| 086 | 재생 중 equalizer 애니메이션 아이콘 | ✅ 완료 | 0 | 현재 재생 트랙은 배경색 변화만. 트랙 번호 자리를 CSS `@keyframes` bar 애니메이션으로 교체 (Apple Music 패턴) |
+| 087 | 디자인시스템 통일 | ✅ 완료 | 0 | ① `ArtistPage.tsx` 하드코딩 색상 → CSS 변수 교체 ② 섹션 타이틀 스타일 통일 (`text-lg font-bold` vs `text-sm uppercase` 혼재) |
 
 ---
 
@@ -250,7 +250,7 @@
 
 | # | 작업 | 상태 | Tier | 비고 |
 |---|------|------|------|------|
-| 090 | 어드민 인증 게이트 (`/admin`) | 📋 대기 | 1 | `users.is_admin` 컬럼 + 미들웨어 보호. 어드민 아닌 유저 접근 시 홈 리다이렉트 |
+| 090 | 어드민 인증 게이트 (`/admin`) | ✅ 완료 | 1 | `users.is_admin` 컬럼 + 미들웨어 보호. 어드민 아닌 유저 접근 시 홈 리다이렉트 |
 | 091 | 트랙 관리 (전체 목록 / 강제 삭제) | 📋 대기 | 2 | 모든 업로드 트랙 목록, 검색/필터. 신고된 트랙 표시. 강제 삭제 (Storage + DB 동시) |
 | 092 | 사용자 관리 (목록 / 계정 정지) | 📋 대기 | 2 | 전체 사용자 목록 (가입일, 트랙수, 재생수). 계정 정지 (Supabase `auth.admin.updateUser`) / 정지 해제 |
 

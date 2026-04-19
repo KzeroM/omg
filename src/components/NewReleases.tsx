@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { usePlayer } from "@/context/PlayerContext";
@@ -14,14 +14,22 @@ import type { PlaylistTrack } from "@/types/player";
 export function NewReleases() {
   const { publicTracks, newReleases, currentTrack, playTrack, addTrack } = usePlayer();
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
-  const filtered = query.trim()
-    ? publicTracks.filter(
-        (t) =>
-          t.title.toLowerCase().includes(query.toLowerCase()) ||
-          t.artist.toLowerCase().includes(query.toLowerCase()),
-      )
-    : publicTracks;
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query), 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const filtered = useMemo(() => {
+    const q = debouncedQuery.trim().toLowerCase();
+    if (!q) return publicTracks;
+    return publicTracks.filter(
+      (t) =>
+        t.title.toLowerCase().includes(q) ||
+        t.artist.toLowerCase().includes(q),
+    );
+  }, [publicTracks, debouncedQuery]);
 
   const handleTrackClick = useCallback(
     (track: PlaylistTrack) => {

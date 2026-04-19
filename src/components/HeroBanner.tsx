@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getTopArtists } from "@/utils/supabase/server-tracks";
 
 export async function HeroBanner() {
@@ -19,9 +20,10 @@ export async function HeroBanner() {
         </h1>
         <div className="flex flex-wrap gap-4">
           {artists.map((artist) => (
-            <div
+            <Link
               key={artist.id}
-              className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3 ring-1 ring-white/10 transition hover:ring-[var(--color-accent)]/50"
+              href={`/artist/${encodeURIComponent(artist.name)}`}
+              className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3 ring-1 ring-white/10 transition hover:bg-white/10 hover:ring-[var(--color-accent)]/50"
               style={{ borderLeft: `3px solid ${artist.color}` }}
             >
               <div
@@ -32,7 +34,10 @@ export async function HeroBanner() {
                 <p className="font-semibold text-[var(--color-text-primary)]">{artist.name}</p>
                 <p className="text-xs text-[var(--color-text-muted)]">{artist.tagline}</p>
               </div>
-            </div>
+              <span className="ml-2 text-xs text-[var(--color-accent)] opacity-0 transition group-hover:opacity-100">
+                →
+              </span>
+            </Link>
           ))}
         </div>
       </div>

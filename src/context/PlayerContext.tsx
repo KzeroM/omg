@@ -127,14 +127,14 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const currentTrack = overrideTrack ?? newReleases[currentIndex] ?? null;
   const canPlay = overrideTrack ? true : (currentTrack?.blobUrl != null || currentTrack?.file_path != null);
 
-  const upNextTrack: PlaylistTrack | null = (() => {
+  const upNextTrack: PlaylistTrack | null = useMemo(() => {
     if (overrideTrack) return null;
     if (newReleases.length === 0) return null;
     if (repeatMode === 'one') return currentTrack;
     if (shuffleEnabled) return null;
     if (currentIndex + 1 < newReleases.length) return newReleases[currentIndex + 1];
     return newReleases[0];
-  })();
+  }, [overrideTrack, newReleases, repeatMode, shuffleEnabled, currentIndex, currentTrack]);
 
   const loadAndPlay = useCallback(
     async (index: number) => {

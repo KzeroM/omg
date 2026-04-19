@@ -15,6 +15,7 @@ import type { SocialLinks } from "@/types/user";
 import { Toast } from "@/components/Toast";
 import { EditTrackModal } from "@/components/EditTrackModal";
 import { ShareButton } from "@/components/ShareButton";
+import { ReportButton } from "@/components/ReportButton";
 import { TrackRow } from "@/components/TrackRow";
 import { TierBadge } from "@/components/TierBadge";
 import { pickCoverColor } from "@/utils/coverColor";
@@ -362,6 +363,7 @@ export default function ArtistPage({
                             </span>
                           </div>
                           <ShareButton trackId={track.id} artistName={track.artist ?? "Unknown Artist"} />
+                          {!canEdit && <ReportButton trackId={track.id} />}
                           {canEdit && (
                             <>
                               <button

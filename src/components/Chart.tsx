@@ -10,6 +10,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import { FoundingMemberBadge } from "./FoundingMemberBadge";
 import { TierBadge } from "./TierBadge";
 import { ShareButton } from "./ShareButton";
+import { ReportButton } from "./ReportButton";
 import { TrackRow } from "./TrackRow";
 import type { PlaylistTrack } from "@/types/player";
 
@@ -119,6 +120,7 @@ export function Chart() {
                     </span>
                   )}
                   <ShareButton trackId={track.id} artistName={track.artist} />
+                  <ReportButton trackId={track.id} />
                 </>
               }
             />

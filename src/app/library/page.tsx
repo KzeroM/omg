@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, Play, Pause, Heart, Pencil } from "lucide-react";
+import { Trash2, Play, Heart, Pencil } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
 import type { DbTrack, PlaylistTrack, HistoryTrack } from "@/types/player";
 import { Toast } from "@/components/Toast";
 import { EditTrackModal } from "@/components/EditTrackModal";
 import { UploadButton } from "@/components/UploadButton";
+import { TrackRow } from "@/components/TrackRow";
 import Link from "next/link";
 import { pickCoverColor } from "@/utils/coverColor";
 import { getPlayHistory } from "@/utils/supabase/tracks";
@@ -52,7 +53,7 @@ export default function LibraryPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [editingTrack, setEditingTrack] = useState<DbTrack | null>(null);
-  const { currentTrack, isPlaying, addTrack, playTrack, newReleases, updateTrackMeta } = usePlayer();
+  const { currentTrack, addTrack, playTrack, newReleases, updateTrackMeta } = usePlayer();
 
   const fetchMyTracks = async () => {
     const supabase = createClient();
@@ -189,31 +190,19 @@ export default function LibraryPage() {
             {recentHistory.map((track) => {
               const isCurrentTrack = currentTrack?.id === track.id;
               return (
-                <li
+                <TrackRow
                   key={track.id}
-                  className={`flex items-center gap-4 rounded-xl py-3 px-4 transition ${
-                    isCurrentTrack ? "bg-white/5 ring-1 ring-[var(--color-accent)]/30" : "hover:bg-[var(--color-bg-hover)]"
-                  }`}
-                >
-                  <div
-                    className={`h-12 w-12 shrink-0 rounded-lg bg-gradient-to-br ${track.coverColor}`}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-[var(--color-text-primary)]">{track.title}</p>
-                    <p className="text-sm text-[var(--color-text-muted)]">{track.artist}</p>
-                  </div>
-                  <span className="shrink-0 text-xs text-[var(--color-text-muted)]">
-                    {formatRelativeTime(track.played_at)}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => playSingleTrack(track)}
-                    className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
-                    aria-label="재생"
-                  >
-                    <Play className="h-5 w-5" strokeWidth={1.5} />
-                  </button>
-                </li>
+                  coverColor={track.coverColor}
+                  title={track.title}
+                  artist={track.artist}
+                  isActive={isCurrentTrack}
+                  onClick={() => playSingleTrack(track)}
+                  trailing={
+                    <span className="shrink-0 text-xs text-[var(--color-text-muted)]">
+                      {formatRelativeTime(track.played_at)}
+                    </span>
+                  }
+                />
               );
             })}
           </ul>
@@ -250,61 +239,45 @@ export default function LibraryPage() {
             {tracks.map((track) => {
               const isCurrentTrack = currentTrack?.id === track.id;
               return (
-                <li
+                <TrackRow
                   key={track.id}
-                  className={`flex items-center gap-4 rounded-xl py-3 px-4 transition hover:bg-[var(--color-bg-hover)] ${
-                    isCurrentTrack ? "bg-white/5 ring-1 ring-[var(--color-accent)]/30" : ""
-                  }`}
-                >
-                  <div
-                    className={`h-12 w-12 shrink-0 rounded-lg bg-gradient-to-br ${pickCoverColor(track.id)}`}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-[var(--color-text-primary)]">
-                      {track.title ?? "제목 없음"}
-                    </p>
-                    <p className="text-sm text-[var(--color-text-muted)]">{track.artist ?? "Unknown Artist"}</p>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0 text-xs text-[var(--color-text-muted)]">
-                    <span className="flex items-center gap-1">
-                      <Play className="h-3 w-3" strokeWidth={1.5} />
-                      {(track.play_count ?? 0).toLocaleString()}
-                    </span>
-                    <span className="flex items-center gap-1 text-[var(--color-text-muted)]">
-                      <Heart className="h-3 w-3" strokeWidth={1.5} />
-                      {(track.like_count ?? 0).toLocaleString()}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handlePlay(track)}
-                    className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
-                    aria-label="재생"
-                  >
-                    {isCurrentTrack && isPlaying ? (
-                      <Pause className="h-5 w-5" strokeWidth={1.5} />
-                    ) : (
-                      <Play className="h-5 w-5" strokeWidth={1.5} />
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditingTrack(track)}
-                    className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
-                    aria-label="편집"
-                  >
-                    <Pencil className="h-5 w-5" strokeWidth={1.5} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(track)}
-                    disabled={deletingId === track.id}
-                    className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
-                    aria-label="삭제"
-                  >
-                    <Trash2 className="h-5 w-5" strokeWidth={1.5} />
-                  </button>
-                </li>
+                  coverColor={pickCoverColor(track.id)}
+                  title={track.title ?? "제목 없음"}
+                  artist={track.artist ?? "Unknown Artist"}
+                  isActive={isCurrentTrack}
+                  onClick={() => handlePlay(track)}
+                  trailing={
+                    <>
+                      <div className="flex items-center gap-3 shrink-0 text-xs text-[var(--color-text-muted)]">
+                        <span className="flex items-center gap-1">
+                          <Play className="h-3 w-3" strokeWidth={1.5} />
+                          {(track.play_count ?? 0).toLocaleString()}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Heart className="h-3 w-3" strokeWidth={1.5} />
+                          {(track.like_count ?? 0).toLocaleString()}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setEditingTrack(track); }}
+                        className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
+                        aria-label="편집"
+                      >
+                        <Pencil className="h-5 w-5" strokeWidth={1.5} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); void handleDelete(track); }}
+                        disabled={deletingId === track.id}
+                        className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+                        aria-label="삭제"
+                      >
+                        <Trash2 className="h-5 w-5" strokeWidth={1.5} />
+                      </button>
+                    </>
+                  }
+                />
               );
             })}
           </ul>

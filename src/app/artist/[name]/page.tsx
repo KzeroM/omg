@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { use } from "react";
-import { Trash2, Play, Pause, Heart, Pencil, ArrowLeft, Instagram, Twitter, Youtube, Music } from "lucide-react";
+import { Trash2, Play, Heart, Pencil, ArrowLeft, Instagram, Twitter, Youtube, Music } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { getTracksByArtist, getTracksByUserId } from "@/utils/supabase/tracks";
@@ -15,6 +15,7 @@ import type { SocialLinks } from "@/types/user";
 import { Toast } from "@/components/Toast";
 import { EditTrackModal } from "@/components/EditTrackModal";
 import { ShareButton } from "@/components/ShareButton";
+import { TrackRow } from "@/components/TrackRow";
 import { TierBadge } from "@/components/TierBadge";
 import { pickCoverColor } from "@/utils/coverColor";
 import { ArtistAnalytics } from "@/components/ArtistAnalytics";
@@ -53,7 +54,7 @@ export default function ArtistPage({
   const [isFollowing, setIsFollowing] = useState(false);
   const [artistBio, setArtistBio] = useState<string | null>(null);
   const [artistSocialLinks, setArtistSocialLinks] = useState<SocialLinks | null>(null);
-  const { currentTrack, isPlaying, addTrack, playTrack, newReleases, updateTrackMeta } = usePlayer();
+  const { currentTrack, addTrack, playTrack, newReleases, updateTrackMeta } = usePlayer();
 
   const fetchData = useCallback(async (decoded: string) => {
     const supabase = createClient();
@@ -341,66 +342,50 @@ export default function ArtistPage({
                   const isCurrentTrack = currentTrack?.id === track.id;
                   const canEdit = currentUserId !== null && currentUserId === track.user_id;
                   return (
-                    <li
+                    <TrackRow
                       key={track.id}
-                      className={`flex items-center gap-4 rounded-xl py-3 px-4 transition hover:bg-white/5 ${
-                        isCurrentTrack ? "bg-white/5 ring-1 ring-[var(--color-accent)]/30" : ""
-                      }`}
-                    >
-                      <div
-                        className={`h-12 w-12 shrink-0 rounded-lg bg-gradient-to-br ${pickCoverColor(track.id)}`}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium text-white">
-                          {track.title ?? "제목 없음"}
-                        </p>
-                        <p className="text-sm text-[var(--color-text-muted)]">{track.artist ?? "Unknown Artist"}</p>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0 text-xs text-[var(--color-text-muted)]">
-                        <span className="flex items-center gap-1">
-                          <Play className="h-3 w-3" strokeWidth={1.5} />
-                          {(track.play_count ?? 0).toLocaleString()}
-                        </span>
-                        <span className="flex items-center gap-1 text-[var(--color-text-muted)]">
-                          <Heart className="h-3 w-3" strokeWidth={1.5} />
-                          {(track.like_count ?? 0).toLocaleString()}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handlePlay(track)}
-                        className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
-                        aria-label="재생"
-                      >
-                        {isCurrentTrack && isPlaying ? (
-                          <Pause className="h-5 w-5" strokeWidth={1.5} />
-                        ) : (
-                          <Play className="h-5 w-5" strokeWidth={1.5} />
-                        )}
-                      </button>
-                      <ShareButton trackId={track.id} artistName={track.artist ?? "Unknown Artist"} />
-                      {canEdit && (
+                      coverColor={pickCoverColor(track.id)}
+                      title={track.title ?? "제목 없음"}
+                      artist={track.artist ?? "Unknown Artist"}
+                      isActive={isCurrentTrack}
+                      onClick={() => handlePlay(track)}
+                      trailing={
                         <>
-                          <button
-                            type="button"
-                            onClick={() => setEditingTrack(track)}
-                            className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
-                            aria-label="편집"
-                          >
-                            <Pencil className="h-5 w-5" strokeWidth={1.5} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(track)}
-                            disabled={deletingId === track.id}
-                            className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
-                            aria-label="삭제"
-                          >
-                            <Trash2 className="h-5 w-5" strokeWidth={1.5} />
-                          </button>
+                          <div className="flex items-center gap-3 shrink-0 text-xs text-[var(--color-text-muted)]">
+                            <span className="flex items-center gap-1">
+                              <Play className="h-3 w-3" strokeWidth={1.5} />
+                              {(track.play_count ?? 0).toLocaleString()}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Heart className="h-3 w-3" strokeWidth={1.5} />
+                              {(track.like_count ?? 0).toLocaleString()}
+                            </span>
+                          </div>
+                          <ShareButton trackId={track.id} artistName={track.artist ?? "Unknown Artist"} />
+                          {canEdit && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setEditingTrack(track); }}
+                                className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
+                                aria-label="편집"
+                              >
+                                <Pencil className="h-5 w-5" strokeWidth={1.5} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); void handleDelete(track); }}
+                                disabled={deletingId === track.id}
+                                className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+                                aria-label="삭제"
+                              >
+                                <Trash2 className="h-5 w-5" strokeWidth={1.5} />
+                              </button>
+                            </>
+                          )}
                         </>
-                      )}
-                    </li>
+                      }
+                    />
                   );
                 })}
               </ul>

@@ -10,6 +10,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import { FoundingMemberBadge } from "./FoundingMemberBadge";
 import { TierBadge } from "./TierBadge";
 import { ShareButton } from "./ShareButton";
+import { TrackRow } from "./TrackRow";
 import type { PlaylistTrack } from "@/types/player";
 
 /** 실시간 TOP 5 차트 - play_count 기반 (Supabase 연동, 없으면 샘플 데이터) */
@@ -74,38 +75,29 @@ export function Chart() {
           {tracks.map((track) => {
             const isActive = currentTrack?.id === track.id;
             return (
-            <li
+            <TrackRow
               key={track.id}
+              coverColor={track.coverColor}
+              title={track.title}
+              isActive={isActive}
               onClick={() => void playSingleTrack(track as PlaylistTrack)}
-              className={`flex items-center gap-4 rounded-xl py-3 px-4 transition cursor-pointer ${
-                isActive ? "bg-white/10 ring-1 ring-[var(--color-accent)]/30" : "hover:bg-[var(--color-bg-hover)]"
-              }`}
-            >
-              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                track.rank === 1 ? "bg-yellow-400/20 text-yellow-400" :
-                track.rank === 2 ? "bg-slate-400/20 text-slate-300" :
-                track.rank === 3 ? "bg-amber-600/20 text-amber-500" :
-                "bg-[var(--color-accent-subtle)] text-[var(--color-accent)]"
-              }`}>
-                {isActive ? (
-                  <span className="flex items-end gap-[2px] h-4">
-                    <span className={`w-[3px] rounded-sm equalizer-bar-1 ${
-                      track.rank <= 3 ? "bg-current" : "bg-[var(--color-accent)]"
-                    }`} style={{ height: 4 }} />
-                    <span className={`w-[3px] rounded-sm equalizer-bar-2 ${
-                      track.rank <= 3 ? "bg-current" : "bg-[var(--color-accent)]"
-                    }`} style={{ height: 10 }} />
-                    <span className={`w-[3px] rounded-sm equalizer-bar-3 ${
-                      track.rank <= 3 ? "bg-current" : "bg-[var(--color-accent)]"
-                    }`} style={{ height: 7 }} />
-                  </span>
-                ) : track.rank}
-              </span>
-              <div
-                className={`h-12 w-12 shrink-0 rounded-lg bg-gradient-to-br ${track.coverColor}`}
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium text-[var(--color-text-primary)]">{track.title}</p>
+              leading={
+                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                  track.rank === 1 ? "bg-yellow-400/20 text-yellow-400" :
+                  track.rank === 2 ? "bg-slate-400/20 text-slate-300" :
+                  track.rank === 3 ? "bg-amber-600/20 text-amber-500" :
+                  "bg-[var(--color-accent-subtle)] text-[var(--color-accent)]"
+                }`}>
+                  {isActive ? (
+                    <span className="flex items-end gap-[2px] h-4">
+                      <span className={`w-[3px] rounded-sm equalizer-bar-1 ${track.rank <= 3 ? "bg-current" : "bg-[var(--color-accent)]"}`} style={{ height: 4 }} />
+                      <span className={`w-[3px] rounded-sm equalizer-bar-2 ${track.rank <= 3 ? "bg-current" : "bg-[var(--color-accent)]"}`} style={{ height: 10 }} />
+                      <span className={`w-[3px] rounded-sm equalizer-bar-3 ${track.rank <= 3 ? "bg-current" : "bg-[var(--color-accent)]"}`} style={{ height: 7 }} />
+                    </span>
+                  ) : track.rank}
+                </span>
+              }
+              subtitle={
                 <p className="flex flex-wrap items-center gap-2 truncate text-sm text-[var(--color-text-secondary)]">
                   <Link
                     href={`/artist/${encodeURIComponent(track.uploader_nickname ?? track.artist)}`}
@@ -117,15 +109,19 @@ export function Chart() {
                   {track.isFoundingMember && <FoundingMemberBadge />}
                   <TierBadge tier={track.artist_tier ?? 'basic'} size="sm" />
                 </p>
-              </div>
-              {track.play_count != null && (
-                <span className="flex shrink-0 items-center gap-1 text-xs text-[var(--color-text-muted)]">
-                  <Play className="h-3 w-3" strokeWidth={1.5} />
-                  {track.play_count.toLocaleString()}
-                </span>
-              )}
-              <ShareButton trackId={track.id} artistName={track.artist} />
-            </li>
+              }
+              trailing={
+                <>
+                  {track.play_count != null && (
+                    <span className="flex shrink-0 items-center gap-1 text-xs text-[var(--color-text-muted)]">
+                      <Play className="h-3 w-3" strokeWidth={1.5} />
+                      {track.play_count.toLocaleString()}
+                    </span>
+                  )}
+                  <ShareButton trackId={track.id} artistName={track.artist} />
+                </>
+              }
+            />
             );
           })}
         </ul>

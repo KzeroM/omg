@@ -7,6 +7,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import { LikeButton } from "./LikeButton";
 import { ShareButton } from "./ShareButton";
 import { TierBadge } from "./TierBadge";
+import { TrackRow } from "./TrackRow";
 import { pickCoverColor } from "@/utils/coverColor";
 import type { PlaylistTrack } from "@/types/player";
 
@@ -84,30 +85,24 @@ export function NewReleases() {
             const isActive = currentTrack?.id === track.id;
             const trackNumber = publicTracks.indexOf(track) + 1;
             return (
-              <li
+              <TrackRow
                 key={track.id}
-                role="button"
-                tabIndex={0}
+                coverColor={pickCoverColor(track.id)}
+                title={track.title}
+                isActive={isActive}
                 onClick={() => handleTrackClick(track)}
-                onKeyDown={(e) => e.key === "Enter" && handleTrackClick(track)}
-                className={`flex cursor-pointer items-center gap-4 rounded-xl py-3 px-4 transition hover:bg-[var(--color-bg-hover)] ${
-                  isActive ? "bg-white/5 ring-1 ring-[var(--color-accent)]/30" : ""
-                }`}
-              >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-subtle)] text-sm font-bold text-[var(--color-accent)]">
-                  {isActive ? (
-                    <span className="flex items-end gap-[2px] h-4">
-                      <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-1" style={{ height: 4 }} />
-                      <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-2" style={{ height: 10 }} />
-                      <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-3" style={{ height: 7 }} />
-                    </span>
-                  ) : trackNumber}
-                </span>
-                <div
-                  className={`h-12 w-12 shrink-0 rounded-lg bg-gradient-to-br ${pickCoverColor(track.id)}`}
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-[var(--color-text-primary)]">{track.title}</p>
+                leading={
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-subtle)] text-sm font-bold text-[var(--color-accent)]">
+                    {isActive ? (
+                      <span className="flex items-end gap-[2px] h-4">
+                        <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-1" style={{ height: 4 }} />
+                        <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-2" style={{ height: 10 }} />
+                        <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-3" style={{ height: 7 }} />
+                      </span>
+                    ) : trackNumber}
+                  </span>
+                }
+                subtitle={
                   <p className="flex flex-wrap items-center gap-2 truncate text-sm text-[var(--color-text-secondary)]">
                     <Link
                       href={`/artist/${encodeURIComponent(track.uploader_nickname ?? track.artist)}`}
@@ -118,10 +113,14 @@ export function NewReleases() {
                     </Link>
                     <TierBadge tier={track.artist_tier ?? 'basic'} size="sm" />
                   </p>
-                </div>
-                <LikeButton trackId={track.id} initialLikeCount={track.like_count ?? 0} />
-                <ShareButton trackId={track.id} artistName={track.artist} />
-              </li>
+                }
+                trailing={
+                  <>
+                    <LikeButton trackId={track.id} initialLikeCount={track.like_count ?? 0} />
+                    <ShareButton trackId={track.id} artistName={track.artist} />
+                  </>
+                }
+              />
             );
           })}
         </ul>

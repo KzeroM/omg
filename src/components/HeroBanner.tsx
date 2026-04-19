@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { getTopArtists } from "@/utils/supabase/server-tracks";
+import { getFeaturedArtists } from "@/utils/supabase/server-tracks";
 
 export async function HeroBanner() {
-  const artists = await getTopArtists();
+  const artists = await getFeaturedArtists();
 
   if (artists.length === 0) {
     return null;

@@ -1,13 +1,14 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import { LayoutDashboard, Music, Users, Star, HardDrive, Megaphone, Flag } from "lucide-react";
+import { LayoutDashboard, Music, Users, Star, HardDrive, Megaphone, Flag, Sparkles } from "lucide-react";
 
 const adminNavItems = [
   { label: "대시보드", href: "/admin", icon: LayoutDashboard },
   { label: "트랙 관리", href: "/admin/tracks", icon: Music },
   { label: "사용자 관리", href: "/admin/users", icon: Users },
   { label: "아티스트 등급", href: "/admin/tiers", icon: Star },
+  { label: "피처드 아티스트", href: "/admin/featured", icon: Sparkles },
   { label: "Storage", href: "/admin/storage", icon: HardDrive },
   { label: "공지사항", href: "/admin/announcements", icon: Megaphone },
   { label: "신고 처리", href: "/admin/reports", icon: Flag },

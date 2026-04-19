@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Share2 } from "lucide-react";
-import { copyTrackUrl } from "@/utils/share";
+import { copyTrackUrl, type ShareResult } from "@/utils/share";
 import { Toast } from "./Toast";
 
 type ShareButtonProps = {
@@ -20,11 +20,13 @@ export function ShareButton({ trackId, artistName }: ShareButtonProps) {
   const handleClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      await copyTrackUrl(artistName, trackId);
-      setToast("링크가 복사되었습니다!");
+      const result: ShareResult = await copyTrackUrl(artistName, trackId);
+      if (result === "copied") setToast("링크가 복사되었습니다!");
+      // "shared": 네이티브 시트가 열리므로 별도 토스트 불필요
+      // "cancelled": 사용자 취소이므로 조용히 무시
     } catch (error) {
       console.error(error);
-      setToast("링크 복사에 실패했습니다.");
+      setToast("공유에 실패했습니다.");
     }
   };
 

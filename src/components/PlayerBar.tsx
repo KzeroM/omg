@@ -2,7 +2,7 @@
 
 import { useRef, useCallback, useState } from "react";
 import { SkipBack, Play, Pause, SkipForward, Volume2, Loader2, Shuffle, Repeat, ListMusic } from "lucide-react";
-import { usePlayer } from "@/context/PlayerContext";
+import { usePlayer, usePlayerTime } from "@/context/PlayerContext";
 import { QueuePanel } from "./QueuePanel";
 
 function formatTime(seconds: number) {
@@ -20,8 +20,6 @@ export function PlayerBar() {
     upNextTrack,
     isPlaying,
     isLoading,
-    currentTime,
-    duration,
     volume,
     togglePlay,
     seek,
@@ -34,6 +32,7 @@ export function PlayerBar() {
     toggleShuffle,
     setRepeatMode,
   } = usePlayer();
+  const { currentTime, duration } = usePlayerTime();
 
   const [queueOpen, setQueueOpen] = useState(false);
   const progressRef = useRef<HTMLDivElement>(null);

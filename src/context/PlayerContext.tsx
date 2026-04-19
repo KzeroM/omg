@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -15,6 +16,14 @@ import { incrementPlayCount, getUserLikedTrackIds, toggleTrackLike, loadPublicTr
 import { loadGuestPlaylist, addToGuestPlaylist } from "@/utils/localStorage";
 import { useToast } from "@/context/ToastContext";
 import type { PlaylistTrack } from "@/types/player";
+
+/** seekbar 전용 — 초당 수십 번 변경. PlayerBar만 구��해야 함. */
+type PlayerTimeContextValue = {
+  currentTime: number;
+  duration: number;
+};
+
+const PlayerTimeContext = createContext<PlayerTimeContextValue>({ currentTime: 0, duration: 0 });
 
 type PlayerContextValue = {
   /** 전체 공개 트랙 — 탐색/표시용 (New Releases 섹션) */
@@ -28,8 +37,6 @@ type PlayerContextValue = {
   upNextTrack: PlaylistTrack | null;
   isPlaying: boolean;
   isLoading: boolean;
-  currentTime: number;
-  duration: number;
   volume: number;
   playTrack: (index: number) => void;
   togglePlay: () => void;
@@ -584,7 +591,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, [loadTracksFromDB, clearPreviewTimer]);
 
-  const value: PlayerContextValue = {
+  const value: PlayerContextValue = useMemo(() => ({
     publicTracks,
     newReleases,
     currentIndex,
@@ -592,8 +599,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     upNextTrack,
     isPlaying,
     isLoading,
-    currentTime,
-    duration,
     volume,
     playTrack,
     togglePlay,
@@ -617,21 +622,33 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     removeFromQueue,
     clearQueue,
     moveInQueue,
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [
+    publicTracks, newReleases, currentIndex, currentTrack, upNextTrack,
+    isPlaying, isLoading, volume, likedTrackIds, likeCounts, pendingLikeId,
+    shuffleEnabled, repeatMode,
+    playTrack, togglePlay, seek, setVolume, prev, next,
+    addUploadedTrack, addTrack, loadTracksFromDB, toggleLike, playSingleTrack,
+    toggleShuffle, setRepeatMode, updateMetaAndSync, removeFromQueue, clearQueue, moveInQueue,
+  ]);
+
+  const timeValue = useMemo(() => ({ currentTime, duration }), [currentTime, duration]);
 
   return (
-    <PlayerContext.Provider value={value}>
-      <audio
-        ref={audioRef}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        onEnded={handleEnded}
-        onPlay={handlePlay}
-        onPause={handlePause}
-        className="hidden"
-      />
-      {children}
-    </PlayerContext.Provider>
+    <PlayerTimeContext.Provider value={timeValue}>
+      <PlayerContext.Provider value={value}>
+        <audio
+          ref={audioRef}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onEnded={handleEnded}
+          onPlay={handlePlay}
+          onPause={handlePause}
+          className="hidden"
+        />
+        {children}
+      </PlayerContext.Provider>
+    </PlayerTimeContext.Provider>
   );
 }
 
@@ -639,4 +656,9 @@ export function usePlayer() {
   const ctx = useContext(PlayerContext);
   if (!ctx) throw new Error("usePlayer must be used within PlayerProvider");
   return ctx;
+}
+
+/** seekbar/시간 표시 전용 훅. PlayerBar에서만 사용할 것. */
+export function usePlayerTime() {
+  return useContext(PlayerTimeContext);
 }

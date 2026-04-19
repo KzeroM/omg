@@ -1,14 +1,25 @@
-/** MVP in-memory rate limiter. window: ms, max: 요청 수 */
-const map = new Map<string, { count: number; resetAt: number }>();
+import { createClient } from "@supabase/supabase-js";
 
-export function checkRateLimit(key: string, max = 5, windowMs = 60_000): boolean {
-  const now = Date.now();
-  const entry = map.get(key);
-  if (!entry || now > entry.resetAt) {
-    map.set(key, { count: 1, resetAt: now + windowMs });
-    return true; // allowed
+// 서버리스 환경에서도 동작하는 Supabase 기반 Rate Limiter
+// in-memory Map은 cold start 시 리셋되어 rate limit이 무효화됨
+const adminClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function checkRateLimit(
+  key: string,
+  max = 5,
+  windowSeconds = 60
+): Promise<boolean> {
+  const { data, error } = await adminClient.rpc("check_rate_limit", {
+    p_key: key,
+    p_max: max,
+    p_window_seconds: windowSeconds,
+  });
+  if (error) {
+    console.error("[RateLimit] Supabase RPC error:", error.message);
+    return true; // 오류 시 허용 (fail-open)
   }
-  if (entry.count >= max) return false; // blocked
-  entry.count++;
-  return true;
+  return data === true;
 }

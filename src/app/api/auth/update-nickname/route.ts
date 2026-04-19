@@ -12,7 +12,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!checkRateLimit(`update-nick:${user.id}`, 3, 60_000)) {
+  if (!await checkRateLimit(`update-nick:${user.id}`, 3, 60)) {
     return NextResponse.json(
       { error: "Too many requests" },
       { status: 429 }

@@ -14,7 +14,7 @@ export async function PUT(req: NextRequest) {
   }
 
   // Rate limit: 3회/분
-  if (!checkRateLimit(`update-profile:${user.id}`, 3, 60_000)) {
+  if (!await checkRateLimit(`update-profile:${user.id}`, 3, 60)) {
     return NextResponse.json(
       { error: "Too many requests" },
       { status: 429 }

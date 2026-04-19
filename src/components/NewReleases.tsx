@@ -7,6 +7,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import { LikeButton } from "./LikeButton";
 import { ShareButton } from "./ShareButton";
 import { ReportButton } from "./ReportButton";
+import { AddToPlaylistButton } from "./AddToPlaylistButton";
 import { TierBadge } from "./TierBadge";
 import { TrackRow } from "./TrackRow";
 import { pickCoverColor } from "@/utils/coverColor";
@@ -118,6 +119,7 @@ export function NewReleases() {
                 trailing={
                   <>
                     <LikeButton trackId={track.id} initialLikeCount={track.like_count ?? 0} />
+                    <AddToPlaylistButton trackId={track.id} />
                     <ShareButton trackId={track.id} artistName={track.artist} />
                     <ReportButton trackId={track.id} />
                   </>

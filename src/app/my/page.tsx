@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Play, Pause, Heart, History, Users, Settings, Sparkles } from "lucide-react";
+import { Play, Pause, Heart, History, Users, Settings, Sparkles, ListMusic } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
@@ -27,6 +27,7 @@ export default function MyPage() {
   const [recentHistory, setRecentHistory] = useState<HistoryTrack[]>([]);
   const [followedArtists, setFollowedArtists] = useState<FollowedArtist[]>([]);
   const [recommendations, setRecommendations] = useState<PlaylistTrack[]>([]);
+  const [playlists, setPlaylists] = useState<{ id: string; title: string; is_public: boolean }[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
   const { currentTrack, isPlaying, addTrack, playTrack, newReleases } = usePlayer();
@@ -37,12 +38,13 @@ export default function MyPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
 
-      const [{ data: profile }, liked, history, followed, recsRes] = await Promise.all([
+      const [{ data: profile }, liked, history, followed, recsRes, playlistsRes] = await Promise.all([
         supabase.from("users").select("nickname, bio, artist_tier").eq("user_id", user.id).single(),
         getLikedTracks().catch(() => [] as PlaylistTrack[]),
         getPlayHistory(5).catch(() => [] as HistoryTrack[]),
         getFollowedArtists().catch(() => [] as FollowedArtist[]),
         fetch("/api/user/recommendations").then((r) => r.json() as Promise<{ tracks?: PlaylistTrack[] }>).catch(() => ({ tracks: [] })),
+        fetch("/api/playlists").then((r) => r.json() as Promise<{ playlists?: { id: string; title: string; is_public: boolean }[] }>).catch(() => ({ playlists: [] })),
       ]);
 
       if (profile) {
@@ -56,6 +58,7 @@ export default function MyPage() {
       setRecentHistory(history);
       setFollowedArtists(followed);
       setRecommendations(recsRes.tracks ?? []);
+      setPlaylists(playlistsRes.playlists ?? []);
       setLoading(false);
     };
 
@@ -130,6 +133,35 @@ export default function MyPage() {
               <p className="text-xs text-[var(--color-text-muted)]">팔로잉</p>
             </div>
           </div>
+        </section>
+
+        {/* 내 플레이리스트 */}
+        <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ListMusic className="h-4 w-4 text-[var(--color-text-muted)]" />
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">내 플레이리스트</h2>
+            </div>
+          </div>
+          {playlists.length === 0 ? (
+            <p className="text-sm text-[var(--color-text-muted)]">아직 플레이리스트가 없습니다. 곡 목록에서 + 버튼으로 만들어 보세요.</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {playlists.map((pl) => (
+                <Link
+                  key={pl.id}
+                  href={`/playlist/${pl.id}`}
+                  className="flex items-center gap-3 rounded-xl bg-[var(--color-bg-base)] px-4 py-3 transition hover:bg-[var(--color-bg-hover)]"
+                >
+                  <ListMusic className="h-8 w-8 shrink-0 text-[var(--color-accent)]" strokeWidth={1.5} />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-[var(--color-text-primary)]">{pl.title}</p>
+                    <p className="text-xs text-[var(--color-text-muted)]">{pl.is_public ? "공개" : "비공개"}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* 팔로우한 아티스트 */}

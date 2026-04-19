@@ -87,7 +87,13 @@ export function NewReleases() {
                 }`}
               >
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-subtle)] text-sm font-bold text-[var(--color-accent)]">
-                  {trackNumber}
+                  {isActive ? (
+                    <span className="flex items-end gap-[2px] h-4">
+                      <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-1" style={{ height: 4 }} />
+                      <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-2" style={{ height: 10 }} />
+                      <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-3" style={{ height: 7 }} />
+                    </span>
+                  ) : trackNumber}
                 </span>
                 <div
                   className={`h-12 w-12 shrink-0 rounded-lg bg-gradient-to-br ${pickCoverColor(track.id)}`}

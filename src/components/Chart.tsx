@@ -10,6 +10,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import { FoundingMemberBadge } from "./FoundingMemberBadge";
 import { TierBadge } from "./TierBadge";
 import { ShareButton } from "./ShareButton";
+import type { PlaylistTrack } from "@/types/player";
 
 /** 실시간 TOP 5 차트 - play_count 기반 (Supabase 연동, 없으면 샘플 데이터) */
 export function Chart() {
@@ -70,16 +71,24 @@ export function Chart() {
         </div>
       ) : (
         <ul className="grid grid-cols-1 gap-2">
-          {tracks.map((track) => (
+          {tracks.map((track) => {
+            const isActive = currentTrack?.id === track.id;
+            return (
             <li
               key={track.id}
-              onClick={() => void playSingleTrack(track as any)}
+              onClick={() => void playSingleTrack(track as PlaylistTrack)}
               className={`flex items-center gap-4 rounded-xl py-3 px-4 transition cursor-pointer ${
-                currentTrack?.id === track.id ? "bg-white/10" : "hover:bg-[var(--color-bg-hover)]"
+                isActive ? "bg-white/10 ring-1 ring-[var(--color-accent)]/30" : "hover:bg-[var(--color-bg-hover)]"
               }`}
             >
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-subtle)] text-sm font-bold text-[var(--color-accent)]">
-                {track.rank}
+                {isActive ? (
+                  <span className="flex items-end gap-[2px] h-4">
+                    <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-1" style={{ height: 4 }} />
+                    <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-2" style={{ height: 10 }} />
+                    <span className="w-[3px] rounded-sm bg-[var(--color-accent)] equalizer-bar-3" style={{ height: 7 }} />
+                  </span>
+                ) : track.rank}
               </span>
               <div
                 className={`h-12 w-12 shrink-0 rounded-lg bg-gradient-to-br ${track.coverColor}`}
@@ -106,7 +115,8 @@ export function Chart() {
               )}
               <ShareButton trackId={track.id} artistName={track.artist} />
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </section>

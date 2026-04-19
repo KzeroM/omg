@@ -291,10 +291,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const addUploadedTrack = useCallback((file: File, artist = "업로드 곡") => {
     setOverrideTrack(null);
-    setNewReleases((prev) => {
-      prev.forEach((t) => { if (t.blobUrl) URL.revokeObjectURL(t.blobUrl); });
-      return prev;
-    });
     const blobUrl = URL.createObjectURL(file);
     const name = file.name.replace(/\.mp3$/i, "") || "제목 없음";
     const newTrack: PlaylistTrack = {
@@ -306,7 +302,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       isFoundingMember: false,
       blobUrl,
     };
-    setNewReleases((prev) => [newTrack, ...prev]);
+    setNewReleases((prev) => {
+      prev.forEach((t) => { if (t.blobUrl) URL.revokeObjectURL(t.blobUrl); });
+      return [newTrack, ...prev];
+    });
     setCurrentIndex(0);
     setDuration(0);
     setCurrentTime(0);
@@ -576,7 +575,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void loadTracksFromDB();
     const supabase = createClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "TOKEN_REFRESHED") return;
       isLoggedInRef.current = !!session?.user;
       if (session?.user) clearPreviewTimer();
       void loadTracksFromDB();

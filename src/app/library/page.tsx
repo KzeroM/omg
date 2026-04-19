@@ -131,7 +131,8 @@ export default function LibraryPage() {
     setDeletingId(track.id);
     try {
       const supabase = createClient();
-      await supabase.storage.from(MUSIC_BUCKET).remove([track.file_path]);
+      const { error: storageError } = await supabase.storage.from(MUSIC_BUCKET).remove([track.file_path]);
+      if (storageError) throw storageError;
       const { error } = await supabase.from("tracks").delete().eq("id", track.id);
       if (error) throw error;
       setTracks((prev) => prev.filter((t) => t.id !== track.id));

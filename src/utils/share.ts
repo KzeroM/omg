@@ -1,11 +1,9 @@
 export async function copyTrackUrl(
-  artistName: string,
+  _artistName: string,
   trackId: string
 ): Promise<void> {
   try {
-    const url = `${window.location.origin}/artist/${encodeURIComponent(
-      artistName
-    )}?track=${trackId}`;
+    const url = `${window.location.origin}/track/${trackId}`;
     await navigator.clipboard.writeText(url);
   } catch (error) {
     throw error;

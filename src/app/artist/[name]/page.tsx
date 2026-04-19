@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { use } from "react";
-import { Trash2, Play, Heart, Pencil, ArrowLeft, Instagram, Twitter, Youtube, Music } from "lucide-react";
+import { Trash2, Play, Heart, Pencil, ArrowLeft, Instagram, Twitter, Youtube, Music, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { getTracksByArtist, getTracksByUserId } from "@/utils/supabase/tracks";
@@ -362,6 +362,14 @@ export default function ArtistPage({
                               {(track.like_count ?? 0).toLocaleString()}
                             </span>
                           </div>
+                          <Link
+                            href={`/track/${track.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="rounded-lg p-2 text-[var(--color-text-secondary)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
+                            aria-label="댓글 보기"
+                          >
+                            <MessageCircle className="h-4 w-4" strokeWidth={1.5} />
+                          </Link>
                           <ShareButton trackId={track.id} artistName={track.artist ?? "Unknown Artist"} />
                           {!canEdit && <ReportButton trackId={track.id} />}
                           {canEdit && (

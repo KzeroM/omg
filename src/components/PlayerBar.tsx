@@ -32,10 +32,11 @@ export function PlayerBar() {
     repeatMode,
     toggleShuffle,
     setRepeatMode,
+    queueOpen,
+    setQueueOpen,
   } = usePlayer();
   const { currentTime, duration } = usePlayerTime();
 
-  const [queueOpen, setQueueOpen] = useState(false);
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
   const progressRef = useRef<HTMLDivElement>(null);
   const current = currentTrack;
@@ -204,7 +205,7 @@ export function PlayerBar() {
           />
           <button
             type="button"
-            onClick={() => setQueueOpen((prev) => !prev)}
+            onClick={() => setQueueOpen(!queueOpen)}
             className={`rounded-full p-2 transition ${queueOpen ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"}`}
             aria-label="재생 큐 열기"
           >
@@ -215,7 +216,7 @@ export function PlayerBar() {
         {/* 큐 버튼 - 모바일만 */}
         <button
           type="button"
-          onClick={() => setQueueOpen((prev) => !prev)}
+          onClick={() => setQueueOpen(!queueOpen)}
           className={`rounded-full p-2 transition lg:hidden ${queueOpen ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)]"}`}
           aria-label="재생 큐 열기"
         >

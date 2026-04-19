@@ -21,15 +21,15 @@ export function QueuePanel({ onClose }: QueuePanelProps) {
 
   return (
     <>
-      {/* 오버레이 */}
+      {/* 오버레이 — 모바일만 표시 */}
       <div
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
         onClick={onClose}
         aria-hidden
       />
 
       {/* 패널 */}
-      <aside className="fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col bg-[var(--color-bg-surface)] shadow-2xl ring-1 ring-[var(--color-border)]">
+      <aside className="fixed right-0 top-0 z-50 flex h-full w-80 flex-col bg-[var(--color-bg-surface)] shadow-2xl ring-1 ring-[var(--color-border)]">
         {/* 헤더 */}
         <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
           <div>
@@ -60,7 +60,7 @@ export function QueuePanel({ onClose }: QueuePanelProps) {
         </div>
 
         {/* 큐 목록 */}
-        <div className="flex-1 overflow-y-auto pb-32">
+        <div className="flex-1 overflow-y-auto pb-32 lg:pb-20">
           {newReleases.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
               <p className="text-[var(--color-text-muted)]">재생 큐가 비어 있습니다.</p>

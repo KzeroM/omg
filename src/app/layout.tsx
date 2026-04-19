@@ -5,6 +5,7 @@ import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { PlayerBar } from "@/components/PlayerBar";
 import { BottomNav } from "@/components/BottomNav";
+import { QueueAwareMain } from "@/components/QueueAwareMain";
 import { AuthVerifiedToast } from "@/components/AuthVerifiedToast";
 import { PlayerProvider } from "@/context/PlayerContext";
 import { ToastProvider } from "@/context/ToastContext";
@@ -43,9 +44,7 @@ export default function RootLayout({
             <Header />
             <div className="flex min-h-screen">
               <Sidebar />
-              <main className="flex-1 overflow-auto pb-36 lg:pb-24">
-                {children}
-              </main>
+              <QueueAwareMain>{children}</QueueAwareMain>
             </div>
             <PlayerBar />
             <BottomNav />

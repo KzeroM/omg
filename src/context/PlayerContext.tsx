@@ -76,6 +76,9 @@ type PlayerContextValue = {
   clearQueue: () => void;
   /** 큐 내 트랙 순서를 변경합니다. */
   moveInQueue: (from: number, to: number) => void;
+  /** 재생 큐 패널 열림 여부 */
+  queueOpen: boolean;
+  setQueueOpen: (open: boolean) => void;
 };
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
@@ -100,6 +103,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [overrideTrack, setOverrideTrack] = useState<PlaylistTrack | null>(null);
   const [shuffleEnabled, setShuffleEnabled] = useState(false);
   const [repeatMode, setRepeatModeState] = useState<'none' | 'all' | 'one'>('none');
+  const [queueOpen, setQueueOpen] = useState(false);
   const { showToast } = useToast();
   const isLoggedInRef = useRef(false);
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -622,14 +626,17 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     removeFromQueue,
     clearQueue,
     moveInQueue,
+    queueOpen,
+    setQueueOpen,
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [
     publicTracks, newReleases, currentIndex, currentTrack, upNextTrack,
     isPlaying, isLoading, volume, likedTrackIds, likeCounts, pendingLikeId,
-    shuffleEnabled, repeatMode,
+    shuffleEnabled, repeatMode, queueOpen,
     playTrack, togglePlay, seek, setVolume, prev, next,
     addUploadedTrack, addTrack, loadTracksFromDB, toggleLike, playSingleTrack,
     toggleShuffle, setRepeatMode, updateMetaAndSync, removeFromQueue, clearQueue, moveInQueue,
+    setQueueOpen,
   ]);
 
   const timeValue = useMemo(() => ({ currentTime, duration }), [currentTime, duration]);

@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import { Music, Users, Play, Heart, TrendingUp, UserPlus, Upload, Activity } from "lucide-react";
+import { Music, Users, Play, Heart, TrendingUp, UserPlus, Upload, Activity, Zap } from "lucide-react";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -19,6 +19,8 @@ export default async function AdminDashboard() {
     { count: dau },
     { count: mau },
     { data: dailyPlays },
+    { count: groqCallsToday },
+    { count: groqCalls7d },
   ] = await Promise.all([
     supabase.from("tracks").select("*", { count: "exact", head: true }),
     supabase.from("users").select("*", { count: "exact", head: true }),
@@ -28,6 +30,9 @@ export default async function AdminDashboard() {
     supabase.from("tracks").select("*", { count: "exact", head: true }).gte("created_at", week7ago),
     supabase.from("play_history").select("user_id", { count: "exact", head: true }).gte("played_at", todayStart),
     supabase.from("play_history").select("user_id", { count: "exact", head: true }).gte("played_at", month30ago),
+    // Groq API 사용량 — taste_updated_at 기준 (24h 캐시로 1 call/user/day)
+    supabase.from("users").select("*", { count: "exact", head: true }).gte("taste_updated_at", todayStart),
+    supabase.from("users").select("*", { count: "exact", head: true }).gte("taste_updated_at", week7ago),
     // 최근 7일 일별 재생수 집계
     supabase.from("play_history").select("played_at").gte("played_at", week7ago),
   ]);
@@ -62,6 +67,8 @@ export default async function AdminDashboard() {
     { label: "MAU (30일)", value: mau ?? 0, icon: TrendingUp, color: "text-indigo-400" },
     { label: "신규 가입 (7일)", value: newUsers7d ?? 0, icon: UserPlus, color: "text-emerald-400" },
     { label: "신규 트랙 (7일)", value: newTracks7d ?? 0, icon: Upload, color: "text-amber-400" },
+    { label: "Groq API (오늘)", value: groqCallsToday ?? 0, icon: Zap, color: "text-yellow-400", suffix: "건" },
+    { label: "Groq API (7일)", value: groqCalls7d ?? 0, icon: Zap, color: "text-orange-400", suffix: "건" },
   ];
 
   return (
@@ -92,18 +99,21 @@ export default async function AdminDashboard() {
       {/* 활동 지표 */}
       <div>
         <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">활동</p>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {activityStats.map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="rounded-2xl bg-[var(--color-bg-surface)] p-5 ring-1 ring-[var(--color-border)]">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-[var(--color-text-muted)]">{label}</p>
-                <Icon className={`h-5 w-5 ${color}`} strokeWidth={1.5} />
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+          {activityStats.map(({ label, value, icon: Icon, color, ...rest }) => {
+            const suffix = "suffix" in rest ? (rest as { suffix: string }).suffix : undefined;
+            return (
+              <div key={label} className="rounded-2xl bg-[var(--color-bg-surface)] p-5 ring-1 ring-[var(--color-border)]">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-[var(--color-text-muted)]">{label}</p>
+                  <Icon className={`h-5 w-5 ${color}`} strokeWidth={1.5} />
+                </div>
+                <p className="mt-3 text-2xl font-bold text-[var(--color-text-primary)]">
+                  {value.toLocaleString()}{suffix && <span className="ml-1 text-base font-normal text-[var(--color-text-muted)]">{suffix}</span>}
+                </p>
               </div>
-              <p className="mt-3 text-2xl font-bold text-[var(--color-text-primary)]">
-                {value.toLocaleString()}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

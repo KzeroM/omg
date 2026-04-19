@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { createNotification } from "@/utils/notifications";
 
 export async function POST(
   request: NextRequest,
@@ -48,6 +49,11 @@ export async function POST(
         { error: data?.error || "Follow operation failed" },
         { status: 400 }
       );
+    }
+
+    // 팔로우 시 알림 생성 (언팔은 알림 없음)
+    if (data.following) {
+      void createNotification(supabase, artistId, "follow", { actor_id: user.id });
     }
 
     // 성공 응답

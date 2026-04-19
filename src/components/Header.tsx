@@ -5,6 +5,7 @@ import { LogIn, UserPlus, LogOut } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { AuthModal } from "./AuthModal";
+import { NotificationBell } from "./NotificationBell";
 import Link from "next/link";
 
 export type AuthModalMode = "login" | "signup";
@@ -39,6 +40,7 @@ export function Header() {
         <div className="flex items-center gap-2">
           {user ? (
             <>
+              <NotificationBell />
               <span className="max-w-[120px] truncate text-sm text-[var(--color-text-secondary)] lg:max-w-[200px]">
                 {user.user_metadata?.nickname || user.user_metadata?.name || user.email}
               </span>

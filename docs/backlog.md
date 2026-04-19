@@ -167,7 +167,7 @@
 |---|------|------|------|------|
 | 069 | 검색 고도화 (태그 필터 + 자동완성) | ✅ 완료 | 2 | 현재 제목/아티스트 텍스트만. 태그 시스템 있으나 미활용. 장르·무드·BPM 필터 추가, 검색어 디바운스 |
 | 070 | 모바일 플레이어 UX 전면 개선 | 📋 대기 | 2 | 볼륨 컨트롤 숨김, 큐 정보 없음, 업넥스트 미표시. 모바일 풀스크린 플레이어 or 미니 플레이어 개선 |
-| 071 | 알림 시스템 (팔로우/좋아요/새 곡) | 📋 대기 | 3 | 팔로우 후 상호작용 단절. Supabase Realtime or polling 기반 알림 센터. 재방문율 DAU 직결 |
+| 071 | 알림 시스템 (팔로우/좋아요/새 곡) | ✅ 완료 | 3 | 팔로우 후 상호작용 단절. Supabase Realtime or polling 기반 알림 센터. 재방문율 DAU 직결 |
 | 072 | API 성능 패키지 | 📋 대기 | 1 | ① recommendations 5→1 RTT (Supabase RPC) ② taste-description 결과 DB 캐시 ③ `upNextTrack` useMemo ④ NewReleases 검색 useMemo + 디바운스 |
 
 ### P2 — 기능 확장

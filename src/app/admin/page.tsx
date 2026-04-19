@@ -135,6 +135,7 @@ export default async function AdminDashboard() {
             { label: "트랙 관리", desc: "신고된 트랙 검토 및 강제 삭제", href: "/admin/tracks" },
             { label: "사용자 관리", desc: "계정 정지 및 권한 관리", href: "/admin/users" },
             { label: "아티스트 등급", desc: "Founding Member 수동 부여", href: "/admin/tiers" },
+            { label: "Storage", desc: "버킷 사용량 및 사용자별 점유율", href: "/admin/storage" },
           ].map(({ label, desc, href }) => (
             <a
               key={href}

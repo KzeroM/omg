@@ -17,6 +17,7 @@ import { EditTrackModal } from "@/components/EditTrackModal";
 import { ShareButton } from "@/components/ShareButton";
 import { TierBadge } from "@/components/TierBadge";
 import { pickCoverColor } from "@/utils/coverColor";
+import { ArtistAnalytics } from "@/components/ArtistAnalytics";
 
 const MUSIC_BUCKET = "omg-tracks";
 
@@ -328,6 +329,12 @@ export default function ArtistPage({
                 <p className="text-xs text-[var(--color-text-muted)]">개</p>
               </div>
             </div>
+
+            {/* 내 트랙 분석 — 본인 페이지에서만 표시 */}
+            {currentUserId !== null && currentUserId === artistUserId && (
+              <ArtistAnalytics />
+            )}
+
             <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
               <ul className="grid grid-cols-1 gap-2">
                 {tracks.map((track) => {

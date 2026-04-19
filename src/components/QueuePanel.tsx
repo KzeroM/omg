@@ -1,6 +1,7 @@
 "use client";
 
-import { X, Trash2, ChevronUp, ChevronDown, Play, Pause } from "lucide-react";
+import { useRef, useState } from "react";
+import { X, Trash2, ChevronUp, ChevronDown, Play, Pause, GripVertical } from "lucide-react";
 import { usePlayer } from "@/context/PlayerContext";
 
 interface QueuePanelProps {
@@ -18,6 +19,29 @@ export function QueuePanel({ onClose }: QueuePanelProps) {
     clearQueue,
     moveInQueue,
   } = usePlayer();
+
+  const dragSrcRef = useRef<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = (i: number) => {
+    dragSrcRef.current = i;
+  };
+  const handleDragOver = (e: React.DragEvent, i: number) => {
+    e.preventDefault();
+    setDragOverIndex(i);
+  };
+  const handleDrop = (e: React.DragEvent, i: number) => {
+    e.preventDefault();
+    if (dragSrcRef.current !== null && dragSrcRef.current !== i) {
+      moveInQueue(dragSrcRef.current, i);
+    }
+    dragSrcRef.current = null;
+    setDragOverIndex(null);
+  };
+  const handleDragEnd = () => {
+    dragSrcRef.current = null;
+    setDragOverIndex(null);
+  };
 
   return (
     <>
@@ -73,12 +97,21 @@ export function QueuePanel({ onClose }: QueuePanelProps) {
                 return (
                   <li
                     key={`${track.id}-${i}`}
-                    className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 transition ${
-                      isCurrent
+                    draggable
+                    onDragStart={() => handleDragStart(i)}
+                    onDragOver={(e) => handleDragOver(e, i)}
+                    onDrop={(e) => handleDrop(e, i)}
+                    onDragEnd={handleDragEnd}
+                    className={`group flex items-center gap-2 rounded-xl px-2 py-2.5 transition ${
+                      dragOverIndex === i
+                        ? "bg-[var(--color-accent)]/20 ring-1 ring-[var(--color-accent)]/50"
+                        : isCurrent
                         ? "bg-[var(--color-accent)]/10 ring-1 ring-[var(--color-accent)]/30"
                         : "hover:bg-[var(--color-bg-hover)]"
                     }`}
                   >
+                    {/* 드래그 핸들 */}
+                    <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 active:cursor-grabbing" strokeWidth={2} />
                     {/* 커버 / 재생 상태 */}
                     <button
                       type="button"

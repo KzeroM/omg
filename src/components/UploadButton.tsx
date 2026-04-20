@@ -86,12 +86,34 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
   const [uploadStep, setUploadStep] = useState<null | 'uploading' | 'inserting' | 'done'>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [profileNickname, setProfileNickname] = useState("");
 
   useEffect(() => {
     const supabase = createClient();
-    void supabase.auth.getUser().then(({ data: { user } }) => setIsLoggedIn(!!user));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+    void supabase.auth.getUser().then(async ({ data: { user } }) => {
+      setIsLoggedIn(!!user);
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("nickname")
+          .eq("id", user.id)
+          .single();
+        if (data?.nickname) setProfileNickname(data.nickname as string);
+      }
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_e, session) => {
       setIsLoggedIn(!!session?.user);
+      if (session?.user) {
+        const supabase2 = createClient();
+        const { data } = await supabase2
+          .from("profiles")
+          .select("nickname")
+          .eq("id", session.user.id)
+          .single();
+        if (data?.nickname) setProfileNickname(data.nickname as string);
+      } else {
+        setProfileNickname("");
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -104,7 +126,7 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
     const tags = await extractId3Tags(file);
     const guessedTitle = file.name.replace(/\.mp3$/i, "");
     setTrackTitle(tags.title || guessedTitle);
-    setArtistName(tags.artist || "");
+    setArtistName(tags.artist || profileNickname || "");
     setPendingFile(file);
     e.target.value = "";
   };
@@ -208,13 +230,18 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
               autoFocus
             />
 
-            <label className="mb-1 block text-xs text-[var(--color-text-muted)]">아티스트명</label>
+            <div className="mb-1 flex items-center justify-between">
+              <label className="text-xs text-[var(--color-text-muted)]">아티스트명</label>
+              {artistName === profileNickname && profileNickname && (
+                <span className="text-xs text-[var(--color-accent)]">내 닉네임으로 자동 입력됨</span>
+              )}
+            </div>
             <input
               type="text"
               value={artistName}
               onChange={(e) => setArtistName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleConfirm()}
-              placeholder="아티스트명을 입력하세요"
+              placeholder={profileNickname || "아티스트명을 입력하세요"}
               disabled={uploadStep !== null}
               className="mb-4 w-full rounded-xl bg-[var(--color-bg-elevated)] px-4 py-2.5 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none ring-1 ring-[var(--color-border)] focus:ring-[var(--color-accent)] disabled:opacity-60 disabled:cursor-not-allowed"
             />

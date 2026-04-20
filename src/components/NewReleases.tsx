@@ -119,9 +119,11 @@ export function NewReleases() {
                 trailing={
                   <>
                     <LikeButton trackId={track.id} initialLikeCount={track.like_count ?? 0} />
-                    <AddToPlaylistButton trackId={track.id} />
-                    <ShareButton trackId={track.id} artistName={track.artist} />
-                    <ReportButton trackId={track.id} />
+                    <span className="hidden sm:contents">
+                      <AddToPlaylistButton trackId={track.id} />
+                      <ShareButton trackId={track.id} artistName={track.artist} />
+                      <ReportButton trackId={track.id} />
+                    </span>
                   </>
                 }
               />

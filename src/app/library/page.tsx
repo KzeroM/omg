@@ -248,7 +248,7 @@ export default function LibraryPage() {
                   onClick={() => handlePlay(track)}
                   trailing={
                     <>
-                      <div className="flex items-center gap-3 shrink-0 text-xs text-[var(--color-text-muted)]">
+                      <div className="hidden sm:flex items-center gap-3 shrink-0 text-xs text-[var(--color-text-muted)]">
                         <span className="flex items-center gap-1">
                           <Play className="h-3 w-3" strokeWidth={1.5} />
                           {(track.play_count ?? 0).toLocaleString()}

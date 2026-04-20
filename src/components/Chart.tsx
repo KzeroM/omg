@@ -113,7 +113,7 @@ export function Chart() {
                 </p>
               }
               trailing={
-                <>
+                <span className="hidden sm:contents">
                   {track.play_count != null && (
                     <span className="flex shrink-0 items-center gap-1 text-xs text-[var(--color-text-muted)]">
                       <Play className="h-3 w-3" strokeWidth={1.5} />
@@ -123,7 +123,7 @@ export function Chart() {
                   <AddToPlaylistButton trackId={track.id} />
                   <ShareButton trackId={track.id} artistName={track.artist} />
                   <ReportButton trackId={track.id} />
-                </>
+                </span>
               }
             />
             );

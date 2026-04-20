@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HardDrive, FileAudio, Loader2 } from "lucide-react";
+import { HardDrive, FileAudio } from "lucide-react";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 interface UserStorage {
   userId: string;
@@ -36,12 +39,9 @@ export default function AdminStoragePage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center gap-2 text-[var(--color-text-muted)]">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-sm">불러오는 중…</span>
-        </div>
+        <LoadingState message="Storage 정보 조회 중…" />
       ) : !stats ? (
-        <p className="text-sm text-red-400">데이터를 불러올 수 없습니다.</p>
+        <ErrorState message="데이터를 불러올 수 없습니다." />
       ) : (
         <>
           {/* 요약 카드 */}
@@ -125,7 +125,9 @@ export default function AdminStoragePage() {
               </tbody>
             </table>
             {stats.byUser.length === 0 && (
-              <p className="py-8 text-center text-sm text-[var(--color-text-muted)]">트랙이 없습니다.</p>
+              <div className="px-4 py-8">
+                <EmptyState title="트랙이 없습니다." />
+              </div>
             )}
           </div>
         </>

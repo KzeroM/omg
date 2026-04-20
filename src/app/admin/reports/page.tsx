@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Flag, CheckCircle, XCircle, Trash2 } from "lucide-react";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface Report {
   id: string;
@@ -105,14 +107,12 @@ export default function AdminReportsPage() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-[var(--color-text-muted)]">불러오는 중…</p>
+        <LoadingState />
       ) : visible.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[var(--color-border)] py-14 text-center">
-          <Flag className="mx-auto mb-3 h-8 w-8 text-[var(--color-text-muted)]" strokeWidth={1} />
-          <p className="text-sm text-[var(--color-text-muted)]">
-            {filter === "pending" ? "처리 대기 중인 신고가 없습니다." : "신고 내역이 없습니다."}
-          </p>
-        </div>
+        <EmptyState
+          icon={Flag}
+          title={filter === "pending" ? "처리 대기 중인 신고가 없습니다." : "신고 내역이 없습니다."}
+        />
       ) : (
         <div className="space-y-3">
           {visible.map((report) => (

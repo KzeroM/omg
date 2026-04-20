@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface Announcement {
   id: string;
@@ -162,9 +164,9 @@ export default function AdminAnnouncementsPage() {
 
       {/* 목록 */}
       {loading ? (
-        <p className="text-sm text-[var(--color-text-muted)]">불러오는 중…</p>
+        <LoadingState />
       ) : announcements.length === 0 ? (
-        <p className="py-12 text-center text-sm text-[var(--color-text-muted)]">공지사항이 없습니다.</p>
+        <EmptyState title="공지사항이 없습니다." />
       ) : (
         <div className="space-y-3">
           {announcements.map((a) => (

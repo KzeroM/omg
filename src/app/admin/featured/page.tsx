@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Trash2, GripVertical } from "lucide-react";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface FeaturedArtist {
   id: string;
@@ -119,12 +121,12 @@ export default function FeaturedArtistsPage() {
 
       {/* Featured list */}
       {loading ? (
-        <p className="text-sm text-[var(--color-text-muted)]">불러오는 중…</p>
+        <LoadingState />
       ) : featured.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[var(--color-border)] py-10 text-center">
-          <p className="text-sm text-[var(--color-text-muted)]">피처드 아티스트가 없습니다.</p>
-          <p className="mt-1 text-xs text-[var(--color-text-muted)]">아티스트를 추가하면 HeroBanner에 표시됩니다.</p>
-        </div>
+        <EmptyState
+          title="피처드 아티스트가 없습니다."
+          description="아티스트를 추가하면 HeroBanner에 표시됩니다."
+        />
       ) : (
         <ul className="space-y-2">
           {featured.map((f, i) => (

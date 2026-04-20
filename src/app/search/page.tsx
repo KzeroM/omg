@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { Search, Play, Pause, Loader2, X } from "lucide-react";
+import { Search, Play, Pause, X } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { PlaylistTrack } from "@/types/player";
 
 interface Tag {
@@ -203,14 +205,9 @@ export default function SearchPage() {
 
       {/* 결과 */}
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-[var(--color-text-muted)]" />
-        </div>
+        <LoadingState message="검색 중…" />
       ) : searched && results.length === 0 ? (
-        <div className="py-12 text-center">
-          <p className="text-sm text-[var(--color-text-muted)]">검색 결과가 없습니다.</p>
-          <p className="mt-1 text-xs text-[var(--color-text-muted)]">다른 키워드나 태그를 시도해보세요.</p>
-        </div>
+        <EmptyState title="검색 결과가 없습니다." description="다른 키워드나 태그를 시도해보세요." />
       ) : results.length > 0 ? (
         <div className="space-y-1">
           <p className="text-xs text-[var(--color-text-muted)]">{results.length}개 결과</p>

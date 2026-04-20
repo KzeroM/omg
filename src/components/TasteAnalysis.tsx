@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { getTasteAnalysis, type TasteAnalysis } from "@/utils/supabase/tracks";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { EmptyState } from "@/components/ui/EmptyState";
 import TopArtistsChart from "./TopArtistsChart";
 import Last7DaysChart from "./Last7DaysChart";
 
@@ -45,7 +48,7 @@ export default function TasteAnalysisSection() {
   if (loading) {
     return (
       <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
-        <p className="text-[var(--color-text-muted)]">불러오는 중…</p>
+        <LoadingState />
       </section>
     );
   }
@@ -53,16 +56,18 @@ export default function TasteAnalysisSection() {
   if (error) {
     return (
       <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
-        <p className="text-red-400">{error}</p>
+        <ErrorState message={error} />
       </section>
     );
   }
 
   if (!analysis) {
     return (
-      <section className="rounded-2xl bg-[var(--color-bg-surface)] p-8 ring-1 ring-[var(--color-border)] text-center">
-        <p className="text-[var(--color-text-muted)]">아직 재생 기록이 없습니다.</p>
-        <p className="text-sm text-[var(--color-text-muted)] mt-2">곡을 재생하면 여기에 표시됩니다.</p>
+      <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
+        <EmptyState
+          title="아직 재생 기록이 없습니다."
+          description="곡을 재생하면 여기에 표시됩니다."
+        />
       </section>
     );
   }

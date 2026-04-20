@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Search, ChevronDown } from "lucide-react";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { ArtistTier } from "@/types/tier";
 
 interface TierUser {
@@ -96,7 +98,9 @@ export default function AdminTiersPage() {
       </div>
 
       {loading ? (
-        <p className="text-[var(--color-text-muted)]">불러오는 중…</p>
+        <LoadingState />
+      ) : filtered.length === 0 ? (
+        <EmptyState title="검색 결과가 없습니다." />
       ) : (
         <div className="rounded-2xl bg-[var(--color-bg-surface)] ring-1 ring-[var(--color-border)] overflow-hidden">
           <table className="w-full text-sm">
@@ -151,9 +155,6 @@ export default function AdminTiersPage() {
               })}
             </tbody>
           </table>
-          {filtered.length === 0 && (
-            <p className="py-8 text-center text-sm text-[var(--color-text-muted)]">검색 결과가 없습니다.</p>
-          )}
         </div>
       )}
     </div>

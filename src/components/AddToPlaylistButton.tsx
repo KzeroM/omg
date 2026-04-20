@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { ListPlus, X, Plus, Check } from "lucide-react";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface Playlist {
   id: string;
@@ -96,11 +98,13 @@ export function AddToPlaylistButton({ trackId }: AddToPlaylistButtonProps) {
             </div>
 
             {loading ? (
-              <p className="py-4 text-center text-sm text-[var(--color-text-muted)]">불러오는 중…</p>
+              <LoadingState />
             ) : (
               <>
                 {playlists.length === 0 && !showCreate ? (
-                  <p className="mb-3 text-sm text-[var(--color-text-muted)]">플레이리스트가 없습니다. 새로 만들어 보세요.</p>
+                  <div className="mb-3">
+                    <EmptyState title="플레이리스트가 없습니다." description="새로 만들어 보세요." />
+                  </div>
                 ) : (
                   <ul className="mb-3 max-h-52 space-y-1 overflow-y-auto">
                     {playlists.map((pl) => (

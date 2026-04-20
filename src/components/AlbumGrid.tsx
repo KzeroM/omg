@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { AlbumCard } from "./AlbumCard";
 import { getPublicAlbums } from "@/utils/supabase/albums";
 import type { AlbumWithTracks } from "@/types/album";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 export function AlbumGrid() {
   const [albums, setAlbums] = useState<AlbumWithTracks[]>([]);
@@ -45,13 +47,9 @@ export function AlbumGrid() {
       </div>
 
       {loading ? (
-        <div className="py-8 text-center">
-          <p className="text-sm text-[var(--color-text-muted)]">로딩 중…</p>
-        </div>
+        <LoadingState />
       ) : error ? (
-        <div className="rounded-xl border border-dashed border-[var(--color-border)] py-8 text-center">
-          <p className="text-sm text-[var(--color-text-muted)]">{error}</p>
-        </div>
+        <ErrorState message={error} />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {albums.map((album) => (

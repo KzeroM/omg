@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { TrendingUp, BarChart2 } from "lucide-react";
+import { LoadingState } from "@/components/ui/LoadingState";
 
 interface DailyPoint { label: string; count: number }
 interface TopTrack { id: string; title: string; play_count: number; like_count: number }
@@ -27,11 +28,7 @@ export function ArtistAnalytics() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
-        <p className="text-sm text-[var(--color-text-muted)]">분석 로딩 중…</p>
-      </div>
-    );
+    return <LoadingState message="분석 로딩 중…" />;
   }
 
   if (!data) return null;

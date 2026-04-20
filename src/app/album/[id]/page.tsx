@@ -6,6 +6,7 @@ import { ArrowLeft, Play, Pause } from "lucide-react";
 import { getAlbumWithTracks } from "@/utils/supabase/albums";
 import { usePlayer } from "@/context/PlayerContext";
 import { pickCoverColor } from "@/utils/coverColor";
+import { LoadingState } from "@/components/ui/LoadingState";
 import type { AlbumWithTracks, AlbumTrackItem } from "@/types/album";
 import type { PlaylistTrack } from "@/types/player";
 
@@ -80,7 +81,7 @@ export default function AlbumPage({
   if (loading) {
     return (
       <div className="mx-auto max-w-5xl px-6 py-8">
-        <p className="text-[var(--color-text-muted)]">로딩 중…</p>
+        <LoadingState />
       </div>
     );
   }

@@ -7,6 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
 import type { PlaylistTrack, HistoryTrack } from "@/types/player";
 import { Toast } from "@/components/Toast";
+import { LoadingState } from "@/components/ui/LoadingState";
 import {
   getLikedTracks,
   getPlayHistory,
@@ -81,7 +82,7 @@ export default function MyPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-5xl px-6 py-8">
-        <p className="text-[var(--color-text-muted)]">불러오는 중…</p>
+        <LoadingState />
       </div>
     );
   }

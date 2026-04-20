@@ -8,6 +8,8 @@ import type { DbTrack, PlaylistTrack, HistoryTrack } from "@/types/player";
 import { Toast } from "@/components/Toast";
 import { EditTrackModal } from "@/components/EditTrackModal";
 import { UploadButton } from "@/components/UploadButton";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { TrackRow } from "@/components/TrackRow";
 import Link from "next/link";
 import { pickCoverColor } from "@/utils/coverColor";
@@ -210,11 +212,9 @@ export default function LibraryPage() {
       )}
 
       {loading ? (
-        <p className="text-[var(--color-text-muted)]">불러오는 중…</p>
+        <LoadingState />
       ) : tracks.length === 0 ? (
-        <div className="rounded-2xl bg-[var(--color-bg-surface)] p-8 text-center ring-1 ring-[var(--color-border)]">
-          <p className="text-[var(--color-text-muted)]">아직 업로드한 곡이 없습니다.</p>
-        </div>
+        <EmptyState title="아직 업로드한 곡이 없습니다." description="첫 번째 트랙을 업로드해 보세요." />
       ) : (
         <>
         <div className="grid grid-cols-3 gap-4">

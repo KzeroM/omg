@@ -19,7 +19,7 @@ export async function checkRateLimit(
   });
   if (error) {
     console.error("[RateLimit] Supabase RPC error:", error.message);
-    return true; // 오류 시 허용 (fail-open)
+    return false; // 오류 시 차단 (fail-closed)
   }
   return data === true;
 }

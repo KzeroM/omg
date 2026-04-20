@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { checkRateLimit } from "@/utils/rateLimiter";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -28,6 +29,10 @@ export async function POST() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!await checkRateLimit(`taste-desc:${user.id}`, 3, 3600)) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
     // 캐시 확인 — 24시간 이내 결과가 있으면 Groq 호출 없이 반환

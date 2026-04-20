@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { createNotification } from "@/utils/notifications";
+import { checkRateLimit } from "@/utils/rateLimiter";
 
 export async function POST(
   request: NextRequest,
@@ -28,6 +29,10 @@ export async function POST(
         { error: "Unauthorized" },
         { status: 401 }
       );
+    }
+
+    if (!await checkRateLimit(`follow:${user.id}`, 20, 60)) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
     // toggle_follow RPC 호출

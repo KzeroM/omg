@@ -22,7 +22,7 @@ export async function GET() {
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {
-    const { data } = await adminClient
+    const { data } = await getAdminClient()
       .from("featured_artists")
       .select("id, artist_name, display_order, created_at")
       .order("display_order", { ascending: true });
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "artist_name required" }, { status: 400 });
   }
 
-  const { data, error } = await adminClient
+  const { data, error } = await getAdminClient()
     .from("featured_artists")
     .insert({ artist_name: body.artist_name.trim(), display_order: body.display_order ?? 0 })
     .select()

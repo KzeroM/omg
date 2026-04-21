@@ -29,7 +29,7 @@ export async function DELETE(
 
   const { id } = await params;
 
-  const { data: track } = await adminClient
+  const { data: track } = await getAdminClient()
     .from("tracks")
     .select("file_path")
     .eq("id", id)

@@ -26,7 +26,7 @@ export async function GET() {
   if (!profile?.is_admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   // 트랙 테이블에서 file_path, user_id, 업로더 닉네임 조회
-  const { data: tracks } = await adminClient
+  const { data: tracks } = await getAdminClient()
     .from("tracks")
     .select("id, file_path, user_id, title, users!user_id(nickname)")
     .order("created_at", { ascending: false });

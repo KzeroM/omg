@@ -35,7 +35,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid tier" }, { status: 400 });
   }
 
-  const { error } = await adminClient
+  const { error } = await getAdminClient()
     .from("users")
     .update({ artist_tier: body.artist_tier })
     .eq("user_id", id);

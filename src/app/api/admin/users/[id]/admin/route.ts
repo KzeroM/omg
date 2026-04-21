@@ -33,7 +33,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Cannot remove your own admin" }, { status: 400 });
   }
 
-  const { error } = await adminClient
+  const { error } = await getAdminClient()
     .from("users")
     .update({ is_admin: body.is_admin })
     .eq("user_id", id);

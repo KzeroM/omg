@@ -22,7 +22,7 @@ export async function GET() {
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   try {
-    const { data } = await adminClient
+    const { data } = await getAdminClient()
       .from("reports")
       .select(`
         id, reason, status, created_at,
@@ -48,7 +48,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "id and valid status required" }, { status: 400 });
   }
 
-  const { error } = await adminClient
+  const { error } = await getAdminClient()
     .from("reports")
     .update({ status: body.status })
     .eq("id", body.id);
@@ -68,7 +68,7 @@ export async function DELETE(req: NextRequest) {
   }
 
   // Fetch track to get file_path for storage deletion
-  const { data: track } = await adminClient
+  const { data: track } = await getAdminClient()
     .from("tracks")
     .select("file_path")
     .eq("id", body.track_id)

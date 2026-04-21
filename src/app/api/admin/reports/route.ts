@@ -2,10 +2,12 @@ import { createClient } from "@/utils/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
-const adminClient = createAdminClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getAdminClient() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -73,11 +75,11 @@ export async function DELETE(req: NextRequest) {
     .single();
 
   if (track?.file_path) {
-    await adminClient.storage.from("omg-tracks").remove([track.file_path]);
+    await getAdminClient().storage.from("omg-tracks").remove([track.file_path]);
   }
 
-  await adminClient.from("tracks").delete().eq("id", body.track_id);
-  await adminClient.from("reports").update({ status: "resolved" }).eq("id", body.report_id);
+  await getAdminClient().from("tracks").delete().eq("id", body.track_id);
+  await getAdminClient().from("reports").update({ status: "resolved" }).eq("id", body.report_id);
 
   return NextResponse.json({ ok: true });
 }

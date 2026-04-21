@@ -2,10 +2,12 @@ import { createClient } from "@/utils/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
-const adminClient = createAdminClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getAdminClient() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -20,7 +22,7 @@ export async function POST(req: NextRequest) {
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json() as { title: string; body: string; type?: string; expires_at?: string };
-  const { error } = await adminClient.from("announcements").insert({
+  const { error } = await getAdminClient().from("announcements").insert({
     title: body.title,
     body: body.body,
     type: body.type ?? "info",
@@ -36,7 +38,7 @@ export async function GET() {
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { data, error } = await adminClient
+  const { data, error } = await getAdminClient()
     .from("announcements")
     .select("id, title, body, type, is_active, created_at, expires_at")
     .order("created_at", { ascending: false })

@@ -2,10 +2,12 @@ import { createClient } from "@/utils/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
-const adminClient = createAdminClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getAdminClient() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 export async function POST(
   _req: NextRequest,
@@ -28,7 +30,7 @@ export async function POST(
   // Prevent self-ban
   if (id === user.id) return NextResponse.json({ error: "Cannot ban yourself" }, { status: 400 });
 
-  const { error } = await adminClient.auth.admin.updateUserById(id, { ban_duration: "876600h" }); // ~100 years
+  const { error } = await getAdminClient().auth.admin.updateUserById(id, { ban_duration: "876600h" }); // ~100 years
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   return NextResponse.json({ ok: true });

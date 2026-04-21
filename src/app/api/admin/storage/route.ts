@@ -2,10 +2,12 @@ import { createClient } from "@/utils/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
-const adminClient = createAdminClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getAdminClient() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 const MUSIC_BUCKET = "omg-tracks";
 const BYTES_IN_MB = 1024 * 1024;
@@ -32,7 +34,7 @@ export async function GET() {
   if (!tracks) return NextResponse.json({ totalMb: 0, fileCount: 0, byUser: [] });
 
   // 스토리지 파일 목록 조회 (파일 크기 포함)
-  const { data: files } = await adminClient.storage
+  const { data: files } = await getAdminClient().storage
     .from(MUSIC_BUCKET)
     .list("", { limit: 1000, sortBy: { column: "created_at", order: "desc" } });
 

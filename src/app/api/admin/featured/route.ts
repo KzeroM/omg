@@ -2,10 +2,12 @@ import { createClient } from "@/utils/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
-const adminClient = createAdminClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getAdminClient() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -56,7 +58,7 @@ export async function DELETE(req: NextRequest) {
   const { id } = await req.json() as { id: string };
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
-  const { error } = await adminClient.from("featured_artists").delete().eq("id", id);
+  const { error } = await getAdminClient().from("featured_artists").delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

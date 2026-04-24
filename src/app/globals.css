@@ -83,3 +83,14 @@ body {
 .equalizer-bar-1 { animation: eq-bar1 0.9s ease-in-out infinite; }
 .equalizer-bar-2 { animation: eq-bar2 0.9s ease-in-out infinite 0.15s; }
 .equalizer-bar-3 { animation: eq-bar3 0.9s ease-in-out infinite 0.3s; }
+
+/* 좋아요 버튼 하트 펄스 애니메이션 */
+@keyframes like-heart-pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+.animate-like-heart-pulse {
+  animation: like-heart-pulse 0.35s ease-in-out;
+}

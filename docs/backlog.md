@@ -30,7 +30,7 @@
 | 102 | 오디오 업로드 검증 파이프라인 | ✅ 완료 | 1 | MIME 타입 서버 검증 + 파일 크기·포맷 체크. 보안 필수 |
 | 101 | Supabase Realtime 알림 WebSocket 교체 | ✅ 완료 | 1 | Polling → `supabase.channel()`. 알림 지연 <200ms |
 | 100 | React Query 캐시 레이어 도입 | ✅ 완료 | 1 | `@tanstack/react-query`. 서버 요청 ~50% 감소 |
-| 108 | Streaming SSR + Suspense 경계 | 🔨 진행 중 | 1 | Next.js 16 Suspense. TTFB 40~60% 감소 |
+| 108 | Streaming SSR + Suspense 경계 | ✅ 완료 | 1 | Next.js 16 Suspense. TTFB 40~60% 감소 |
 | 103 | Media Session API 통합 | ✅ 완료 | 1 | 잠금화면 재생 컨트롤. PlayerContext에 ~20줄 추가 |
 | 104 | Playwright E2E 테스트 기반 구축 | ✅ 완료 | 1 | 업로드·재생·검색 핵심 플로우 커버 |
 

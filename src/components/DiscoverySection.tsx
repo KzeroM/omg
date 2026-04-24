@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
-import type { TagWithCount } from "@/utils/supabase/tags";
+import type { TagWithCount } from "@/types/tag";
 
 // 카테고리별 그라디언트
 const CATEGORY_GRADIENTS: Record<string, string> = {

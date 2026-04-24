@@ -19,3 +19,10 @@ export interface ArtistTag {
 }
 
 export type TagsByCategory = Record<TagCategory, Tag[]>;
+
+export interface TagWithCount {
+  id: string;
+  name: string;
+  category: string;
+  track_count: number;
+}

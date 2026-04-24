@@ -1,13 +1,8 @@
 import { createClient } from "./client";
 import { createClient as createServerClient } from "./server";
-import type { Tag, TagsByCategory, TagCategory } from "@/types/tag";
+import type { Tag, TagsByCategory, TagCategory, TagWithCount } from "@/types/tag";
 
-export interface TagWithCount {
-  id: string;
-  name: string;
-  category: string;
-  track_count: number;
-}
+export type { TagWithCount };
 
 /** 서버 컴포넌트 전용 — track_tags에서 태그별 트랙 수 집계 (TOP 12) */
 export async function getDiscoveryTagsServer(): Promise<TagWithCount[]> {

@@ -4,14 +4,14 @@ import type { PlaylistTrack, DbTrack, HistoryTrack } from "@/types/player";
 import type { ArtistTier } from "@/types/tier";
 import { pickCoverColor } from "@/utils/coverColor";
 
-/** tracks 테이블에서 play_count 상위 5개를 반환합니다. */
-export async function getTopChartTracks(): Promise<ChartTrack[]> {
+/** tracks 테이블에서 play_count 상위 N개를 반환합니다. */
+export async function getTopChartTracks(limit = 5): Promise<ChartTrack[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("tracks")
     .select("id, title, artist, play_count, file_path, users!user_id(artist_tier, nickname)")
     .order("play_count", { ascending: false })
-    .limit(5);
+    .limit(limit);
 
   if (error || !data || data.length === 0) return [];
 

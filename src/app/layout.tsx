@@ -9,6 +9,7 @@ import { QueueAwareMain } from "@/components/QueueAwareMain";
 import { AuthVerifiedToast } from "@/components/AuthVerifiedToast";
 import { PlayerProvider } from "@/context/PlayerContext";
 import { ToastProvider } from "@/context/ToastContext";
+import { QueryProvider } from "@/components/QueryProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,7 +24,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "OMG - Music",
-  description: "ì˜¤ëŠ˜ì˜ ì¸ê¸° ì•„í‹°ìŠ¤íŠ¸ì™€ ì‹¤ì‹œê°„ ì°¨íŠ¸",
+  description: "¿À´ÃÀÇ ÀÎ±â ¾ÆÆ¼½ºÆ®¿Í ½Ç½Ã°£ Â÷Æ®",
 };
 
 export default function RootLayout({
@@ -36,20 +37,22 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[#0a0a0a] text-zinc-100 antialiased`}
       >
-        <ToastProvider>
-          <PlayerProvider>
-            <Suspense fallback={null}>
-              <AuthVerifiedToast />
-            </Suspense>
-            <Header />
-            <div className="flex min-h-screen">
-              <Sidebar />
-              <QueueAwareMain>{children}</QueueAwareMain>
-            </div>
-            <PlayerBar />
-            <BottomNav />
-          </PlayerProvider>
-        </ToastProvider>
+        <QueryProvider>
+          <ToastProvider>
+            <PlayerProvider>
+              <Suspense fallback={null}>
+                <AuthVerifiedToast />
+              </Suspense>
+              <Header />
+              <div className="flex min-h-screen">
+                <Sidebar />
+                <QueueAwareMain>{children}</QueueAwareMain>
+              </div>
+              <PlayerBar />
+              <BottomNav />
+            </PlayerProvider>
+          </ToastProvider>
+        </QueryProvider>
       </body>
     </html>
   );

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { TrendingUp, BarChart2 } from "lucide-react";
+import { formatKoreanNumber } from "@/utils/formatNumber";
 import { LoadingState } from "@/components/ui/LoadingState";
 
 interface DailyPoint { label: string; count: number }
@@ -96,8 +97,8 @@ export function ArtistAnalytics() {
               <li key={track.id} className="flex items-center gap-3">
                 <span className="w-4 shrink-0 text-xs font-bold text-[var(--color-text-muted)]">{i + 1}</span>
                 <p className="flex-1 truncate text-sm text-[var(--color-text-primary)]">{track.title}</p>
-                <span className="text-xs text-[var(--color-text-muted)]">{track.play_count.toLocaleString()} 재생</span>
-                <span className="text-xs text-[var(--color-text-muted)]">{track.like_count.toLocaleString()} ♥</span>
+                <span className="text-xs text-[var(--color-text-muted)]">{formatKoreanNumber(track.play_count)} 재생</span>
+                <span className="text-xs text-[var(--color-text-muted)]">{formatKoreanNumber(track.like_count)} ♥</span>
               </li>
             ))}
           </ul>

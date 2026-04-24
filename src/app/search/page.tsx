@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { Search, Play, Pause, X } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
+import { formatKoreanNumber } from "@/utils/formatNumber";
 import { usePlayer } from "@/context/PlayerContext";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -237,7 +238,7 @@ export default function SearchPage() {
                   </div>
                   {/* 재생수 */}
                   <span className="shrink-0 text-xs text-[var(--color-text-muted)]">
-                    {track.play_count.toLocaleString()}회
+                    {formatKoreanNumber(track.play_count)}회
                   </span>
                   {/* 재생 버튼 */}
                   <button

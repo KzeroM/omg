@@ -15,9 +15,10 @@ import { AddToPlaylistButton } from "./AddToPlaylistButton";
 import { TrackRow } from "./TrackRow";
 import { useChartTracks } from "@/hooks/useChartTracks";
 import { useQueryClient } from "@tanstack/react-query";
+import { formatKoreanNumber } from "@/utils/formatNumber";
 import type { PlaylistTrack } from "@/types/player";
 
-/** ½Ç½Ã°£ Â÷Æ® - play_count ±â¹Ý (React Query Ä³½Ã, Supabase ½Ç½Ã°£ ¿¬µ¿) */
+/** ï¿½Ç½Ã°ï¿½ ï¿½ï¿½Æ® - play_count ï¿½ï¿½ï¿½ (React Query Ä³ï¿½ï¿½, Supabase ï¿½Ç½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½) */
 export function Chart({ limit = 5 }: { limit?: number }) {
   const { data, isSuccess } = useChartTracks(limit);
   const tracks = isSuccess && data && data.length > 0 ? data : TOP_CHART;
@@ -52,7 +53,7 @@ export function Chart({ limit = 5 }: { limit?: number }) {
   return (
     <section id="chart" className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-[var(--color-text-primary)]">½Ç½Ã°£ TOP {limit} Â÷Æ®</h2>
+        <h2 className="text-lg font-bold text-[var(--color-text-primary)]">ï¿½Ç½Ã°ï¿½ TOP {limit} ï¿½ï¿½Æ®</h2>
         {live && (
           <span className="flex items-center gap-1.5 rounded-full bg-[var(--color-accent-subtle)] px-3 py-1 text-xs font-medium text-[var(--color-accent)]">
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)] animate-pulse" />
@@ -62,8 +63,8 @@ export function Chart({ limit = 5 }: { limit?: number }) {
       </div>
       {tracks.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[var(--color-border)] py-12 text-center">
-          <p className="text-sm text-[var(--color-text-muted)]">¾ÆÁ÷ Àç»ý ±â·ÏÀÌ ¾ø¾î¿ä.</p>
-          <p className="mt-1 text-sm text-[var(--color-text-muted)]">°îÀ» Àç»ýÇÏ¸é Â÷Æ®¿¡ ¹Ý¿µµË´Ï´Ù.</p>
+          <p className="text-sm text-[var(--color-text-muted)]">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.</p>
+          <p className="mt-1 text-sm text-[var(--color-text-muted)]">ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ý¿ï¿½ï¿½Ë´Ï´ï¿½.</p>
         </div>
       ) : (
         <ul className="grid grid-cols-1 gap-2">
@@ -110,7 +111,7 @@ export function Chart({ limit = 5 }: { limit?: number }) {
                   {track.play_count != null && (
                     <span className="flex shrink-0 items-center gap-1 text-xs text-[var(--color-text-muted)]">
                       <Play className="h-3 w-3" strokeWidth={1.5} />
-                      {track.play_count.toLocaleString()}
+                      {formatKoreanNumber(track.play_count)}
                     </span>
                   )}
                   <AddToPlaylistButton trackId={track.id} />

@@ -8,6 +8,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import type { PlaylistTrack, HistoryTrack } from "@/types/player";
 import { Toast } from "@/components/Toast";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { formatKoreanNumber } from "@/utils/formatNumber";
 import {
   getLikedTracks,
   getPlayHistory,
@@ -189,7 +190,7 @@ export default function MyPage() {
                       {artist.nickname}
                     </p>
                     <p className="text-xs text-[var(--color-text-muted)]">
-                      팔로워 {artist.follower_count.toLocaleString()}
+                      팔로워 {formatKoreanNumber(artist.follower_count)}
                     </p>
                   </div>
                 </Link>
@@ -327,11 +328,11 @@ export default function MyPage() {
                       <div className="flex shrink-0 items-center gap-3 text-xs text-[var(--color-text-muted)]">
                         <span className="flex items-center gap-1">
                           <Play className="h-3 w-3" strokeWidth={1.5} />
-                          {(track.play_count ?? 0).toLocaleString()}
+                          {formatKoreanNumber(track.play_count ?? 0)}
                         </span>
                         <span className="flex items-center gap-1 text-[var(--color-accent)]">
                           <Heart className="h-3 w-3" strokeWidth={1.5} fill="currentColor" />
-                          {(track.like_count ?? 0).toLocaleString()}
+                          {formatKoreanNumber(track.like_count ?? 0)}
                         </span>
                       </div>
                       <button

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
+import { formatKoreanNumber } from "@/utils/formatNumber";
 import { AuthModal } from "./AuthModal";
 
 type LikeButtonProps = {
@@ -73,7 +74,7 @@ export function LikeButton({ trackId, initialLikeCount }: LikeButtonProps) {
               liked ? "text-[var(--color-accent)]" : "text-[var(--color-text-muted)]"
             }`}
           >
-            {likeCount}
+            {formatKoreanNumber(likeCount)}
           </span>
         )}
       </button>

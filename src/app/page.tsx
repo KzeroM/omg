@@ -1,9 +1,12 @@
 import { Suspense } from "react";
 import { HeroBanner } from "@/components/HeroBanner";
-import { AlbumGrid } from "@/components/AlbumGrid";
 import { NewReleases } from "@/components/NewReleases";
-import { DiscoverySection } from "@/components/DiscoverySection";
+import { AlbumGridServer } from "@/components/AlbumGridServer";
+import { DiscoverySectionServer } from "@/components/DiscoverySectionServer";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
+import { HeroBannerSkeleton } from "@/components/skeletons/HeroBannerSkeleton";
+import { DiscoverySkeleton } from "@/components/skeletons/DiscoverySkeleton";
+import { AlbumGridSkeleton } from "@/components/skeletons/AlbumGridSkeleton";
 
 export default function Home() {
   return (
@@ -11,16 +14,20 @@ export default function Home() {
       {/* 공지사항 배너 */}
       <AnnouncementBanner />
 
-      {/* 히어로 배너 — 전체 너비 */}
-      <Suspense fallback={null}>
+      {/* 히어로 배너 */}
+      <Suspense fallback={<HeroBannerSkeleton />}>
         <HeroBanner />
       </Suspense>
 
-      {/* 메인 콘텐츠 */}
+      {/* 메인 콘텐츠 — 각 섹션 독립 스트리밍 */}
       <div className="mt-8 space-y-8">
         <NewReleases />
-        <DiscoverySection />
-        <AlbumGrid />
+        <Suspense fallback={<DiscoverySkeleton />}>
+          <DiscoverySectionServer />
+        </Suspense>
+        <Suspense fallback={<AlbumGridSkeleton />}>
+          <AlbumGridServer />
+        </Suspense>
       </div>
     </div>
   );

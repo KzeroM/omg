@@ -3,13 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
-
-interface TagWithCount {
-  id: string;
-  name: string;
-  category: string;
-  track_count: number;
-}
+import type { TagWithCount } from "@/utils/supabase/tags";
 
 // 카테고리별 그라디언트
 const CATEGORY_GRADIENTS: Record<string, string> = {
@@ -23,13 +17,13 @@ const CATEGORY_GRADIENTS: Record<string, string> = {
 
 const DEFAULT_GRADIENT = "from-zinc-600 to-zinc-800";
 
-export function DiscoverySection() {
-  const [tags, setTags] = useState<TagWithCount[]>([]);
-  const [loading, setLoading] = useState(true);
+export function DiscoverySection({ initialTags }: { initialTags?: TagWithCount[] }) {
+  const [tags, setTags] = useState<TagWithCount[]>(initialTags ?? []);
+  const [loading, setLoading] = useState(!initialTags);
 
   useEffect(() => {
+    if (initialTags) return; // SSR 데이터 있으면 클라이언트 fetch 생략
     const supabase = createClient();
-    // track_tags 테이블에서 태그별 트랙 수 집계
     void supabase
       .from("track_tags")
       .select("tag_id, tags(id, name, category)")
@@ -49,7 +43,7 @@ export function DiscoverySection() {
         setTags(sorted);
         setLoading(false);
       });
-  }, []);
+  }, [initialTags]);
 
   if (loading || tags.length === 0) return null;
 

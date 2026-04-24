@@ -6,7 +6,7 @@ import { Home, BarChart2, Search, User } from "lucide-react";
 
 const items = [
   { label: "홈", href: "/", icon: Home },
-  { label: "차트", href: "/#chart", icon: BarChart2 },
+  { label: "차트", href: "/chart", icon: BarChart2 },
   { label: "검색", href: "/search", icon: Search },
   { label: "마이페이지", href: "/my", icon: User },
 ];

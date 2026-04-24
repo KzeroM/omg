@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ListPlus, X, Plus, Check } from "lucide-react";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -22,6 +22,8 @@ export function AddToPlaylistButton({ trackId }: AddToPlaylistButtonProps) {
   const [creating, setCreating] = useState(false);
   const [added, setAdded] = useState<Record<string, boolean>>({});
   const [showCreate, setShowCreate] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleOpen = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -34,13 +36,24 @@ export function AddToPlaylistButton({ trackId }: AddToPlaylistButtonProps) {
   };
 
   const handleAdd = async (playlistId: string) => {
-    const res = await fetch(`/api/playlists/${playlistId}/tracks`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ track_id: trackId }),
-    });
-    if (res.ok || res.status === 409) {
-      setAdded((prev) => ({ ...prev, [playlistId]: true }));
+    try {
+      const res = await fetch(`/api/playlists/${playlistId}/tracks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ track_id: trackId }),
+      });
+      if (res.ok || res.status === 409) {
+        setAdded((prev) => ({ ...prev, [playlistId]: true }));
+        setIsSuccess(true);
+        setError(null);
+      } else {
+        const errorData = await res.json() as { error?: string };
+        const errorMsg = errorData.error || "플레이리스트에 추가할 수 없습니다.";
+        setError(errorMsg);
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "오류가 발생했습니다.";
+      setError(errorMsg);
     }
   };
 
@@ -49,33 +62,63 @@ export function AddToPlaylistButton({ trackId }: AddToPlaylistButtonProps) {
     const title = newTitle.trim();
     if (!title) return;
     setCreating(true);
-    const res = await fetch("/api/playlists", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title }),
-    });
-    const data = await res.json() as { playlist?: Playlist };
-    if (data.playlist) {
-      setPlaylists((prev) => [data.playlist!, ...prev]);
-      setNewTitle("");
-      setShowCreate(false);
-      // immediately add the track
-      void handleAdd(data.playlist.id);
+    try {
+      const res = await fetch("/api/playlists", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title }),
+      });
+      const data = await res.json() as { playlist?: Playlist };
+      if (data.playlist) {
+        setPlaylists((prev) => [data.playlist!, ...prev]);
+        setNewTitle("");
+        setShowCreate(false);
+        // immediately add the track
+        void handleAdd(data.playlist.id);
+      } else {
+        setError("플레이리스트를 생성할 수 없습니다.");
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "오류가 발생했습니다.";
+      setError(errorMsg);
+    } finally {
+      setCreating(false);
     }
-    setCreating(false);
   };
+
+  useEffect(() => {
+    if (!isSuccess && !error) return;
+
+    let timerId: NodeJS.Timeout | undefined;
+    if (isSuccess) {
+      timerId = setTimeout(() => setIsSuccess(false), 2000);
+    } else if (error) {
+      timerId = setTimeout(() => setError(null), 3000);
+    }
+
+    return () => {
+      if (timerId) clearTimeout(timerId);
+    };
+  }, [isSuccess, error]);
 
   return (
     <>
-      <button
-        type="button"
-        onClick={(e) => void handleOpen(e)}
-        className="rounded-lg p-1.5 text-[var(--color-text-muted)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
-        aria-label="플레이리스트에 추가"
-        title="플레이리스트에 추가"
-      >
-        <ListPlus className="h-4 w-4" strokeWidth={1.5} />
-      </button>
+      <div>
+        <button
+          type="button"
+          onClick={(e) => void handleOpen(e)}
+          className="rounded-lg p-1.5 text-[var(--color-text-muted)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
+          aria-label="플레이리스트에 추가"
+          title="플레이리스트에 추가"
+        >
+          {isSuccess ? (
+            <Check className="h-4 w-4 text-green-500" strokeWidth={2} />
+          ) : (
+            <ListPlus className="h-4 w-4" strokeWidth={1.5} />
+          )}
+        </button>
+        {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+      </div>
 
       {open && (
         <div

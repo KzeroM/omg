@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
@@ -14,11 +14,22 @@ type LikeButtonProps = {
 export function LikeButton({ trackId, initialLikeCount }: LikeButtonProps) {
   const { likedTrackIds, likeCounts, toggleLike, pendingLikeId } = usePlayer();
   const [showAuth, setShowAuth] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const liked = likedTrackIds.has(trackId);
   const likeCount = likeCounts[trackId] ?? initialLikeCount;
   const isPending = pendingLikeId === trackId;
   const isDisabled = trackId.startsWith("upload-");
+
+  useEffect(() => {
+    if (!isAnimating) return;
+
+    const timer = setTimeout(() => {
+      setIsAnimating(false);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [isAnimating]);
 
   const handleClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -35,6 +46,7 @@ export function LikeButton({ trackId, initialLikeCount }: LikeButtonProps) {
     }
     // 인증 확인 완료 후 toggleLike 위임
     // (toggleLike 내부 getUser 호출은 캐시를 활용하므로 추가 네트워크 비용 없음)
+    setIsAnimating(true);
     await toggleLike(trackId);
   };
 
@@ -50,7 +62,9 @@ export function LikeButton({ trackId, initialLikeCount }: LikeButtonProps) {
             liked
               ? "fill-[var(--color-accent)] text-[var(--color-accent)]"
               : "fill-none text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
-          } ${isPending ? "opacity-70" : ""}`}
+          } ${isPending ? "opacity-70" : ""} ${
+            isAnimating ? "animate-like-heart-pulse" : ""
+          }`}
           strokeWidth={2}
         />
         {!isDisabled && (

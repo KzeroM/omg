@@ -7,9 +7,9 @@ import type { AlbumWithTracks } from "@/types/album";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
 
-export function AlbumGrid() {
-  const [albums, setAlbums] = useState<AlbumWithTracks[]>([]);
-  const [loading, setLoading] = useState(true);
+export function AlbumGrid({ initialAlbums }: { initialAlbums?: AlbumWithTracks[] }) {
+  const [albums, setAlbums] = useState<AlbumWithTracks[]>(initialAlbums ?? []);
+  const [loading, setLoading] = useState(!initialAlbums);
   const [error, setError] = useState<string | null>(null);
 
   const fetchAlbums = useCallback(async () => {
@@ -28,8 +28,9 @@ export function AlbumGrid() {
   }, []);
 
   useEffect(() => {
+    if (initialAlbums) return; // SSR 데이터 있으면 클라이언트 fetch 생략
     void fetchAlbums();
-  }, [fetchAlbums]);
+  }, [fetchAlbums, initialAlbums]);
 
   // 앨범이 없으면 섹션 자체를 렌더링하지 않음
   if (!loading && albums.length === 0) {

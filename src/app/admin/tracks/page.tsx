@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import { Trash2, Search, AlertTriangle } from "lucide-react";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { formatKoreanNumber } from "@/utils/formatNumber";
 
 interface AdminTrack {
   id: string;
@@ -117,10 +118,10 @@ export default function AdminTracksPage() {
                     {track.nickname ?? track.user_id.slice(0, 8)}
                   </td>
                   <td className="px-4 py-3 text-right text-[var(--color-text-secondary)]">
-                    {(track.play_count ?? 0).toLocaleString()}
+                    {formatKoreanNumber(track.play_count ?? 0)}
                   </td>
                   <td className="px-4 py-3 text-right text-[var(--color-text-secondary)]">
-                    {(track.like_count ?? 0).toLocaleString()}
+                    {formatKoreanNumber(track.like_count ?? 0)}
                   </td>
                   <td className="px-4 py-3 text-[var(--color-text-muted)] text-xs">
                     {new Date(track.created_at).toLocaleDateString("ko-KR")}

@@ -8,6 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 import { getTracksByArtist, getTracksByUserId } from "@/utils/supabase/tracks";
 import { usePlayer } from "@/context/PlayerContext";
 import { fetchArtistProfile } from "@/utils/user";
+import { formatKoreanNumber } from "@/utils/formatNumber";
 import { FollowButton } from "@/components/FollowButton";
 import type { DbTrack, PlaylistTrack } from "@/types/player";
 import type { ArtistTier } from "@/types/tier";
@@ -225,7 +226,7 @@ export default function ArtistPage({
                     <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 ring-1 ring-white/20">
                       <span className="text-xs sm:text-sm text-[var(--color-text-secondary)]">팔로워</span>
                       <span className="font-bold text-white text-sm sm:text-base">
-                        {followerCount.toLocaleString()}명
+                        {formatKoreanNumber(followerCount)}명
                       </span>
                     </div>
                   )}
@@ -355,11 +356,11 @@ export default function ArtistPage({
                           <div className="flex items-center gap-3 shrink-0 text-xs text-[var(--color-text-muted)]">
                             <span className="flex items-center gap-1">
                               <Play className="h-3 w-3" strokeWidth={1.5} />
-                              {(track.play_count ?? 0).toLocaleString()}
+                              {formatKoreanNumber(track.play_count ?? 0)}
                             </span>
                             <span className="flex items-center gap-1">
                               <Heart className="h-3 w-3" strokeWidth={1.5} />
-                              {(track.like_count ?? 0).toLocaleString()}
+                              {formatKoreanNumber(track.like_count ?? 0)}
                             </span>
                           </div>
                           <Link

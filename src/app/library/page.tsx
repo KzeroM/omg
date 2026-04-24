@@ -7,6 +7,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import type { DbTrack, PlaylistTrack, HistoryTrack } from "@/types/player";
 import { Toast } from "@/components/Toast";
 import { EditTrackModal } from "@/components/EditTrackModal";
+import { formatKoreanNumber } from "@/utils/formatNumber";
 import { UploadButton } from "@/components/UploadButton";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -251,11 +252,11 @@ export default function LibraryPage() {
                       <div className="hidden sm:flex items-center gap-3 shrink-0 text-xs text-[var(--color-text-muted)]">
                         <span className="flex items-center gap-1">
                           <Play className="h-3 w-3" strokeWidth={1.5} />
-                          {(track.play_count ?? 0).toLocaleString()}
+                          {formatKoreanNumber(track.play_count ?? 0)}
                         </span>
                         <span className="flex items-center gap-1">
                           <Heart className="h-3 w-3" strokeWidth={1.5} />
-                          {(track.like_count ?? 0).toLocaleString()}
+                          {formatKoreanNumber(track.like_count ?? 0)}
                         </span>
                       </div>
                       <button

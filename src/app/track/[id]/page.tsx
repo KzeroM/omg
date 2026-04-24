@@ -3,6 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { ArrowLeft, Play, MessageCircle, Send, Clock } from "lucide-react";
 import Link from "next/link";
+import { formatKoreanNumber } from "@/utils/formatNumber";
 import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
 import { LikeButton } from "@/components/LikeButton";
@@ -164,7 +165,7 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-1 text-xs text-[var(--color-text-muted)]">
               <Play className="h-3 w-3" strokeWidth={1.5} />
-              <span>{(track.play_count ?? 0).toLocaleString()} plays</span>
+              <span>{formatKoreanNumber(track.play_count ?? 0)} plays</span>
               <span className="mx-1">·</span>
               <MessageCircle className="h-3 w-3" strokeWidth={1.5} />
               <span>{comments.length} comments</span>

@@ -583,6 +583,46 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const handlePlay = useCallback(() => setIsPlaying(true), []);
   const handlePause = useCallback(() => setIsPlaying(false), []);
 
+  // --- Media Session API ---
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return;
+    navigator.mediaSession.metadata = currentTrack
+      ? new MediaMetadata({
+          title: currentTrack.title,
+          artist: currentTrack.artist,
+          album: 'OMG Music',
+          artwork: [],
+        })
+      : null;
+  }, [currentTrack]);
+
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return;
+    navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
+  }, [isPlaying]);
+
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return;
+    navigator.mediaSession.setActionHandler('play', () => {
+      if (audioRef.current?.paused) {
+        audioRef.current.play().catch(() => {});
+        setIsPlaying(true);
+      }
+    });
+    navigator.mediaSession.setActionHandler('pause', () => {
+      audioRef.current?.pause();
+      setIsPlaying(false);
+    });
+    navigator.mediaSession.setActionHandler('previoustrack', () => prev());
+    navigator.mediaSession.setActionHandler('nexttrack', () => next());
+    return () => {
+      (['play', 'pause', 'previoustrack', 'nexttrack'] as MediaSessionAction[]).forEach(
+        (action) => navigator.mediaSession.setActionHandler(action, null)
+      );
+    };
+  }, [prev, next]);
+  // --- /Media Session API ---
+
   useEffect(() => {
     void loadTracksFromDB();
     const supabase = createClient();

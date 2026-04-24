@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Bell, Check, UserPlus, Heart, Music } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 
 interface Notification {
   id: string;
@@ -34,11 +35,44 @@ export function NotificationBell() {
     } catch { /* 무시 */ }
   };
 
-  // 초기 로드 + 30초 폴링
+  // 초기 로드 + Realtime 구독
   useEffect(() => {
-    void fetchNotifications();
-    const interval = setInterval(() => void fetchNotifications(), 30_000);
-    return () => clearInterval(interval);
+    const supabase = createClient();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    const init = async () => {
+      // 1) 초기 데이터 로드
+      await fetchNotifications();
+
+      // 2) 현재 유저 확인
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // 3) Realtime 구독
+      channel = supabase
+        .channel(`notifications:${user.id}`)
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
+            void fetchNotifications();
+          }
+        )
+        .subscribe();
+    };
+
+    void init();
+
+    return () => {
+      if (channel) {
+        void supabase.removeChannel(channel);
+      }
+    };
   }, []);
 
   // 패널 외부 클릭 시 닫기

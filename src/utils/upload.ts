@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
+import { MAX_FILE_SIZE_BYTES } from "@/utils/audioValidation";
 import type { PlaylistTrack } from "@/types/player";
 
 const MUSIC_BUCKET = "omg-tracks";
@@ -16,6 +17,10 @@ export async function uploadTrackToSupabase(
   titleOverride?: string,
   onProgress?: (step: 'uploading' | 'inserting' | 'done') => void,
 ): Promise<PlaylistTrack> {
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    throw new Error("파일 크기는 50MB를 초과할 수 없습니다.");
+  }
+
   const supabase = createClient();
   const {
     data: { user },
@@ -32,7 +37,7 @@ export async function uploadTrackToSupabase(
 
   if (uploadError) throw uploadError;
 
-  const title = titleOverride?.trim() || file.name.replace(/\.mp3$/i, "") || "제목 없음";
+  const title = titleOverride?.trim() || file.name.replace(/\.(mp3|m4a|mp4|wav|flac|ogg)$/i, "") || "제목 없음";
   onProgress?.('inserting');
   const { data: row, error: insertError } = await supabase
     .from("tracks")

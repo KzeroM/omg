@@ -120,11 +120,32 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || file.type !== "audio/mpeg") { e.target.value = ""; return; }
+    if (!file) { e.target.value = ""; return; }
+
+    // 파일 검증: 첫 16바이트 추출 및 API 호출
+    try {
+      const buffer = await file.slice(0, 16).arrayBuffer();
+      const magicBytes = Array.from(new Uint8Array(buffer));
+      const res = await fetch("/api/tracks/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ size: file.size, mimeType: file.type, magicBytes }),
+      });
+      const validation = await res.json() as { ok: boolean; message?: string };
+      if (!validation.ok) {
+        setToast(validation.message ?? "파일 검증에 실패했습니다.");
+        e.target.value = "";
+        return;
+      }
+    } catch (err) {
+      setToast(err instanceof Error ? err.message : "파일 검증 중 오류가 발생했습니다.");
+      e.target.value = "";
+      return;
+    }
 
     // ID3 태그 추출 시도
     const tags = await extractId3Tags(file);
-    const guessedTitle = file.name.replace(/\.mp3$/i, "");
+    const guessedTitle = file.name.replace(/\.(mp3|m4a|mp4|wav|flac|ogg)$/i, "");
     setTrackTitle(tags.title || guessedTitle);
     setArtistName(tags.artist || profileNickname || "");
     setPendingFile(file);
@@ -135,7 +156,7 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
     if (!pendingFile) return;
     const file = pendingFile;
     const artist = artistName.trim() || "Unknown Artist";
-    const title = trackTitle.trim() || file.name.replace(/\.mp3$/i, "") || "제목 없음";
+    const title = trackTitle.trim() || file.name.replace(/\.(mp3|m4a|mp4|wav|flac|ogg)$/i, "") || "제목 없음";
     setPendingFile(null);
 
     const supabase = createClient();
@@ -172,7 +193,7 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
       <input
         ref={inputRef}
         type="file"
-        accept=".mp3,audio/mpeg"
+        accept=".mp3,.m4a,.mp4,.wav,.flac,.ogg,audio/*"
         className="hidden"
         onChange={handleChange}
         disabled={loading}

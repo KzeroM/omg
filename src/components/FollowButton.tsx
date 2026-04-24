@@ -19,6 +19,7 @@ export function FollowButton({
   const [followerCount, setFollowerCount] = useState(initialFollowerCount);
   const [isPending, setIsPending] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -43,8 +44,9 @@ export function FollowButton({
       });
 
       if (!response.ok) {
-        const { error } = (await response.json()) as { error?: string };
-        console.error("[FollowButton] Error:", error);
+        const { error: msg } = (await response.json()) as { error?: string };
+        setError(msg ?? "팔로우 처리 중 오류가 발생했습니다.");
+        setTimeout(() => setError(null), 3000);
         return;
       }
 
@@ -57,6 +59,8 @@ export function FollowButton({
       setFollowerCount(follower_count);
     } catch (err) {
       console.error("[FollowButton] Network error:", err);
+      setError("네트워크 오류가 발생했습니다.");
+      setTimeout(() => setError(null), 3000);
     } finally {
       setIsPending(false);
     }
@@ -64,21 +68,26 @@ export function FollowButton({
 
   return (
     <>
-      <button
-        onClick={handleClick}
-        disabled={isPending}
-        className={`
-          inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium
-          transition-colors duration-150 disabled:opacity-60
-          ${
-            following
-              ? "bg-[var(--color-accent-subtle)] text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)]/75"
-              : "bg-[var(--color-accent)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent-hover)]"
-          }
-        `}
-      >
-        {following ? "팔로잉" : "팔로우"}
-      </button>
+      <div className="flex flex-col items-start gap-1">
+        <button
+          onClick={handleClick}
+          disabled={isPending}
+          className={`
+            inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium
+            transition-colors duration-150 disabled:opacity-60
+            ${
+              following
+                ? "bg-[var(--color-accent-subtle)] text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)]/75"
+                : "bg-[var(--color-accent)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent-hover)]"
+            }
+          `}
+        >
+          {following ? "팔로잉" : "팔로우"}
+        </button>
+        {error && (
+          <p className="text-xs text-red-400">{error}</p>
+        )}
+      </div>
       {showAuth && (
         <AuthModal
           initialMode="login"

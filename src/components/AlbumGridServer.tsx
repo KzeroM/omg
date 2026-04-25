@@ -1,4 +1,4 @@
-import { getPublicAlbumsServer } from "@/utils/supabase/albums";
+import { getPublicAlbumsServer } from "@/utils/supabase/albums.server";
 import { AlbumGrid } from "./AlbumGrid";
 
 export async function AlbumGridServer() {

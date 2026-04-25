@@ -1,4 +1,4 @@
-import { getDiscoveryTagsServer } from "@/utils/supabase/tags";
+import { getDiscoveryTagsServer } from "@/utils/supabase/tags.server";
 import { DiscoverySection } from "./DiscoverySection";
 
 export async function DiscoverySectionServer() {

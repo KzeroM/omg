@@ -1,39 +1,36 @@
 # Orchestrator 세션 체크포인트
 업데이트: 2026-04-25
 
-## 현재 스프린트: v5 (기술 기반 + 즉각 UX 개선) — **완료**
+## 현재 스프린트: v6 (핵심 기능 강화) — **완료**
 
 ## 작업 현황
 
-| 백로그 | Linear | PR | 단계 |
-|--------|--------|----|------|
-| #100 React Query | FAC-107 | #17 | ✅ 머지됨 |
-| #104 Playwright E2E | FAC-109 | — | ✅ 기구현 |
-| #108 Streaming SSR + Suspense | FAC-108 | #24 | ✅ 머지됨 |
-| #135 홈/차트 차별화 | FAC-115 | #22 | ✅ 머지됨 |
-| #151 한국식 숫자 포맷 | — | #23 | ✅ 머지됨 |
-| #152 스켈레톤 로딩 | FAC-114 | #21 | ✅ 머지됨 |
-| #153 좋아요 펄스 피드백 | FAC-110 | #18 | ✅ 머지됨 |
-| #155 성공 상태 피드백 | FAC-111 | #19 | ✅ 머지됨 |
-| #156 에러 인라인 표시 | FAC-112 | #20 | ✅ 머지됨 |
+| 기능 | 브랜치 | PR | 단계 |
+|------|--------|----|------|
+| #1~3 차트 오버홀 (기간/태그/더보기/최신등록곡) | feat/FAC-116-chart-overhaul | #25 | ✅ 머지됨 |
+| #4 큐 편집 UI | — | — | ✅ 이미 구현됨 (main) |
+| #5 아티스트 분석 기간 선택 | feat/FAC-117-analytics-period | #26 | ✅ 머지됨 |
+| #6 홈 피드 개인화 (팔로우 신곡) | feat/FAC-118-home-feed | #27 | ✅ 머지됨 |
+| #7 트랙 댓글 | feat/FAC-119-track-comments | #28 | ✅ 머지됨 |
+| #8 풀스크린 플레이어 (모바일) | — | — | ✅ 이미 구현됨 (main) |
 
-## v5 결과: P0 전부 완료, P1 Quick Wins 전부 완료
+## DB 마이그레이션 (이번 스프린트)
+- `get_chart_tracks(p_period, p_tag_ids, p_limit)` RPC — 가중치 인기 차트
+- `track_comments` 테이블 + RLS + timestamp_sec 컬럼
+- `track_comments.user_id` → `public.users.user_id` FK (PostgREST 조인)
 
-## 다음 스프린트 후보
+## 주요 아키텍처 규칙 (축적)
+- `utils/supabase/*.ts`에 `./server` import 있으면 클라이언트 컴포넌트 import 금지
+  → 서버 전용 함수는 `*.server.ts`로 분리 (tags.server.ts, albums.server.ts)
 
-### P2 기반 투자 (v5 잔여)
-- 백로그 #109: pgvector 기반 설정 (Tier 1)
+## 프로덕션
+- URL: https://omg-iota.vercel.app ✅ READY
+- 마지막 배포: v6 스프린트 완료 후
+
+## 다음 스프린트 후보 (P2 기반 투자)
+- 백로그 #109: pgvector 기반 추천 (Tier 1)
 - 백로그 #110: Welcome Flow + Taste Quiz 온보딩 (Tier 2)
 - 백로그 #111: 업로드 시 AI 자동 태그 생성 (Tier 2)
 
-### v6 P0 모바일
-- 백로그 #136: 트랙 롱프레스 → 바텀시트 (Tier 2)
-- 백로그 #140: 풀-투-리프레시 (Tier 1)
-- 백로그 #139: 업로드 버튼 FAB 전환 (Tier 1)
-- 백로그 #154: 업로드 스텝 UI (Tier 2)
-
-## 다음 할 일
-v6 스프린트 시작 또는 P2 기반 투자 결정
-
 ## 마지막 커밋
-main @ 6700c04 — feat: FAC-108 Streaming SSR + Suspense 경계
+main @ merged v6 — PR #25~28 squash merged

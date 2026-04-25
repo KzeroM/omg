@@ -1,17 +1,21 @@
 import { Chart } from "@/components/Chart";
+import { NewReleasesChart } from "@/components/NewReleasesChart";
 
 export const metadata = {
   title: "차트 | OMG",
-  description: "실시간 TOP 차트",
+  description: "일간/주간/월간 인기 차트 및 최신 등록곡",
 };
 
 export default function ChartPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 lg:px-6">
-      <h1 className="mb-6 text-2xl font-bold text-[var(--color-text-primary)]">
-        실시간 차트
-      </h1>
+    <div className="mx-auto max-w-2xl space-y-6 px-4 py-8 lg:px-6">
+      <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">차트</h1>
+
+      {/* 인기 차트 — 기간 + 태그 필터 */}
       <Chart />
+
+      {/* 최신 등록곡 */}
+      <NewReleasesChart />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { NewReleases } from "@/components/NewReleases";
 import { AlbumGridServer } from "@/components/AlbumGridServer";
 import { DiscoverySectionServer } from "@/components/DiscoverySectionServer";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
+import { FollowedArtistsFeed } from "@/components/FollowedArtistsFeed";
 import { HeroBannerSkeleton } from "@/components/skeletons/HeroBannerSkeleton";
 import { DiscoverySkeleton } from "@/components/skeletons/DiscoverySkeleton";
 import { AlbumGridSkeleton } from "@/components/skeletons/AlbumGridSkeleton";
@@ -22,6 +23,7 @@ export default function Home() {
       {/* 메인 콘텐츠 — 각 섹션 독립 스트리밍 */}
       <div className="mt-8 space-y-8">
         <NewReleases />
+        <FollowedArtistsFeed />
         <Suspense fallback={<DiscoverySkeleton />}>
           <DiscoverySectionServer />
         </Suspense>

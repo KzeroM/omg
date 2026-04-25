@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { ArrowLeft, Play, MessageCircle, Send, Clock } from "lucide-react";
+import { ArrowLeft, Play, MessageCircle, Send, Clock, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { formatKoreanNumber } from "@/utils/formatNumber";
 import { createClient } from "@/utils/supabase/client";
@@ -16,6 +16,7 @@ import type { ArtistTier } from "@/types/tier";
 
 interface Comment {
   id: string;
+  user_id: string;
   content: string;
   timestamp_sec: number | null;
   created_at: string;
@@ -114,6 +115,11 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
       setNewComment("");
     }
     setSubmitting(false);
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    await fetch(`/api/tracks/${id}/comments?commentId=${commentId}`, { method: "DELETE" });
+    setComments((prev) => prev.filter((c) => c.id !== commentId));
   };
 
   if (loading) {
@@ -251,6 +257,16 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
                       </span>
                     )}
                     <span className="text-xs text-[var(--color-text-muted)]">{timeAgo(c.created_at)}</span>
+                    {currentUserId === c.user_id && (
+                      <button
+                        type="button"
+                        onClick={() => void handleDeleteComment(c.id)}
+                        className="ml-auto rounded p-1 text-[var(--color-text-muted)] transition hover:text-red-400"
+                        aria-label="댓글 삭제"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+                      </button>
+                    )}
                   </div>
                   <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{c.content}</p>
                 </div>
@@ -260,18 +276,6 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
         )}
       </section>
 
-      {/* DB schema hint */}
-      <div className="rounded-xl border border-dashed border-[var(--color-border)] p-4 text-xs text-[var(--color-text-muted)]">
-        <p className="font-mono font-semibold mb-1">필요 DB 스키마 (최초 1회 실행)</p>
-        <pre className="whitespace-pre-wrap">{`CREATE TABLE track_comments (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  track_id uuid REFERENCES tracks(id) ON DELETE CASCADE,
-  user_id uuid REFERENCES auth.users(id),
-  content text NOT NULL CHECK (char_length(content) <= 500),
-  timestamp_sec int,
-  created_at timestamptz DEFAULT now()
-);`}</pre>
-      </div>
     </div>
   );
 }

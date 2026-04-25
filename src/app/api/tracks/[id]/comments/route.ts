@@ -11,10 +11,7 @@ export async function GET(
   try {
     const { data } = await supabase
       .from("track_comments")
-      .select(`
-        id, content, timestamp_sec, created_at,
-        users ( nickname )
-      `)
+      .select("id, user_id, content, timestamp_sec, created_at, users!track_comments_user_id_fkey(nickname)")
       .eq("track_id", id)
       .order("created_at", { ascending: true })
       .limit(100);
@@ -57,4 +54,28 @@ export async function POST(
   } catch {
     return NextResponse.json({ error: "댓글 저장에 실패했습니다" }, { status: 500 });
   }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "로그인이 필요합니다" }, { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const commentId = searchParams.get("commentId");
+  if (!commentId) return NextResponse.json({ error: "commentId required" }, { status: 400 });
+
+  const { error } = await supabase
+    .from("track_comments")
+    .delete()
+    .eq("id", commentId)
+    .eq("track_id", id)
+    .eq("user_id", user.id); // RLS도 보장하지만 이중 체크
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ success: true });
 }

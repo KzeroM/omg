@@ -29,6 +29,63 @@ export async function getTopChartTracks(limit = 5): Promise<ChartTrack[]> {
   }));
 }
 
+/** 기간 + 태그 필터 차트 — get_chart_tracks RPC 사용 */
+export async function getChartByPeriod(
+  period: 'daily' | 'weekly' | 'monthly' = 'weekly',
+  tagIds: string[] = [],
+  limit = 50
+): Promise<ChartTrack[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc('get_chart_tracks', {
+    p_period: period,
+    p_tag_ids: tagIds,
+    p_limit: limit,
+  });
+
+  if (error || !data) return [];
+
+  return (data as Record<string, unknown>[]).map((row, i) => ({
+    id: row.id as string,
+    rank: i + 1,
+    title: (row.title as string | null) ?? '제목 없음',
+    artist: (row.artist as string | null) ?? 'Unknown Artist',
+    coverColor: pickCoverColor(row.id as string),
+    isFoundingMember: false,
+    file_path: (row.file_path as string | null) ?? undefined,
+    play_count: Number(row.play_count ?? 0),
+    like_count: Number(row.like_count ?? 0),
+    period_plays: Number(row.period_plays ?? 0),
+    period_likes: Number(row.period_likes ?? 0),
+    score: Number(row.score ?? 0),
+  }));
+}
+
+/** 최신 등록 트랙 목록 (created_at DESC) */
+export async function getLatestTracks(limit = 20): Promise<ChartTrack[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('tracks')
+    .select('id, title, artist, play_count, like_count, file_path, created_at, users!user_id(artist_tier, nickname)')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error || !data) return [];
+
+  return data.map((row, i) => ({
+    id: row.id as string,
+    rank: i + 1,
+    title: (row.title as string | null) ?? '제목 없음',
+    artist: (row.artist as string | null) ?? 'Unknown Artist',
+    coverColor: pickCoverColor(row.id as string),
+    isFoundingMember: false,
+    file_path: (row.file_path as string | null) ?? undefined,
+    play_count: (row.play_count as number | null) ?? 0,
+    like_count: (row.like_count as number | null) ?? 0,
+    artist_tier: (row.users as { artist_tier?: string; nickname?: string } | null)?.artist_tier as ArtistTier ?? 'basic',
+    uploader_nickname: (row.users as { artist_tier?: string; nickname?: string } | null)?.nickname,
+  }));
+}
+
 /** 재생 시 play_count를 1 증가시킵니다. 로그인 불필요 (SECURITY DEFINER). */
 export async function incrementPlayCount(trackId: string): Promise<void> {
   if (!trackId || trackId.startsWith("upload-")) return; // 로컬 blob 트랙 제외

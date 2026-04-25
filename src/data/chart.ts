@@ -12,6 +12,9 @@ export interface ChartTrack {
   play_count?: number;
   artist_tier?: ArtistTier;
   uploader_nickname?: string; // public.users.nickname (업로더의 플랫폼 닉네임)
+  period_plays?: number;
+  period_likes?: number;
+  score?: number;
 }
 
 export interface PopularArtist {

@@ -58,7 +58,7 @@
 
 ---
 
-## 🚀 현재 스프린트 — v7 (마이페이지 개편 + 온보딩 + 개인화)
+## ✅ v7 완료 — 마이페이지 개편 + 온보딩 + 개인화
 
 > 목표: 메뉴 목적 명확화 + 퍼널 분석 기반 마련 + 개인화 차트 완성
 > v7 P0 완료: 마이페이지 2탭 + 비로그인 UI + 스켈레톤 전체 + 최신 등록곡 홈 이동 (2026-04-26)
@@ -81,12 +81,12 @@
 | 123 | My Vibe — 취향 태그 시각화 + 개인화 차트 | ✅ 완료 | #33 | 재생·좋아요 태그 빈도(likes 2×) → 비중 바차트 → /chart?tags= 링크 |
 | 128 | 앨범 단위 관리 | ✅ 완료 | #34 | manage_album_tracks RPC + 마이페이지 아티스트 탭 앨범 섹션 |
 
-### P2 — 아티스트 도구
+### P2 — 아티스트 도구 ✅ 전체 완료
 
-| # | 작업 | 상태 | Tier | 비고 |
-|---|------|------|------|------|
-| 144 | 신곡 업로드 시 팔로워 알림 | 📋 대기 | 1 | notifications 테이블 재활용 |
-| 141 | 트랙 공개 설정 (비공개·팔로워·전체) | 📋 대기 | 2 | `tracks.visibility` 컬럼 |
+| # | 작업 | 상태 | PR | 비고 |
+|---|------|------|-----|------|
+| 144 | 신곡 업로드 시 팔로워 알림 | ✅ 완료 | #35 | notifyFollowers 헬퍼, 공개 트랙만 알림 |
+| 141 | 트랙 공개 설정 (비공개·팔로워·전체) | ✅ 완료 | #35 | `tracks.visibility` 컬럼 + UploadButton 범위 선택 UI |
 
 ### v8 이후 이동
 
@@ -256,3 +256,5 @@
 | 172 | 온보딩 4단계 모달 — referral/purpose/birth_date+gender/태그, DB migration, /api/user/onboarding, constants/survey.ts | 2026-04-26 | PR#32 |
 | 123 | My Vibe 취향 태그 시각화 — /api/user/taste-tags, MyVibeSection 바차트, Chart URL tag pre-selection | 2026-04-26 | PR#33 |
 | 128 | 앨범 단위 관리 — manage_album_tracks SECURITY DEFINER RPC + 마이페이지 아티스트 탭 앨범 섹션 + album/[id] 스켈레톤 | 2026-04-26 | PR#34 |
+| 141 | 트랙 공개 설정 — tracks.visibility 컬럼 + UploadButton 공개 범위 선택 UI + 차트/검색/아티스트 쿼리 필터 | 2026-04-26 | PR#35 |
+| 144 | 신곡 팔로워 알림 — 공개 업로드 완료 시 follows 조회 후 new_track 알림 일괄 발송 | 2026-04-26 | PR#35 |

@@ -13,8 +13,8 @@
 | #172 온보딩 플로우 | feat/v7d-onboarding | ✅ PR #32 머지됨 | DB migration 완료 |
 | #123 My Vibe 취향 태그 시각화 | feat/v7e-myvibe | ✅ PR #33 머지됨 | /api/user/taste-tags + MyVibeSection |
 | #128 앨범 단위 관리 | feat/v7f-album | ✅ PR #34 머지됨 | manage_album_tracks RPC + 아티스트 탭 UI |
-| #144 신곡 업로드 시 팔로워 알림 | — | 🔜 미착수 | 다음 작업 |
-| #141 트랙 공개 설정 | — | 🔜 미착수 | |
+| #144 신곡 업로드 시 팔로워 알림 | feat/v7p2-artist-tools | ✅ PR #35 머지됨 | |
+| #141 트랙 공개 설정 | feat/v7p2-artist-tools | ✅ PR #35 머지됨 | |
 
 ## v7 P1 완료 요약
 - PR #32: 온보딩 4단계 모달 (referral→purpose→birth_date+gender→태그), DB migration (birth_date/gender/primary_purpose/referral_source/preferred_tag_ids), /api/user/onboarding, constants/survey.ts
@@ -28,9 +28,12 @@
 - birth_date IS NULL = 온보딩 미완료 (onboarding_done 컬럼 불필요)
 - DB 정수 코드: constants/survey.ts 단일 소스 관리
 
+## v7 P2 완료 요약
+- PR #35: 트랙 공개 설정(tracks.visibility 컬럼 + UploadButton 범위 선택 UI) + 신곡 팔로워 알림(notifyFollowers 헬퍼) + 차트/검색/아티스트 쿼리 visibility 필터
+
 ## 다음 할 일
-1. #144 신곡 업로드 시 팔로워 알림 — notifications 테이블 재활용
-2. #141 트랙 공개 설정 (비공개·팔로워·전체) — tracks.visibility 컬럼 추가
+- v7 스프린트 전체 완료 ✅
+- v8 스프린트 계획 (CEO 결정 필요)
 
 ## 마지막 커밋
-main @ 104cd3c — feat: 앨범 단위 관리 + 마이페이지 아티스트 탭 앨범 섹션 (PR #34)
+main @ b81c5d9 — feat: 트랙 공개 설정(#141) + 신곡 팔로워 알림(#144) (PR #35)

@@ -5,7 +5,7 @@ import { Search, Play, Pause, X } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { formatKoreanNumber } from "@/utils/formatNumber";
 import { usePlayer } from "@/context/PlayerContext";
-import { LoadingState } from "@/components/ui/LoadingState";
+import { TrackListSkeleton } from "@/components/skeletons/SkeletonRow";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { PlaylistTrack } from "@/types/player";
 
@@ -206,7 +206,7 @@ export default function SearchPage() {
 
       {/* 결과 */}
       {loading ? (
-        <LoadingState message="검색 중…" />
+        <TrackListSkeleton rows={5} />
       ) : searched && results.length === 0 ? (
         <EmptyState title="검색 결과가 없습니다." description="다른 키워드나 태그를 시도해보세요." />
       ) : results.length > 0 ? (

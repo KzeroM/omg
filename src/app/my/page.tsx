@@ -10,8 +10,8 @@ import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
 import type { PlaylistTrack, HistoryTrack } from "@/types/player";
 import { Toast } from "@/components/Toast";
-import { LoadingState } from "@/components/ui/LoadingState";
 import { formatKoreanNumber } from "@/utils/formatNumber";
+import { ProfileHeaderSkeleton, TrackListSkeleton } from "@/components/skeletons/SkeletonRow";
 import {
   getLikedTracks,
   getPlayHistory,
@@ -112,8 +112,10 @@ export default function MyPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-5xl px-6 py-8">
-        <LoadingState />
+      <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
+        <ProfileHeaderSkeleton />
+        <div className="h-12 animate-pulse rounded-xl bg-[var(--color-bg-surface)] ring-1 ring-[var(--color-border)]" />
+        <TrackListSkeleton rows={5} />
       </div>
     );
   }

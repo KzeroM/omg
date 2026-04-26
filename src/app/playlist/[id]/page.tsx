@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePlayer } from "@/context/PlayerContext";
 import { pickCoverColor } from "@/utils/coverColor";
 import { TrackRow } from "@/components/TrackRow";
+import { TrackListSkeleton } from "@/components/skeletons/SkeletonRow";
 import type { PlaylistTrack } from "@/types/player";
 import type { ArtistTier } from "@/types/tier";
 
@@ -103,7 +104,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
     window.location.href = "/my";
   };
 
-  if (loading) return <div className="mx-auto max-w-2xl px-6 py-16 text-center"><p className="text-[var(--color-text-muted)]">불러오는 중…</p></div>;
+  if (loading) return <div className="mx-auto max-w-2xl space-y-4 px-6 py-8"><TrackListSkeleton rows={6} /></div>;
   if (error || !playlist) return (
     <div className="mx-auto max-w-2xl px-6 py-16 text-center">
       <p className="text-[var(--color-text-muted)]">{error ?? "플레이리스트를 찾을 수 없습니다."}</p>

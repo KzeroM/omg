@@ -222,7 +222,17 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
 
   return (
     <>
-      {/* 오디오 파일 input (label 내장) */}
+      {/* 파일 input (hidden — button.onClick에서 ref.click()으로 활성화) */}
+      <input
+        ref={audioInputRef}
+        type="file"
+        accept=".mp3"
+        className="hidden"
+        onChange={handleAudioChange}
+        disabled={loading}
+        aria-hidden="true"
+      />
+
       {isLoggedIn === false ? (
         <button
           type="button"
@@ -234,20 +244,15 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
           곡 올리기
         </button>
       ) : (
-        <label
-          className={`relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-xl bg-[var(--color-accent)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)] ${loading ? "pointer-events-none opacity-60" : ""}`}
+        <button
+          type="button"
+          onClick={() => audioInputRef.current?.click()}
+          disabled={loading}
+          className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)] disabled:opacity-60"
         >
-          <input
-            ref={audioInputRef}
-            type="file"
-            accept=".mp3"
-            className="absolute inset-0 cursor-pointer opacity-0"
-            onChange={handleAudioChange}
-            disabled={loading}
-          />
           <Upload className="h-4 w-4" strokeWidth={2} />
           {loading ? "업로드 중…" : "곡 올리기"}
-        </label>
+        </button>
       )}
 
       {showAuthModal && (

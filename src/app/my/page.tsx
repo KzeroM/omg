@@ -20,6 +20,7 @@ import {
 } from "@/utils/supabase/tracks";
 import TasteAnalysisSection from "@/components/TasteAnalysis";
 import { UploadButton } from "@/components/UploadButton";
+import { AddToPlaylistButton } from "@/components/AddToPlaylistButton";
 import { getAlbumsByUserId, createAlbum } from "@/utils/supabase/albums";
 import type { DbAlbum } from "@/types/album";
 
@@ -37,7 +38,7 @@ interface MyTrack {
   artist: string;
   play_count: number;
   like_count: number;
-  cover_color: string | null;
+  cover_url: string | null;
   created_at: string;
 }
 
@@ -79,7 +80,7 @@ export default function MyPage() {
         fetch("/api/playlists").then((r) => r.json() as Promise<{ playlists?: { id: string; title: string; is_public: boolean }[] }>).catch(() => ({ playlists: [] })),
         supabase
           .from("tracks")
-          .select("id, title, artist, play_count, like_count, cover_color, created_at")
+          .select("id, title, artist, play_count, like_count, cover_url, created_at")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false }),
         getAlbumsByUserId(user.id).catch(() => [] as DbAlbum[]),
@@ -452,7 +453,7 @@ export default function MyPage() {
                   첫 번째 곡을 올리고 아티스트로 활동을 시작해 보세요.
                 </p>
                 <div className="flex justify-center">
-                  <UploadButton onUploadSuccess={() => void loadData()} />
+                  <UploadButton onUploadSuccess={loadData} />
                 </div>
               </section>
             ) : (
@@ -532,12 +533,12 @@ export default function MyPage() {
                         내 트랙 ({myTracks.length})
                       </h2>
                     </div>
-                    <UploadButton onUploadSuccess={() => void loadData()} />
+                    <UploadButton onUploadSuccess={loadData} />
                   </div>
                   <ul className="flex flex-col gap-1">
                     {myTracks.map((track) => {
                       const isCurrentTrack = currentTrack?.id === track.id;
-                      const coverColor = track.cover_color ?? "from-purple-700 to-purple-900";
+                      const coverColor = "from-purple-700 to-purple-900";
                       return (
                         <li
                           key={track.id}
@@ -560,6 +561,7 @@ export default function MyPage() {
                               {formatKoreanNumber(track.like_count ?? 0)}
                             </span>
                           </div>
+                          <AddToPlaylistButton trackId={track.id} />
                         </li>
                       );
                     })}

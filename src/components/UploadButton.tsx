@@ -101,9 +101,9 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
       setIsLoggedIn(!!user);
       if (user) {
         const { data } = await supabase
-          .from("profiles")
+          .from("users")
           .select("nickname")
-          .eq("id", user.id)
+          .eq("user_id", user.id)
           .single();
         if (data?.nickname) setProfileNickname(data.nickname as string);
       }
@@ -113,9 +113,9 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
       if (session?.user) {
         const supabase2 = createClient();
         const { data } = await supabase2
-          .from("profiles")
+          .from("users")
           .select("nickname")
-          .eq("id", session.user.id)
+          .eq("user_id", session.user.id)
           .single();
         if (data?.nickname) setProfileNickname(data.nickname as string);
       } else {

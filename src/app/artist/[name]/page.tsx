@@ -74,8 +74,9 @@ export default function ArtistPage({
     let displayName = decoded;
 
     if (userRow) {
-      // nickname 일치 → user_id로 tracks 조회
-      tracksResult = await getTracksByUserId(userRow.user_id);
+      // nickname 일치 → user_id로 tracks 조회 (타인 방문 시 private 제외)
+      const isOwner = user?.id === userRow.user_id;
+      tracksResult = await getTracksByUserId(userRow.user_id, isOwner);
       displayName = userRow.nickname;
       setArtistUserId(userRow.user_id);
       setFollowerCount(userRow.follower_count ?? 0);

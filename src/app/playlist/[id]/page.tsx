@@ -228,26 +228,6 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
         </section>
       )}
 
-      {/* DB schema hint */}
-      <div className="rounded-xl border border-dashed border-[var(--color-border)] p-4 text-xs text-[var(--color-text-muted)]">
-        <p className="font-mono font-semibold mb-1">필요 DB 스키마 (최초 1회 실행)</p>
-        <pre className="whitespace-pre-wrap">{`CREATE TABLE playlists (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid REFERENCES auth.users(id) NOT NULL,
-  title text NOT NULL,
-  description text,
-  is_public boolean DEFAULT false,
-  created_at timestamptz DEFAULT now()
-);
-CREATE TABLE playlist_tracks (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  playlist_id uuid REFERENCES playlists(id) ON DELETE CASCADE,
-  track_id uuid REFERENCES tracks(id) ON DELETE CASCADE,
-  position int DEFAULT 0,
-  added_at timestamptz DEFAULT now(),
-  UNIQUE (playlist_id, track_id)
-);`}</pre>
-      </div>
     </div>
   );
 }

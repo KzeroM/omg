@@ -75,7 +75,11 @@ export function TrackRow({
         ))}
       </div>
 
-      {trailing}
+      {trailing != null && (
+        <div className="flex shrink-0 items-center gap-2">
+          {trailing}
+        </div>
+      )}
     </li>
   );
 }

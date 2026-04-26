@@ -10,6 +10,7 @@ import { EditTrackModal } from "@/components/EditTrackModal";
 import { formatKoreanNumber } from "@/utils/formatNumber";
 import { UploadButton } from "@/components/UploadButton";
 import { TrackListSkeleton } from "@/components/skeletons/SkeletonRow";
+import { AddToPlaylistButton } from "@/components/AddToPlaylistButton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TrackRow } from "@/components/TrackRow";
 import Link from "next/link";
@@ -259,6 +260,7 @@ export default function LibraryPage() {
                           {formatKoreanNumber(track.like_count ?? 0)}
                         </span>
                       </div>
+                      <AddToPlaylistButton trackId={track.id} />
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); setEditingTrack(track); }}

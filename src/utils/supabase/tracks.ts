@@ -199,13 +199,15 @@ export async function getTracksByArtist(artistName: string): Promise<DbTrack[]> 
 }
 
 /** user_id 기반으로 해당 사용자의 트랙 목록 반환 */
-export async function getTracksByUserId(userId: string): Promise<DbTrack[]> {
+export async function getTracksByUserId(userId: string, includePrivate = true): Promise<DbTrack[]> {
   const supabase = createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("tracks")
     .select("id, user_id, artist_id, file_path, title, artist, created_at, like_count, play_count, users!user_id(artist_tier)")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
+  if (!includePrivate) query = query.neq("visibility", "private");
+  const { data, error } = await query;
 
   if (error || !data) return [];
 

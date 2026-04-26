@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Play, Pause, Heart, History, Users, Settings,
   Sparkles, ListMusic, LogIn, Music2, BarChart2, Upload, Plus, X, Disc3,
@@ -19,6 +19,7 @@ import {
   type FollowedArtist,
 } from "@/utils/supabase/tracks";
 import TasteAnalysisSection from "@/components/TasteAnalysis";
+import { UploadButton } from "@/components/UploadButton";
 import { getAlbumsByUserId, createAlbum } from "@/utils/supabase/albums";
 import type { DbAlbum } from "@/types/album";
 
@@ -58,56 +59,55 @@ export default function MyPage() {
   const [toast, setToast] = useState<string | null>(null);
   const { currentTrack, isPlaying, addTrack, playTrack, newReleases } = usePlayer();
 
-  useEffect(() => {
-    const load = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setIsLoggedIn(false);
-        setLoading(false);
-        return;
-      }
-      setIsLoggedIn(true);
-
-      const [{ data: profile }, liked, history, followed, recsRes, playlistsRes, { data: tracks }, albums] =
-        await Promise.all([
-          supabase.from("users").select("nickname, bio, artist_tier").eq("user_id", user.id).single(),
-          getLikedTracks().catch(() => [] as PlaylistTrack[]),
-          getPlayHistory(5).catch(() => [] as HistoryTrack[]),
-          getFollowedArtists().catch(() => [] as FollowedArtist[]),
-          fetch("/api/user/recommendations").then((r) => r.json() as Promise<{ tracks?: PlaylistTrack[] }>).catch(() => ({ tracks: [] })),
-          fetch("/api/playlists").then((r) => r.json() as Promise<{ playlists?: { id: string; title: string; is_public: boolean }[] }>).catch(() => ({ playlists: [] })),
-          supabase
-            .from("tracks")
-            .select("id, title, artist, play_count, like_count, cover_color, created_at")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: false }),
-          getAlbumsByUserId(user.id).catch(() => [] as DbAlbum[]),
-        ]);
-
-      if (profile) {
-        setUserInfo({
-          nickname: profile.nickname as string | null,
-          bio: profile.bio as string | null,
-          artist_tier: profile.artist_tier as string | null,
-        });
-      }
-      setLikedTracks(liked);
-      setRecentHistory(history);
-      setFollowedArtists(followed);
-      setRecommendations(recsRes.tracks ?? []);
-      setPlaylists(playlistsRes.playlists ?? []);
-      setMyTracks((tracks ?? []) as MyTrack[]);
-      setMyAlbums(albums);
-      setLoading(false);
-    };
-
-    void load();
-
+  const loadData = useCallback(async () => {
     const supabase = createClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => { void load(); });
-    return () => subscription.unsubscribe();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setIsLoggedIn(false);
+      setLoading(false);
+      return;
+    }
+    setIsLoggedIn(true);
+
+    const [{ data: profile }, liked, history, followed, recsRes, playlistsRes, { data: tracks }, albums] =
+      await Promise.all([
+        supabase.from("users").select("nickname, bio, artist_tier").eq("user_id", user.id).single(),
+        getLikedTracks().catch(() => [] as PlaylistTrack[]),
+        getPlayHistory(5).catch(() => [] as HistoryTrack[]),
+        getFollowedArtists().catch(() => [] as FollowedArtist[]),
+        fetch("/api/user/recommendations").then((r) => r.json() as Promise<{ tracks?: PlaylistTrack[] }>).catch(() => ({ tracks: [] })),
+        fetch("/api/playlists").then((r) => r.json() as Promise<{ playlists?: { id: string; title: string; is_public: boolean }[] }>).catch(() => ({ playlists: [] })),
+        supabase
+          .from("tracks")
+          .select("id, title, artist, play_count, like_count, cover_color, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }),
+        getAlbumsByUserId(user.id).catch(() => [] as DbAlbum[]),
+      ]);
+
+    if (profile) {
+      setUserInfo({
+        nickname: profile.nickname as string | null,
+        bio: profile.bio as string | null,
+        artist_tier: profile.artist_tier as string | null,
+      });
+    }
+    setLikedTracks(liked);
+    setRecentHistory(history);
+    setFollowedArtists(followed);
+    setRecommendations(recsRes.tracks ?? []);
+    setPlaylists(playlistsRes.playlists ?? []);
+    setMyTracks((tracks ?? []) as MyTrack[]);
+    setMyAlbums(albums);
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    void loadData();
+    const supabase = createClient();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => { void loadData(); });
+    return () => subscription.unsubscribe();
+  }, [loadData]);
 
   const handlePlay = (track: PlaylistTrack | HistoryTrack) => {
     const pt = track as PlaylistTrack;
@@ -448,9 +448,12 @@ export default function MyPage() {
                   <Upload className="h-7 w-7 text-[var(--color-accent)]" strokeWidth={1.5} />
                 </div>
                 <p className="text-base font-bold text-[var(--color-text-primary)]">아직 올린 곡이 없어요</p>
-                <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                  첫 번째 곡을 올려보세요. 헤더의 업로드 버튼을 눌러 시작할 수 있어요.
+                <p className="mt-1 mb-5 text-sm text-[var(--color-text-secondary)]">
+                  첫 번째 곡을 올리고 아티스트로 활동을 시작해 보세요.
                 </p>
+                <div className="flex justify-center">
+                  <UploadButton onUploadSuccess={() => void loadData()} />
+                </div>
               </section>
             ) : (
               <>
@@ -522,11 +525,14 @@ export default function MyPage() {
 
                 {/* 내 트랙 목록 */}
                 <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
-                  <div className="mb-4 flex items-center gap-2">
-                    <Music2 className="h-4 w-4 text-[var(--color-text-muted)]" />
-                    <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">
-                      내 트랙 ({myTracks.length})
-                    </h2>
+                  <div className="mb-4 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Music2 className="h-4 w-4 text-[var(--color-text-muted)]" />
+                      <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">
+                        내 트랙 ({myTracks.length})
+                      </h2>
+                    </div>
+                    <UploadButton onUploadSuccess={() => void loadData()} />
                   </div>
                   <ul className="flex flex-col gap-1">
                     {myTracks.map((track) => {

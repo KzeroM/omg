@@ -49,6 +49,7 @@ export function FollowedArtistsFeed() {
         .from("tracks")
         .select("id, title, artist, file_path, play_count, like_count, created_at, user_id, users!tracks_user_id_fkey(nickname, artist_tier)")
         .in("user_id", artistIds)
+        .neq("visibility", "private")
         .order("created_at", { ascending: false })
         .limit(10);
 

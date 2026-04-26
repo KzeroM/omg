@@ -1,9 +1,8 @@
 import { Chart } from "@/components/Chart";
-import { NewReleasesChart } from "@/components/NewReleasesChart";
 
 export const metadata = {
   title: "차트 | OMG",
-  description: "일간/주간/월간 인기 차트 및 최신 등록곡",
+  description: "일간/주간/월간 인기 차트",
 };
 
 export default function ChartPage() {
@@ -13,9 +12,6 @@ export default function ChartPage() {
 
       {/* 인기 차트 — 기간 + 태그 필터 */}
       <Chart />
-
-      {/* 최신 등록곡 */}
-      <NewReleasesChart />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Play, Pause, Heart, History, Users, Settings, Sparkles, ListMusic } from "lucide-react";
+import { Play, Pause, Heart, History, Users, Settings, Sparkles, ListMusic, LogIn } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
@@ -31,6 +31,7 @@ export default function MyPage() {
   const [recommendations, setRecommendations] = useState<PlaylistTrack[]>([]);
   const [playlists, setPlaylists] = useState<{ id: string; title: string; is_public: boolean }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const { currentTrack, isPlaying, addTrack, playTrack, newReleases } = usePlayer();
 
@@ -38,7 +39,12 @@ export default function MyPage() {
     const load = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
+      if (!user) {
+        setIsLoggedIn(false);
+        setLoading(false);
+        return;
+      }
+      setIsLoggedIn(true);
 
       const [{ data: profile }, liked, history, followed, recsRes, playlistsRes] = await Promise.all([
         supabase.from("users").select("nickname, bio, artist_tier").eq("user_id", user.id).single(),
@@ -84,6 +90,30 @@ export default function MyPage() {
     return (
       <div className="mx-auto max-w-5xl px-6 py-8">
         <LoadingState />
+      </div>
+    );
+  }
+
+  if (isLoggedIn === false) {
+    return (
+      <div className="mx-auto max-w-5xl px-6 py-8">
+        <div className="flex flex-col items-center justify-center gap-6 rounded-2xl bg-[var(--color-bg-surface)] px-8 py-20 text-center ring-1 ring-[var(--color-border)]">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-accent-subtle)]">
+            <LogIn className="h-8 w-8 text-[var(--color-accent)]" strokeWidth={1.5} />
+          </div>
+          <div>
+            <p className="text-lg font-bold text-[var(--color-text-primary)]">로그인이 필요해요</p>
+            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+              마이페이지는 로그인 후 이용할 수 있어요.
+            </p>
+          </div>
+          <Link
+            href="/"
+            className="rounded-xl bg-[var(--color-accent)] px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            로그인하러 가기
+          </Link>
+        </div>
       </div>
     );
   }

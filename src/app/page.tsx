@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { HeroBanner } from "@/components/HeroBanner";
 import { NewReleases } from "@/components/NewReleases";
+import { NewReleasesChart } from "@/components/NewReleasesChart";
 import { AlbumGridServer } from "@/components/AlbumGridServer";
 import { DiscoverySectionServer } from "@/components/DiscoverySectionServer";
 import { AnnouncementBanner } from "@/components/AnnouncementBanner";
@@ -23,6 +24,7 @@ export default function Home() {
       {/* 메인 콘텐츠 — 각 섹션 독립 스트리밍 */}
       <div className="mt-8 space-y-8">
         <NewReleases />
+        <NewReleasesChart />
         <FollowedArtistsFeed />
         <Suspense fallback={<DiscoverySkeleton />}>
           <DiscoverySectionServer />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useId } from "react";
 import { Upload, X, Globe, Users, Lock } from "lucide-react";
 import { usePlayer } from "@/context/PlayerContext";
 import { createClient } from "@/utils/supabase/client";
@@ -82,6 +82,7 @@ async function extractId3Tags(file: File): Promise<{ title?: string; artist?: st
 }
 
 export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
+  const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const { addTrack, loadTracksFromDB } = usePlayer();
   const [toast, setToast] = useState<string | null>(null);
@@ -156,6 +157,8 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
     const guessedTitle = file.name.replace(/\.(mp3|m4a|mp4|wav|flac|ogg)$/i, "");
     setTrackTitle(tags.title || guessedTitle);
     setArtistName(tags.artist || profileNickname || "");
+    setUploadStep(null);
+    setUploadError(null);
     setPendingFile(file);
     e.target.value = "";
   };
@@ -181,7 +184,8 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
         addTrack(track);
         await loadTracksFromDB();
         onUploadSuccess?.();
-        // uploadStep이 'done'으로 설정돼 모달에 "완료" 버튼이 표시됨
+        setPendingFile(null);
+        setUploadStep(null);
       } catch (err) {
         const msg = err instanceof Error ? err.message
           : (err as { message?: string })?.message
@@ -200,27 +204,32 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
     <>
       <input
         ref={inputRef}
+        id={inputId}
         type="file"
         accept=".mp3,.m4a,.mp4,.wav,.flac,.ogg,audio/*"
-        className="hidden"
+        className="sr-only"
         onChange={handleChange}
         disabled={loading}
       />
-      <button
-        type="button"
-        onClick={() => {
-          if (isLoggedIn === false) {
-            setShowAuthModal(true);
-            return;
-          }
-          inputRef.current?.click();
-        }}
-        disabled={loading}
-        className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)] disabled:opacity-60"
-      >
-        <Upload className="h-4 w-4" strokeWidth={2} />
-        {loading ? "업로드 중…" : "곡 올리기"}
-      </button>
+      {isLoggedIn === false ? (
+        <button
+          type="button"
+          onClick={() => setShowAuthModal(true)}
+          disabled={loading}
+          className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)] disabled:opacity-60"
+        >
+          <Upload className="h-4 w-4" strokeWidth={2} />
+          곡 올리기
+        </button>
+      ) : (
+        <label
+          htmlFor={inputId}
+          className={`inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--color-accent)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)] ${loading ? "pointer-events-none opacity-60" : ""}`}
+        >
+          <Upload className="h-4 w-4" strokeWidth={2} />
+          {loading ? "업로드 중…" : "곡 올리기"}
+        </label>
+      )}
 
       {showAuthModal && (
         <AuthModal
@@ -239,7 +248,7 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
               <button
                 type="button"
                 onClick={() => { setPendingFile(null); setUploadError(null); setUploadStep(null); }}
-                disabled={uploadStep !== null && uploadStep !== 'done'}
+                disabled={uploadStep === 'uploading' || uploadStep === 'inserting'}
                 className="rounded-lg p-1 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <X className="h-4 w-4" />
@@ -305,8 +314,8 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => { setPendingFile(null); setUploadError(null); }}
-                disabled={uploadStep !== null}
+                onClick={() => { setPendingFile(null); setUploadError(null); setUploadStep(null); }}
+                disabled={uploadStep === 'uploading' || uploadStep === 'inserting'}
                 className="flex-1 rounded-xl bg-[var(--color-bg-elevated)] py-2.5 text-sm text-[var(--color-text-secondary)] transition hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 취소
@@ -319,24 +328,11 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
                 >
                   업로드
                 </button>
-              ) : uploadStep === 'uploading' ? (
-                <div className="flex-1 rounded-xl bg-[var(--color-accent)] py-2.5 text-sm font-medium text-[var(--color-text-primary)] flex items-center justify-center gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--color-text-primary)] border-t-transparent" />
-                  서버에 업로드 중...
-                </div>
-              ) : uploadStep === 'inserting' ? (
-                <div className="flex-1 rounded-xl bg-[var(--color-accent)] py-2.5 text-sm font-medium text-[var(--color-text-primary)] flex items-center justify-center gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--color-text-primary)] border-t-transparent" />
-                  정보 저장 중...
-                </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => { setPendingFile(null); setUploadStep(null); setUploadError(null); }}
-                  className="flex-1 rounded-xl bg-[var(--color-accent)] py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)]"
-                >
-                  완료
-                </button>
+                <div className="flex-1 rounded-xl bg-[var(--color-accent)] py-2.5 text-sm font-medium text-[var(--color-text-primary)] flex items-center justify-center gap-2">
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--color-text-primary)] border-t-transparent" />
+                  {uploadStep === 'uploading' ? '서버에 업로드 중...' : '정보 저장 중...'}
+                </div>
               )}
             </div>
           </div>

@@ -31,9 +31,15 @@
 ## v7 P2 완료 요약
 - PR #35: 트랙 공개 설정(tracks.visibility 컬럼 + UploadButton 범위 선택 UI) + 신곡 팔로워 알림(notifyFollowers 헬퍼) + 차트/검색/아티스트 쿼리 visibility 필터
 
+## Prod 배포 현황
+- **배포 SHA**: f5c44ed (main HEAD)
+- **상태**: READY ✅ — omg-iota.vercel.app
+- **자동화**: GitHub Actions deploy.yml (VERCEL_TOKEN 시크릿 등록 완료)
+  → main push 시 자동 배포
+
 ## 다음 할 일
-- v7 스프린트 전체 완료 ✅
+- v7 스프린트 전체 완료 ✅, prod 배포 완료 ✅
 - v8 스프린트 계획 (CEO 결정 필요)
 
 ## 마지막 커밋
-main @ b81c5d9 — feat: 트랙 공개 설정(#141) + 신곡 팔로워 알림(#144) (PR #35)
+main @ f5c44ed — ci: GitHub Actions Vercel 자동 배포 워크플로우 추가

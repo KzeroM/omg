@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   Play, Pause, Heart, History, Users, Settings,
-  Sparkles, ListMusic, LogIn, Music2, BarChart2, Upload,
+  Sparkles, ListMusic, LogIn, Music2, BarChart2, Upload, Plus, X, Disc3,
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
@@ -19,6 +19,8 @@ import {
   type FollowedArtist,
 } from "@/utils/supabase/tracks";
 import TasteAnalysisSection from "@/components/TasteAnalysis";
+import { getAlbumsByUserId, createAlbum } from "@/utils/supabase/albums";
+import type { DbAlbum } from "@/types/album";
 
 type Tab = "listener" | "artist";
 
@@ -47,6 +49,10 @@ export default function MyPage() {
   const [recommendations, setRecommendations] = useState<PlaylistTrack[]>([]);
   const [playlists, setPlaylists] = useState<{ id: string; title: string; is_public: boolean }[]>([]);
   const [myTracks, setMyTracks] = useState<MyTrack[]>([]);
+  const [myAlbums, setMyAlbums] = useState<DbAlbum[]>([]);
+  const [showCreateAlbum, setShowCreateAlbum] = useState(false);
+  const [newAlbumTitle, setNewAlbumTitle] = useState("");
+  const [creatingAlbum, setCreatingAlbum] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -63,7 +69,7 @@ export default function MyPage() {
       }
       setIsLoggedIn(true);
 
-      const [{ data: profile }, liked, history, followed, recsRes, playlistsRes, { data: tracks }] =
+      const [{ data: profile }, liked, history, followed, recsRes, playlistsRes, { data: tracks }, albums] =
         await Promise.all([
           supabase.from("users").select("nickname, bio, artist_tier").eq("user_id", user.id).single(),
           getLikedTracks().catch(() => [] as PlaylistTrack[]),
@@ -76,6 +82,7 @@ export default function MyPage() {
             .select("id, title, artist, play_count, like_count, cover_color, created_at")
             .eq("user_id", user.id)
             .order("created_at", { ascending: false }),
+          getAlbumsByUserId(user.id).catch(() => [] as DbAlbum[]),
         ]);
 
       if (profile) {
@@ -91,6 +98,7 @@ export default function MyPage() {
       setRecommendations(recsRes.tracks ?? []);
       setPlaylists(playlistsRes.playlists ?? []);
       setMyTracks((tracks ?? []) as MyTrack[]);
+      setMyAlbums(albums);
       setLoading(false);
     };
 
@@ -106,6 +114,21 @@ export default function MyPage() {
     const existingIndex = newReleases.findIndex((t) => t.id === pt.id);
     if (existingIndex !== -1) playTrack(existingIndex);
     else addTrack(pt);
+  };
+
+  const handleCreateAlbum = async () => {
+    if (!newAlbumTitle.trim()) return;
+    setCreatingAlbum(true);
+    try {
+      const album = await createAlbum({ title: newAlbumTitle.trim() });
+      setMyAlbums((prev) => [album, ...prev]);
+      setNewAlbumTitle("");
+      setShowCreateAlbum(false);
+    } catch {
+      setToast("앨범 생성에 실패했습니다.");
+    } finally {
+      setCreatingAlbum(false);
+    }
   };
 
   const avatarLetter = userInfo.nickname?.charAt(0).toUpperCase() ?? "?";
@@ -431,6 +454,72 @@ export default function MyPage() {
               </section>
             ) : (
               <>
+                {/* 내 앨범 */}
+                <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Disc3 className="h-4 w-4 text-[var(--color-text-muted)]" />
+                      <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">
+                        내 앨범 ({myAlbums.length})
+                      </h2>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateAlbum(true)}
+                      className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-[var(--color-text-secondary)] ring-1 ring-[var(--color-border)] transition hover:text-[var(--color-accent)] hover:ring-[var(--color-accent)]"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      앨범 만들기
+                    </button>
+                  </div>
+
+                  {/* 앨범 생성 인라인 폼 */}
+                  {showCreateAlbum && (
+                    <div className="mb-4 flex items-center gap-2 rounded-xl bg-[var(--color-bg-base)] p-3 ring-1 ring-[var(--color-accent)]">
+                      <input
+                        type="text"
+                        value={newAlbumTitle}
+                        onChange={(e) => setNewAlbumTitle(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && void handleCreateAlbum()}
+                        placeholder="앨범 제목"
+                        autoFocus
+                        className="flex-1 bg-transparent text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => void handleCreateAlbum()}
+                        disabled={!newAlbumTitle.trim() || creatingAlbum}
+                        className="rounded-lg bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                      >
+                        {creatingAlbum ? "저장 중…" : "만들기"}
+                      </button>
+                      <button type="button" onClick={() => { setShowCreateAlbum(false); setNewAlbumTitle(""); }}>
+                        <X className="h-4 w-4 text-[var(--color-text-muted)]" />
+                      </button>
+                    </div>
+                  )}
+
+                  {myAlbums.length === 0 ? (
+                    <p className="text-sm text-[var(--color-text-muted)]">아직 앨범이 없습니다.</p>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                      {myAlbums.map((album) => (
+                        <Link
+                          key={album.id}
+                          href={`/album/${album.id}`}
+                          className="flex items-center gap-3 rounded-xl bg-[var(--color-bg-base)] px-4 py-3 transition hover:bg-[var(--color-bg-hover)]"
+                        >
+                          <Disc3 className="h-8 w-8 shrink-0 text-[var(--color-accent)]" strokeWidth={1.5} />
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium text-[var(--color-text-primary)]">{album.title}</p>
+                            <p className="text-xs text-[var(--color-text-muted)]">앨범</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </section>
+
                 {/* 내 트랙 목록 */}
                 <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
                   <div className="mb-4 flex items-center gap-2">

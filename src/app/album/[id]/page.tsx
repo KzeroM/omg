@@ -6,7 +6,7 @@ import { ArrowLeft, Play, Pause } from "lucide-react";
 import { getAlbumWithTracks } from "@/utils/supabase/albums";
 import { usePlayer } from "@/context/PlayerContext";
 import { pickCoverColor } from "@/utils/coverColor";
-import { LoadingState } from "@/components/ui/LoadingState";
+import { TrackListSkeleton } from "@/components/skeletons/SkeletonRow";
 import type { AlbumWithTracks, AlbumTrackItem } from "@/types/album";
 import type { PlaylistTrack } from "@/types/player";
 
@@ -80,8 +80,9 @@ export default function AlbumPage({
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-5xl px-6 py-8">
-        <LoadingState />
+      <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
+        <div className="h-48 w-full animate-pulse rounded-2xl bg-[var(--color-bg-surface)]" />
+        <TrackListSkeleton rows={5} />
       </div>
     );
   }

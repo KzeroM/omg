@@ -10,6 +10,7 @@ import { usePlayer } from "@/context/PlayerContext";
 import { fetchArtistProfile } from "@/utils/user";
 import { formatKoreanNumber } from "@/utils/formatNumber";
 import { FollowButton } from "@/components/FollowButton";
+import { TrackListSkeleton } from "@/components/skeletons/SkeletonRow";
 import type { DbTrack, PlaylistTrack } from "@/types/player";
 import type { ArtistTier } from "@/types/tier";
 import type { SocialLinks } from "@/types/user";
@@ -305,7 +306,7 @@ export default function ArtistPage({
         </section>
 
         {loading ? (
-          <p className="text-[var(--color-text-muted)]">불러오는 중…</p>
+          <TrackListSkeleton rows={5} />
         ) : tracks.length === 0 ? (
           <div className="rounded-2xl bg-[var(--color-bg-surface)] p-8 text-center ring-1 ring-[var(--color-border)]">
             <p className="text-[var(--color-text-muted)]">이 아티스트의 곡이 없습니다.</p>

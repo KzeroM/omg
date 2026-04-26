@@ -10,6 +10,7 @@ import { LikeButton } from "@/components/LikeButton";
 import { ShareButton } from "@/components/ShareButton";
 import { ReportButton } from "@/components/ReportButton";
 import { TierBadge } from "@/components/TierBadge";
+import { TrackListSkeleton } from "@/components/skeletons/SkeletonRow";
 import { pickCoverColor } from "@/utils/coverColor";
 import type { PlaylistTrack } from "@/types/player";
 import type { ArtistTier } from "@/types/tier";
@@ -124,8 +125,19 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-16 text-center">
-        <p className="text-[var(--color-text-muted)]">불러오는 중…</p>
+      <div className="mx-auto max-w-2xl space-y-4 px-6 py-8">
+        <div className="h-8 w-24 animate-pulse rounded bg-[var(--color-bg-surface)]" />
+        <div className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
+          <div className="flex gap-5">
+            <div className="h-24 w-24 shrink-0 animate-pulse rounded-xl bg-[var(--color-bg-hover)]" />
+            <div className="flex-1 space-y-3 pt-1">
+              <div className="h-5 w-3/4 animate-pulse rounded bg-[var(--color-bg-hover)]" />
+              <div className="h-4 w-1/2 animate-pulse rounded bg-[var(--color-bg-hover)]" />
+              <div className="h-3 w-1/3 animate-pulse rounded bg-[var(--color-bg-hover)]" />
+            </div>
+          </div>
+        </div>
+        <TrackListSkeleton rows={3} />
       </div>
     );
   }

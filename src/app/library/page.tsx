@@ -9,7 +9,7 @@ import { Toast } from "@/components/Toast";
 import { EditTrackModal } from "@/components/EditTrackModal";
 import { formatKoreanNumber } from "@/utils/formatNumber";
 import { UploadButton } from "@/components/UploadButton";
-import { LoadingState } from "@/components/ui/LoadingState";
+import { TrackListSkeleton } from "@/components/skeletons/SkeletonRow";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TrackRow } from "@/components/TrackRow";
 import Link from "next/link";
@@ -213,7 +213,7 @@ export default function LibraryPage() {
       )}
 
       {loading ? (
-        <LoadingState />
+        <TrackListSkeleton rows={6} />
       ) : tracks.length === 0 ? (
         <EmptyState title="아직 업로드한 곡이 없습니다." description="첫 번째 트랙을 업로드해 보세요." />
       ) : (

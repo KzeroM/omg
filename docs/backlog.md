@@ -62,6 +62,7 @@
 
 > 목표: 메뉴 목적 명확화 + 퍼널 분석 기반 마련 + 개인화 차트 완성
 > v7 P0 완료: 마이페이지 2탭 + 비로그인 UI + 스켈레톤 전체 + 최신 등록곡 홈 이동 (2026-04-26)
+> v7 P1 완료: 온보딩 플로우 + My Vibe 취향 태그 + 앨범 단위 관리 (2026-04-26)
 
 ### P0 — 구조/버그 ✅ 전체 완료
 
@@ -72,13 +73,13 @@
 | 170 | 마이페이지 리스너/아티스트 2탭 분리 | ✅ 완료 | #30 | 아티스트 탭: 내 트랙 + 분석 링크 |
 | 171 | 스켈레톤 UI 전체 적용 | ✅ 완료 | #31 | 6개 페이지 + SkeletonRow 공통 컴포넌트 |
 
-### P1 — 핵심 가치
+### P1 — 핵심 가치 ✅ 전체 완료
 
-| # | 작업 | 상태 | Tier | 비고 |
-|---|------|------|------|------|
-| 172 | 온보딩 플로우 (퍼널 분석 회원정보) | 📋 대기 | 2 | birth_date·gender·purpose·referral·태그. DB migration 필요 |
-| 123 | My Vibe — 취향 태그 시각화 + 개인화 차트 | 📋 대기 | 2 | 재생·좋아요 태그 빈도 → 비중 표시 → 해당 태그 차트 링크 |
-| 128 | 앨범 단위 관리 | 📋 대기 | 3 | `albums`+`album_tracks` 테이블 + 아티스트 탭 UI |
+| # | 작업 | 상태 | PR | 비고 |
+|---|------|------|-----|------|
+| 172 | 온보딩 플로우 (퍼널 분석 회원정보) | ✅ 완료 | #32 | birth_date·gender·purpose·referral·태그. 4단계 모달, 스킵 불가 |
+| 123 | My Vibe — 취향 태그 시각화 + 개인화 차트 | ✅ 완료 | #33 | 재생·좋아요 태그 빈도(likes 2×) → 비중 바차트 → /chart?tags= 링크 |
+| 128 | 앨범 단위 관리 | ✅ 완료 | #34 | manage_album_tracks RPC + 마이페이지 아티스트 탭 앨범 섹션 |
 
 ### P2 — 아티스트 도구
 
@@ -252,3 +253,6 @@
 | 169 | 최신 등록곡 홈 이동 — 차트에서 제거, 홈 NewReleasesChart 추가 | 2026-04-26 | PR#29 |
 | 170 | 마이페이지 리스너/아티스트 2탭 분리 — 아티스트 탭 내 트랙+분석 링크 | 2026-04-26 | PR#30 |
 | 171 | 스켈레톤 UI 전체 적용 — SkeletonRow/TrackListSkeleton/ProfileHeaderSkeleton 공통 컴포넌트 | 2026-04-26 | PR#31 |
+| 172 | 온보딩 4단계 모달 — referral/purpose/birth_date+gender/태그, DB migration, /api/user/onboarding, constants/survey.ts | 2026-04-26 | PR#32 |
+| 123 | My Vibe 취향 태그 시각화 — /api/user/taste-tags, MyVibeSection 바차트, Chart URL tag pre-selection | 2026-04-26 | PR#33 |
+| 128 | 앨범 단위 관리 — manage_album_tracks SECURITY DEFINER RPC + 마이페이지 아티스트 탭 앨범 섹션 + album/[id] 스켈레톤 | 2026-04-26 | PR#34 |

@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { getTasteAnalysis, type TasteAnalysis } from "@/utils/supabase/tracks";
-import { LoadingState } from "@/components/ui/LoadingState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { TrackListSkeleton } from "@/components/skeletons/SkeletonRow";
+import { MyVibeSection } from "@/components/MyVibeSection";
 import TopArtistsChart from "./TopArtistsChart";
 import Last7DaysChart from "./Last7DaysChart";
 
@@ -48,7 +49,8 @@ export default function TasteAnalysisSection() {
   if (loading) {
     return (
       <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
-        <LoadingState />
+        <div className="mb-4 h-4 w-20 animate-pulse rounded bg-[var(--color-bg-hover)]" />
+        <TrackListSkeleton rows={4} />
       </section>
     );
   }
@@ -97,6 +99,14 @@ export default function TasteAnalysisSection() {
           </div>
         </div>
       )}
+
+      {/* My Vibe — 태그 비중 + 개인화 차트 */}
+      <div>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">
+          My Vibe
+        </p>
+        <MyVibeSection />
+      </div>
 
       <TopArtistsChart artists={analysis.topArtists} />
       <Last7DaysChart days={analysis.last7Days} />

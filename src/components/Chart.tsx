@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { TOP_CHART } from "@/data/chart";
 import { getAllTagsByCategory } from "@/utils/supabase/tags";
 import { createClient } from "@/utils/supabase/client";
@@ -32,8 +33,12 @@ const CATEGORY_KO: Record<string, string> = {
 const SHOW_INITIAL = 5;
 
 export function Chart() {
+  const searchParams = useSearchParams();
   const [period, setPeriod]           = useState<ChartPeriod>('weekly');
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(() => {
+    const tags = searchParams.get("tags");
+    return tags ? tags.split(",").filter(Boolean) : [];
+  });
   const [showAll, setShowAll]         = useState(false);
   const [filterOpen, setFilterOpen]   = useState(false);
   const [tagsByCategory, setTagsByCategory] = useState<TagsByCategory>({ genre: [], mood: [], bpm: [], instrument: [] });

@@ -2,9 +2,37 @@
 
 import { createClient } from "@/utils/supabase/client";
 import { MAX_FILE_SIZE_BYTES } from "@/utils/audioValidation";
+import { createNotification } from "@/utils/notifications";
 import type { PlaylistTrack } from "@/types/player";
 
 const MUSIC_BUCKET = "omg-tracks";
+
+export type TrackVisibility = "public" | "followers_only" | "private";
+
+/**
+ * 업로드 완료 후 팔로워들에게 new_track 알림 발송
+ */
+async function notifyFollowers(
+  userId: string,
+  trackId: string,
+): Promise<void> {
+  const supabase = createClient();
+  const { data: followers } = await supabase
+    .from("follows")
+    .select("follower_id")
+    .eq("following_id", userId);
+
+  if (!followers || followers.length === 0) return;
+
+  await Promise.allSettled(
+    followers.map((f) =>
+      createNotification(supabase, f.follower_id as string, "new_track", {
+        actor_id: userId,
+        track_id: trackId,
+      })
+    )
+  );
+}
 
 /**
  * MP3 파일을 music 버킷에 업로드하고 tracks 테이블에 저장합니다.
@@ -16,6 +44,7 @@ export async function uploadTrackToSupabase(
   artist = "업로드 곡",
   titleOverride?: string,
   onProgress?: (step: 'uploading' | 'inserting' | 'done') => void,
+  visibility: TrackVisibility = "public",
 ): Promise<PlaylistTrack> {
   if (file.size > MAX_FILE_SIZE_BYTES) {
     throw new Error("파일 크기는 50MB를 초과할 수 없습니다.");
@@ -47,6 +76,7 @@ export async function uploadTrackToSupabase(
       file_path: filePath,
       title,
       artist,
+      visibility,
     })
     .select("id, file_path, title, artist")
     .single();
@@ -54,6 +84,12 @@ export async function uploadTrackToSupabase(
   if (insertError) throw insertError;
 
   onProgress?.('done');
+
+  // 공개 트랙인 경우에만 팔로워 알림 발송 (비공개/팔로워만은 알림 생략)
+  if (visibility === "public") {
+    void notifyFollowers(user.id, row.id as string);
+  }
+
   return {
     id: row.id,
     rank: 0,

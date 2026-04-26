@@ -10,6 +10,7 @@ export async function getTopChartTracks(limit = 5): Promise<ChartTrack[]> {
   const { data, error } = await supabase
     .from("tracks")
     .select("id, title, artist, play_count, file_path, users!user_id(artist_tier, nickname)")
+    .eq("visibility", "public")
     .order("play_count", { ascending: false })
     .limit(limit);
 
@@ -66,6 +67,7 @@ export async function getLatestTracks(limit = 20): Promise<ChartTrack[]> {
   const { data, error } = await supabase
     .from('tracks')
     .select('id, title, artist, play_count, like_count, file_path, created_at, users!user_id(artist_tier, nickname)')
+    .eq('visibility', 'public')
     .order('created_at', { ascending: false })
     .limit(limit);
 
@@ -125,6 +127,7 @@ export async function loadPublicTracks(limit = 50): Promise<PlaylistTrack[]> {
   const { data, error } = await supabase
     .from("tracks")
     .select("id, file_path, title, artist, like_count, users!user_id(artist_tier, nickname)")
+    .eq("visibility", "public")
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -176,6 +179,7 @@ export async function getTracksByArtist(artistName: string): Promise<DbTrack[]> 
     .from("tracks")
     .select("id, user_id, artist_id, file_path, title, artist, created_at, like_count, play_count, users!user_id(artist_tier)")
     .ilike("artist", artistName)
+    .eq("visibility", "public")
     .order("created_at", { ascending: false });
 
   if (error || !data) return [];

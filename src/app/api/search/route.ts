@@ -40,7 +40,8 @@ export async function GET(req: NextRequest) {
       let query = supabase
         .from("tracks")
         .select("id, title, artist, file_path, play_count, like_count, users!user_id(nickname)")
-        .in("id", matchingIds);
+        .in("id", matchingIds)
+        .eq("visibility", "public");
 
       if (q) {
         query = query.or(`title.ilike.%${q}%,artist.ilike.%${q}%`);
@@ -61,6 +62,7 @@ export async function GET(req: NextRequest) {
       let query = supabase
         .from("tracks")
         .select("id, title, artist, file_path, play_count, like_count, users!user_id(nickname)")
+        .eq("visibility", "public")
         .or(`title.ilike.%${q}%,artist.ilike.%${q}%`);
 
       query = sort === "newest"

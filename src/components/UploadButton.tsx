@@ -1,12 +1,18 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Globe, Users, Lock } from "lucide-react";
 import { usePlayer } from "@/context/PlayerContext";
 import { createClient } from "@/utils/supabase/client";
-import { uploadTrackToSupabase } from "@/utils/upload";
+import { uploadTrackToSupabase, type TrackVisibility } from "@/utils/upload";
 import { Toast } from "./Toast";
 import { AuthModal } from "./AuthModal";
+
+const VISIBILITY_OPTIONS: { value: TrackVisibility; label: string; icon: React.ReactNode; desc: string }[] = [
+  { value: "public",         label: "전체 공개",   icon: <Globe  className="h-3.5 w-3.5" />, desc: "누구나 들을 수 있습니다" },
+  { value: "followers_only", label: "팔로워 공개", icon: <Users  className="h-3.5 w-3.5" />, desc: "팔로워만 들을 수 있습니다" },
+  { value: "private",        label: "비공개",       icon: <Lock   className="h-3.5 w-3.5" />, desc: "나만 볼 수 있습니다" },
+];
 
 /** ID3v2 태그에서 TIT2(제목), TPE1(아티스트)를 추출합니다. */
 async function extractId3Tags(file: File): Promise<{ title?: string; artist?: string }> {
@@ -83,6 +89,7 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [trackTitle, setTrackTitle] = useState("");
   const [artistName, setArtistName] = useState("");
+  const [visibility, setVisibility] = useState<TrackVisibility>("public");
   const [uploadStep, setUploadStep] = useState<null | 'uploading' | 'inserting' | 'done'>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -169,7 +176,7 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
       try {
         const track = await uploadTrackToSupabase(file, artist, title, (step) => {
           setUploadStep(step);
-        });
+        }, visibility);
         addTrack(track);
         await loadTracksFromDB();
         onUploadSuccess?.();
@@ -266,6 +273,27 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
               disabled={uploadStep !== null}
               className="mb-4 w-full rounded-xl bg-[var(--color-bg-elevated)] px-4 py-2.5 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none ring-1 ring-[var(--color-border)] focus:ring-[var(--color-accent)] disabled:opacity-60 disabled:cursor-not-allowed"
             />
+
+            <label className="mb-2 block text-xs text-[var(--color-text-muted)]">공개 범위</label>
+            <div className="mb-4 flex gap-2">
+              {VISIBILITY_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  disabled={uploadStep !== null}
+                  onClick={() => setVisibility(opt.value)}
+                  title={opt.desc}
+                  className={`flex flex-1 flex-col items-center gap-1 rounded-xl py-2 text-xs font-medium transition ring-1 ${
+                    visibility === opt.value
+                      ? "bg-[var(--color-accent-subtle)] text-[var(--color-accent)] ring-[var(--color-accent)]/40"
+                      : "bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)] ring-[var(--color-border)] hover:text-[var(--color-text-primary)]"
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {opt.icon}
+                  {opt.label}
+                </button>
+              ))}
+            </div>
 
             <div className="flex gap-2">
               <button

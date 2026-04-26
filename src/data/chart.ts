@@ -15,6 +15,7 @@ export interface ChartTrack {
   period_plays?: number;
   period_likes?: number;
   score?: number;
+  cover_url?: string; // Supabase Storage 커버 이미지 URL
 }
 
 export interface PopularArtist {

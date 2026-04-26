@@ -22,6 +22,7 @@ export interface DbTrack {
   like_count?: number;
   nickname?: string; // public.users.nickname (JOIN 시 존재)
   artist_tier?: ArtistTier;
+  cover_url?: string | null;
 }
 
 /** 재생 히스토리 항목 (play_history 테이블 join 결과) */

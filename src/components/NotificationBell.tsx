@@ -121,7 +121,7 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-2xl bg-[var(--color-bg-surface)] shadow-2xl ring-1 ring-[var(--color-border)]">
+        <div className="fixed right-2 top-14 z-50 w-80 max-w-[calc(100vw-1rem)] rounded-2xl bg-[var(--color-bg-surface)] shadow-2xl ring-1 ring-[var(--color-border)] sm:absolute sm:right-0 sm:top-full sm:mt-2">
           <div className="flex items-center justify-between border-b border-[var(--color-border)] px-4 py-3">
             <p className="text-sm font-semibold text-[var(--color-text-primary)]">알림</p>
             {notifications.length > 0 && (

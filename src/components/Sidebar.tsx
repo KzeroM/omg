@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BarChart2, Search, FolderOpen, Heart } from "lucide-react";
+import { Home, BarChart2, Search, Heart } from "lucide-react";
 
 const menus = [
   { label: "홈", href: "/" },
   { label: "인기 차트", href: "/#chart" },
   { label: "검색", href: "/search" },
-  { label: "내 보관함", href: "/library" },
   { label: "마이페이지", href: "/my" },
 ];
 
@@ -16,7 +15,6 @@ const icons: Record<string, React.ComponentType<{ className?: string; strokeWidt
   "홈": Home,
   "인기 차트": BarChart2,
   "검색": Search,
-  "내 보관함": FolderOpen,
   "마이페이지": Heart,
 };
 

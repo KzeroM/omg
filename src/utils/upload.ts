@@ -6,6 +6,7 @@ import { createNotification } from "@/utils/notifications";
 import type { PlaylistTrack } from "@/types/player";
 
 const MUSIC_BUCKET = "omg-tracks";
+const COVER_BUCKET = "omg-covers";
 
 export type TrackVisibility = "public" | "followers_only" | "private";
 
@@ -43,8 +44,9 @@ export async function uploadTrackToSupabase(
   file: File,
   artist = "업로드 곡",
   titleOverride?: string,
-  onProgress?: (step: 'uploading' | 'inserting' | 'done') => void,
+  onProgress?: (step: 'uploading' | 'inserting') => void,
   visibility: TrackVisibility = "public",
+  coverFile?: File,
 ): Promise<PlaylistTrack> {
   if (file.size > MAX_FILE_SIZE_BYTES) {
     throw new Error("파일 크기는 50MB를 초과할 수 없습니다.");
@@ -66,7 +68,21 @@ export async function uploadTrackToSupabase(
 
   if (uploadError) throw uploadError;
 
-  const title = titleOverride?.trim() || file.name.replace(/\.(mp3|m4a|mp4|wav|flac|ogg)$/i, "") || "제목 없음";
+  // 커버 이미지 업로드 (선택사항)
+  let coverUrl: string | null = null;
+  if (coverFile) {
+    const coverExt = coverFile.name.split(".").pop() ?? "jpg";
+    const coverPath = `${user.id}/${Date.now()}-cover.${coverExt}`;
+    const { error: coverError } = await supabase.storage
+      .from(COVER_BUCKET)
+      .upload(coverPath, coverFile, { contentType: coverFile.type, upsert: false });
+    if (!coverError) {
+      const { data: urlData } = supabase.storage.from(COVER_BUCKET).getPublicUrl(coverPath);
+      coverUrl = urlData.publicUrl;
+    }
+  }
+
+  const title = titleOverride?.trim() || file.name.replace(/\.mp3$/i, "") || "제목 없음";
   onProgress?.('inserting');
   const { data: row, error: insertError } = await supabase
     .from("tracks")
@@ -77,13 +93,12 @@ export async function uploadTrackToSupabase(
       title,
       artist,
       visibility,
+      ...(coverUrl ? { cover_url: coverUrl } : {}),
     })
-    .select("id, file_path, title, artist")
+    .select("id, file_path, title, artist, cover_url")
     .single();
 
   if (insertError) throw insertError;
-
-  onProgress?.('done');
 
   // 공개 트랙인 경우에만 팔로워 알림 발송 (비공개/팔로워만은 알림 생략)
   if (visibility === "public") {
@@ -98,5 +113,6 @@ export async function uploadTrackToSupabase(
     coverColor: "from-[#A855F7] to-[#6366f1]",
     isFoundingMember: false,
     file_path: row.file_path,
+    cover_url: (row.cover_url as string | null) ?? undefined,
   };
 }

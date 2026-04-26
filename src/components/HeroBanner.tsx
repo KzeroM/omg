@@ -16,7 +16,7 @@ export async function HeroBanner() {
           Featured
         </h2>
         <h1 className="mb-6 text-2xl font-bold text-[var(--color-text-primary)] md:text-3xl">
-          오늘의 인기 아티스트
+          오늘의 아티스트
         </h1>
         <div className="flex flex-wrap gap-4">
           {artists.map((artist) => (

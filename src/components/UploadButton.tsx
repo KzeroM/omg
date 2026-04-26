@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState, useEffect, useId } from "react";
-import { Upload, X, Globe, Users, Lock } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { Upload, X, Globe, Users, Lock, ImagePlus } from "lucide-react";
 import { usePlayer } from "@/context/PlayerContext";
 import { createClient } from "@/utils/supabase/client";
 import { uploadTrackToSupabase, type TrackVisibility } from "@/utils/upload";
@@ -17,19 +17,16 @@ const VISIBILITY_OPTIONS: { value: TrackVisibility; label: string; icon: React.R
 /** ID3v2 태그에서 TIT2(제목), TPE1(아티스트)를 추출합니다. */
 async function extractId3Tags(file: File): Promise<{ title?: string; artist?: string }> {
   try {
-    // 최대 128KB만 읽음 (일반적인 ID3 태그는 수 KB 이내)
     const slice = file.slice(0, 131072);
     const buffer = await slice.arrayBuffer();
     const view = new DataView(buffer);
 
-    // ID3v2 헤더 확인: "ID3"
     if (
-      view.getUint8(0) !== 0x49 || // I
-      view.getUint8(1) !== 0x44 || // D
-      view.getUint8(2) !== 0x33    // 3
+      view.getUint8(0) !== 0x49 ||
+      view.getUint8(1) !== 0x44 ||
+      view.getUint8(2) !== 0x33
     ) return {};
 
-    // syncsafe integer로 태그 크기 계산
     const tagSize =
       ((view.getUint8(6) & 0x7f) << 21) |
       ((view.getUint8(7) & 0x7f) << 14) |
@@ -47,7 +44,6 @@ async function extractId3Tags(file: File): Promise<{ title?: string; artist?: st
         view.getUint8(offset + 2),
         view.getUint8(offset + 3),
       );
-      // 프레임 크기 (ID3v2.3: 4바이트 big-endian, ID3v2.4: syncsafe)
       const frameSize = view.getUint32(offset + 4);
       if (frameSize === 0 || frameId === "\0\0\0\0") break;
 
@@ -81,21 +77,23 @@ async function extractId3Tags(file: File): Promise<{ title?: string; artist?: st
   }
 }
 
-export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
-  const inputId = useId();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { addTrack, loadTracksFromDB } = usePlayer();
+export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void | Promise<void> }) {
+  const audioInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const { loadTracksFromDB } = usePlayer();
   const [toast, setToast] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [trackTitle, setTrackTitle] = useState("");
   const [artistName, setArtistName] = useState("");
   const [visibility, setVisibility] = useState<TrackVisibility>("public");
-  const [uploadStep, setUploadStep] = useState<null | 'uploading' | 'inserting' | 'done'>(null);
+  const [uploadStep, setUploadStep] = useState<null | 'uploading' | 'inserting'>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [profileNickname, setProfileNickname] = useState("");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -127,11 +125,18 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 커버 프리뷰 ObjectURL 관리
+  useEffect(() => {
+    if (!coverFile) { setCoverPreview(null); return; }
+    const url = URL.createObjectURL(coverFile);
+    setCoverPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [coverFile]);
+
+  const handleAudioChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) { e.target.value = ""; return; }
 
-    // 파일 검증: 첫 16바이트 추출 및 API 호출
     try {
       const buffer = await file.slice(0, 16).arrayBuffer();
       const magicBytes = Array.from(new Uint8Array(buffer));
@@ -152,22 +157,37 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
       return;
     }
 
-    // ID3 태그 추출 시도
     const tags = await extractId3Tags(file);
-    const guessedTitle = file.name.replace(/\.(mp3|m4a|mp4|wav|flac|ogg)$/i, "");
+    const guessedTitle = file.name.replace(/\.mp3$/i, "");
     setTrackTitle(tags.title || guessedTitle);
     setArtistName(tags.artist || profileNickname || "");
     setUploadStep(null);
     setUploadError(null);
+    setCoverFile(null);
     setPendingFile(file);
     e.target.value = "";
+  };
+
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setUploadError("이미지 파일만 선택할 수 있습니다.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("커버 이미지는 5MB 이하여야 합니다.");
+      return;
+    }
+    setCoverFile(file);
   };
 
   const handleConfirm = async () => {
     if (!pendingFile) return;
     const file = pendingFile;
     const artist = artistName.trim() || "Unknown Artist";
-    const title = trackTitle.trim() || file.name.replace(/\.(mp3|m4a|mp4|wav|flac|ogg)$/i, "") || "제목 없음";
+    const title = trackTitle.trim() || file.name.replace(/\.mp3$/i, "") || "제목 없음";
     setUploadError(null);
 
     const supabase = createClient();
@@ -178,13 +198,13 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
     if (hasSupabaseEnv && user) {
       setLoading(true);
       try {
-        const track = await uploadTrackToSupabase(file, artist, title, (step) => {
+        await uploadTrackToSupabase(file, artist, title, (step) => {
           setUploadStep(step);
-        }, visibility);
-        addTrack(track);
+        }, visibility, coverFile ?? undefined);
         await loadTracksFromDB();
-        onUploadSuccess?.();
+        await onUploadSuccess?.();
         setPendingFile(null);
+        setCoverFile(null);
         setUploadStep(null);
       } catch (err) {
         const msg = err instanceof Error ? err.message
@@ -202,15 +222,7 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
 
   return (
     <>
-      <input
-        ref={inputRef}
-        id={inputId}
-        type="file"
-        accept=".mp3,.m4a,.mp4,.wav,.flac,.ogg,audio/*"
-        className="sr-only"
-        onChange={handleChange}
-        disabled={loading}
-      />
+      {/* 오디오 파일 input (label 내장) */}
       {isLoggedIn === false ? (
         <button
           type="button"
@@ -223,9 +235,16 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
         </button>
       ) : (
         <label
-          htmlFor={inputId}
-          className={`inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[var(--color-accent)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)] ${loading ? "pointer-events-none opacity-60" : ""}`}
+          className={`relative inline-flex cursor-pointer items-center gap-2 overflow-hidden rounded-xl bg-[var(--color-accent)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)] ${loading ? "pointer-events-none opacity-60" : ""}`}
         >
+          <input
+            ref={audioInputRef}
+            type="file"
+            accept=".mp3"
+            className="absolute inset-0 cursor-pointer opacity-0"
+            onChange={handleAudioChange}
+            disabled={loading}
+          />
           <Upload className="h-4 w-4" strokeWidth={2} />
           {loading ? "업로드 중…" : "곡 올리기"}
         </label>
@@ -241,20 +260,52 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
 
       {/* 곡 정보 입력 모달 */}
       {pendingFile && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4">
           <div className="w-full max-w-sm rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-semibold text-[var(--color-text-primary)]">곡 정보 입력</h3>
               <button
                 type="button"
-                onClick={() => { setPendingFile(null); setUploadError(null); setUploadStep(null); }}
-                disabled={uploadStep === 'uploading' || uploadStep === 'inserting'}
+                onClick={() => { setPendingFile(null); setCoverFile(null); setUploadError(null); setUploadStep(null); }}
+                disabled={uploadStep !== null}
                 className="rounded-lg p-1 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
             <p className="mb-4 truncate text-sm text-[var(--color-text-secondary)]">{pendingFile.name}</p>
+
+            {/* 앨범 커버 */}
+            <div className="mb-4 flex items-center gap-4">
+              <label className="relative flex h-16 w-16 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-[var(--color-bg-elevated)] ring-1 ring-[var(--color-border)] hover:ring-[var(--color-accent)]">
+                <input
+                  ref={coverInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="absolute inset-0 cursor-pointer opacity-0"
+                  onChange={handleCoverChange}
+                  disabled={uploadStep !== null}
+                />
+                {coverPreview ? (
+                  <img src={coverPreview} alt="커버" className="h-full w-full object-cover" />
+                ) : (
+                  <ImagePlus className="h-6 w-6 text-[var(--color-text-muted)]" strokeWidth={1.5} />
+                )}
+              </label>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-[var(--color-text-primary)]">앨범 커버</p>
+                <p className="text-xs text-[var(--color-text-muted)]">{coverPreview ? "이미지 선택됨" : "선택 사항 · 최대 5MB"}</p>
+                {coverPreview && (
+                  <button
+                    type="button"
+                    onClick={() => setCoverFile(null)}
+                    className="mt-1 text-xs text-red-400 hover:text-red-300"
+                  >
+                    제거
+                  </button>
+                )}
+              </div>
+            </div>
 
             <label className="mb-1 block text-xs text-[var(--color-text-muted)]">곡 제목</label>
             <input
@@ -314,8 +365,8 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => { setPendingFile(null); setUploadError(null); setUploadStep(null); }}
-                disabled={uploadStep === 'uploading' || uploadStep === 'inserting'}
+                onClick={() => { setPendingFile(null); setCoverFile(null); setUploadError(null); setUploadStep(null); }}
+                disabled={uploadStep !== null}
                 className="flex-1 rounded-xl bg-[var(--color-bg-elevated)] py-2.5 text-sm text-[var(--color-text-secondary)] transition hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 취소
@@ -329,9 +380,9 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
                   업로드
                 </button>
               ) : (
-                <div className="flex-1 rounded-xl bg-[var(--color-accent)] py-2.5 text-sm font-medium text-[var(--color-text-primary)] flex items-center justify-center gap-2">
+                <div className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--color-accent)] py-2.5 text-sm font-medium text-[var(--color-text-primary)]">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--color-text-primary)] border-t-transparent" />
-                  {uploadStep === 'uploading' ? '서버에 업로드 중...' : '정보 저장 중...'}
+                  {uploadStep === 'uploading' ? '업로드 중...' : '저장 중...'}
                 </div>
               )}
             </div>

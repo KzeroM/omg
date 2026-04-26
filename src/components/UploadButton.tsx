@@ -91,6 +91,7 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
   const [artistName, setArtistName] = useState("");
   const [visibility, setVisibility] = useState<TrackVisibility>("public");
   const [uploadStep, setUploadStep] = useState<null | 'uploading' | 'inserting' | 'done'>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [profileNickname, setProfileNickname] = useState("");
@@ -164,7 +165,7 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
     const file = pendingFile;
     const artist = artistName.trim() || "Unknown Artist";
     const title = trackTitle.trim() || file.name.replace(/\.(mp3|m4a|mp4|wav|flac|ogg)$/i, "") || "제목 없음";
-    setPendingFile(null);
+    setUploadError(null);
 
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -180,18 +181,18 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
         addTrack(track);
         await loadTracksFromDB();
         onUploadSuccess?.();
-        setToast("업로드 성공");
+        // uploadStep이 'done'으로 설정돼 모달에 "완료" 버튼이 표시됨
       } catch (err) {
         const msg = err instanceof Error ? err.message
           : (err as { message?: string })?.message
           ?? JSON.stringify(err);
-        setToast(msg);
+        setUploadError(msg);
         setUploadStep(null);
       } finally {
         setLoading(false);
       }
     } else {
-      setToast("로그인 후 업로드할 수 있습니다.");
+      setUploadError("로그인 후 업로드할 수 있습니다.");
     }
   };
 
@@ -237,8 +238,8 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
               <h3 className="font-semibold text-[var(--color-text-primary)]">곡 정보 입력</h3>
               <button
                 type="button"
-                onClick={() => setPendingFile(null)}
-                disabled={uploadStep !== null}
+                onClick={() => { setPendingFile(null); setUploadError(null); setUploadStep(null); }}
+                disabled={uploadStep !== null && uploadStep !== 'done'}
                 className="rounded-lg p-1 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <X className="h-4 w-4" />
@@ -295,10 +296,16 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
               ))}
             </div>
 
+            {uploadError && (
+              <p className="mb-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400">
+                {uploadError}
+              </p>
+            )}
+
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => setPendingFile(null)}
+                onClick={() => { setPendingFile(null); setUploadError(null); }}
                 disabled={uploadStep !== null}
                 className="flex-1 rounded-xl bg-[var(--color-bg-elevated)] py-2.5 text-sm text-[var(--color-text-secondary)] transition hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed"
               >
@@ -325,7 +332,7 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
               ) : (
                 <button
                   type="button"
-                  onClick={() => setPendingFile(null)}
+                  onClick={() => { setPendingFile(null); setUploadStep(null); setUploadError(null); }}
                   className="flex-1 rounded-xl bg-[var(--color-accent)] py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-hover)]"
                 >
                   완료

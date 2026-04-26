@@ -1,36 +1,41 @@
 # Orchestrator 세션 체크포인트
-업데이트: 2026-04-25
+업데이트: 2026-04-26
 
-## 현재 스프린트: v6 (핵심 기능 강화) — **완료**
+## 현재 스프린트: v7 (마이페이지 개편 + 온보딩 + 개인화)
 
 ## 작업 현황
+| 이슈 | 브랜치 | 단계 | 비고 |
+|------|--------|------|------|
+| v7 신규-A (비로그인 마이페이지 UI) | feat/v7a-structure | ✅ PR #29 머지됨 | |
+| v7 신규-D (최신 등록곡 → 홈) | feat/v7a-structure | ✅ PR #29 머지됨 | |
+| v7 신규-C (마이페이지 2탭) | feat/v7b-mypage-tabs | ✅ PR #30 머지됨 | |
+| v7 신규-B (스켈레톤 UI 전체) | feat/v7c-skeleton | ✅ PR #31 머지됨 | |
+| v7 신규-E (온보딩 플로우) | — | 🔜 미착수 | 다음 작업 |
+| #123 My Vibe 개인화 차트 | — | 🔜 미착수 | |
+| #128 앨범 단위 관리 | — | 🔜 미착수 | |
 
-| 기능 | 브랜치 | PR | 단계 |
-|------|--------|----|------|
-| #1~3 차트 오버홀 (기간/태그/더보기/최신등록곡) | feat/FAC-116-chart-overhaul | #25 | ✅ 머지됨 |
-| #4 큐 편집 UI | — | — | ✅ 이미 구현됨 (main) |
-| #5 아티스트 분석 기간 선택 | feat/FAC-117-analytics-period | #26 | ✅ 머지됨 |
-| #6 홈 피드 개인화 (팔로우 신곡) | feat/FAC-118-home-feed | #27 | ✅ 머지됨 |
-| #7 트랙 댓글 | feat/FAC-119-track-comments | #28 | ✅ 머지됨 |
-| #8 풀스크린 플레이어 (모바일) | — | — | ✅ 이미 구현됨 (main) |
+## DB 변경 예정 (신규-E 온보딩)
+- `users.birth_date` date
+- `users.gender` smallint (1=남성, 2=여성, 3=논바이너리, 4=응답안함)
+- `users.primary_purpose` smallint (1=음악발견, 2=아티스트지원, 3=음악공유)
+- `users.referral_source` smallint (1=SNS, 2=지인추천, 3=검색, 4=기타)
+- constants/survey.ts 에서 단일 소스 관리
 
-## DB 마이그레이션 (이번 스프린트)
-- `get_chart_tracks(p_period, p_tag_ids, p_limit)` RPC — 가중치 인기 차트
-- `track_comments` 테이블 + RLS + timestamp_sec 컬럼
-- `track_comments.user_id` → `public.users.user_id` FK (PostgREST 조인)
+## 온보딩 플로우 (4단계, 스킵 불가)
+1. "OMG를 어떻게 알게 됐나요?" → referral_source
+2. "주로 무엇을 하실 건가요?" → primary_purpose
+3. "생년월일 + 성별" → birth_date + gender
+4. "좋아하는 장르" → 태그 다중 선택 (My Vibe 초기값)
 
 ## 주요 아키텍처 규칙 (축적)
 - `utils/supabase/*.ts`에 `./server` import 있으면 클라이언트 컴포넌트 import 금지
-  → 서버 전용 함수는 `*.server.ts`로 분리 (tags.server.ts, albums.server.ts)
+  → 서버 전용 함수는 `*.server.ts`로 분리
+- 마이페이지 아티스트 탭 활성 조건: tracks 테이블에 user_id 트랙 존재 여부
 
-## 프로덕션
-- URL: https://omg-iota.vercel.app ✅ READY
-- 마지막 배포: v6 스프린트 완료 후
-
-## 다음 스프린트 후보 (P2 기반 투자)
-- 백로그 #109: pgvector 기반 추천 (Tier 1)
-- 백로그 #110: Welcome Flow + Taste Quiz 온보딩 (Tier 2)
-- 백로그 #111: 업로드 시 AI 자동 태그 생성 (Tier 2)
+## 다음 할 일
+1. 온보딩 플로우 구현 (신규-E) — DB migration + 컴포넌트 + 미들웨어/리다이렉트
+2. My Vibe 취향 태그 시각화 + 개인화 차트 연결 (#123)
+3. 앨범 단위 관리 (#128) — DB 스키마 + 아티스트 탭 UI
 
 ## 마지막 커밋
-main @ merged v6 — PR #25~28 squash merged
+main @ 303ebe7 — feat: 스켈레톤 UI 전체 적용 (PR #31)

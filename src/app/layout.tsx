@@ -10,6 +10,7 @@ import { AuthVerifiedToast } from "@/components/AuthVerifiedToast";
 import { PlayerProvider } from "@/context/PlayerContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { QueryProvider } from "@/components/QueryProvider";
+import { OnboardingModal } from "@/components/OnboardingModal";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -43,6 +44,7 @@ export default function RootLayout({
               <Suspense fallback={null}>
                 <AuthVerifiedToast />
               </Suspense>
+              <OnboardingModal />
               <Header />
               <div className="flex min-h-screen">
                 <Sidebar />

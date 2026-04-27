@@ -12,7 +12,9 @@ import {
 } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { getSignedPlaybackUrl } from "@/utils/supabase/storage";
-import { incrementPlayCount, getUserLikedTrackIds, toggleTrackLike, loadPublicTracks, updateTrackMeta, addPlayHistory, getUserPlaylistTracks, addToUserPlaylist } from "@/utils/supabase/tracks";
+import { loadPublicTracks, updateTrackMeta, getUserPlaylistTracks, addToUserPlaylist, getUserLikedTrackIds } from "@/utils/supabase/tracks";
+import { useLikeTrack } from "@/hooks/useLikeTrack";
+import { usePlayHistory } from "@/hooks/usePlayHistory";
 import { loadGuestPlaylist, addToGuestPlaylist } from "@/utils/localStorage";
 import { useToast } from "@/context/ToastContext";
 import type { PlaylistTrack } from "@/types/player";
@@ -97,9 +99,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(1);
-  const [likedTrackIds, setLikedTrackIds] = useState<Set<string>>(new Set());
-  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
-  const [pendingLikeId, setPendingLikeId] = useState<string | null>(null);
+  const { likedTrackIds, likeCounts, pendingLikeId, initializeLikes, toggleLike } = useLikeTrack();
+  const { recordPlay } = usePlayHistory();
   const [overrideTrack, setOverrideTrack] = useState<PlaylistTrack | null>(null);
   const [shuffleEnabled, setShuffleEnabled] = useState(false);
   const [repeatMode, setRepeatModeState] = useState<'none' | 'all' | 'one'>('none');
@@ -166,8 +167,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         .play()
         .then(() => {
           setIsPlaying(true);
-          void incrementPlayCount(track.id);
-          void addPlayHistory(track.id);
+          recordPlay(track.id);
           startPreviewTimerIfGuest(track.id);
         })
         .catch((err) => {
@@ -179,7 +179,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
           }
         });
     },
-    [newReleases, volume, showToast, startPreviewTimerIfGuest]
+    [newReleases, volume, showToast, startPreviewTimerIfGuest, recordPlay]
   );
 
   const playSingleTrack = useCallback(
@@ -205,8 +205,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         .play()
         .then(() => {
           setIsPlaying(true);
-          void incrementPlayCount(track.id);
-          void addPlayHistory(track.id);
+          recordPlay(track.id);
           startPreviewTimerIfGuest(track.id);
         })
         .catch((err) => {
@@ -218,7 +217,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
           }
         });
     },
-    [volume, showToast, startPreviewTimerIfGuest]
+    [volume, showToast, startPreviewTimerIfGuest, recordPlay]
   );
 
   const playTrack = useCallback(
@@ -353,13 +352,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       for (const track of allTracks) {
         counts[track.id] = track.like_count ?? 0;
       }
-      setLikedTrackIds(likedIds);
-      setLikeCounts(counts);
+      initializeLikes(likedIds, counts);
     } catch (error) {
       console.error("트랙 로드 실패:", error);
       showToast("음악 목록을 불러오지 못했습니다.");
     }
-  }, [showToast]);
+  }, [showToast, initializeLikes]);
 
   const addTrack = useCallback(
     (track: PlaylistTrack) => {
@@ -421,66 +419,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       });
     },
     [volume, showToast, startPreviewTimerIfGuest]
-  );
-
-  const toggleLike = useCallback(
-    async (trackId: string) => {
-      if (trackId.startsWith("upload-")) return;
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // 낙관적 업데이트: 즉시 로컬 상태 반전
-      const prevLiked = likedTrackIds.has(trackId);
-      const prevCount = likeCounts[trackId] ?? 0;
-
-      setLikedTrackIds((prev) => {
-        const next = new Set(prev);
-        if (prevLiked) next.delete(trackId);
-        else next.add(trackId);
-        return next;
-      });
-      setLikeCounts((prev) => ({
-        ...prev,
-        [trackId]: prevLiked ? Math.max(prevCount - 1, 0) : prevCount + 1,
-      }));
-      setPendingLikeId(trackId);
-
-      try {
-        const result = await toggleTrackLike(trackId);
-        if (result) {
-          // RPC 결과로 상태 교정
-          setLikedTrackIds((prev) => {
-            const next = new Set(prev);
-            if (result.liked) next.add(trackId);
-            else next.delete(trackId);
-            return next;
-          });
-          setLikeCounts((prev) => ({ ...prev, [trackId]: result.like_count }));
-        } else {
-          // RPC 실패 시 롤백
-          setLikedTrackIds((prev) => {
-            const next = new Set(prev);
-            if (prevLiked) next.add(trackId);
-            else next.delete(trackId);
-            return next;
-          });
-          setLikeCounts((prev) => ({ ...prev, [trackId]: prevCount }));
-        }
-      } catch {
-        // 예외 시 롤백
-        setLikedTrackIds((prev) => {
-          const next = new Set(prev);
-          if (prevLiked) next.add(trackId);
-          else next.delete(trackId);
-          return next;
-        });
-        setLikeCounts((prev) => ({ ...prev, [trackId]: prevCount }));
-      } finally {
-        setPendingLikeId(null);
-      }
-    },
-    [likedTrackIds, likeCounts]
   );
 
   const toggleShuffle = useCallback(() => {

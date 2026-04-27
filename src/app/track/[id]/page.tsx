@@ -69,7 +69,7 @@ export default function TrackPage({ params }: { params: Promise<{ id: string }> 
 
     supabase
       .from("tracks")
-      .select("id, title, artist, file_path, play_count, like_count, artist_tier, user_id, users!tracks_user_id_fkey(nickname)")
+      .select("id, title, artist, file_path, play_count, like_count, artist_tier, user_id, users!tracks_user_id_public_users_fkey(nickname)")
       .eq("id", id)
       .single()
       .then(({ data }) => {

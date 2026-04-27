@@ -3,12 +3,12 @@
 import { useEffect, useState, useCallback } from "react";
 import {
   Play, Pause, Heart, History, Users, Settings,
-  Sparkles, ListMusic, LogIn, Music2, BarChart2, Upload, Plus, X, Disc3,
+  Sparkles, ListMusic, LogIn, Music2, BarChart2, Upload, Plus, X, Disc3, Pencil,
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
-import type { PlaylistTrack, HistoryTrack } from "@/types/player";
+import type { PlaylistTrack, HistoryTrack, DbTrack } from "@/types/player";
 import { Toast } from "@/components/Toast";
 import { formatKoreanNumber } from "@/utils/formatNumber";
 import { ProfileHeaderSkeleton, TrackListSkeleton } from "@/components/skeletons/SkeletonRow";
@@ -21,6 +21,7 @@ import {
 import TasteAnalysisSection from "@/components/TasteAnalysis";
 import { UploadButton } from "@/components/UploadButton";
 import { AddToPlaylistButton } from "@/components/AddToPlaylistButton";
+import { EditTrackModal } from "@/components/EditTrackModal";
 import { getAlbumsByUserId, createAlbum } from "@/utils/supabase/albums";
 import type { DbAlbum } from "@/types/album";
 
@@ -34,6 +35,7 @@ interface UserInfo {
 
 interface MyTrack {
   id: string;
+  user_id: string;
   title: string;
   artist: string;
   play_count: number;
@@ -55,6 +57,7 @@ export default function MyPage() {
   const [showCreateAlbum, setShowCreateAlbum] = useState(false);
   const [newAlbumTitle, setNewAlbumTitle] = useState("");
   const [creatingAlbum, setCreatingAlbum] = useState(false);
+  const [editingTrack, setEditingTrack] = useState<MyTrack | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -80,7 +83,7 @@ export default function MyPage() {
         fetch("/api/playlists").then((r) => r.json() as Promise<{ playlists?: { id: string; title: string; is_public: boolean }[] }>).catch(() => ({ playlists: [] })),
         supabase
           .from("tracks")
-          .select("id, title, artist, play_count, like_count, cover_url, created_at")
+          .select("id, user_id, title, artist, play_count, like_count, cover_url, created_at")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false }),
         getAlbumsByUserId(user.id).catch(() => [] as DbAlbum[]),
@@ -562,6 +565,14 @@ export default function MyPage() {
                             </span>
                           </div>
                           <AddToPlaylistButton trackId={track.id} />
+                          <button
+                            type="button"
+                            onClick={() => setEditingTrack(track)}
+                            className="rounded-lg p-1.5 text-[var(--color-text-muted)] transition hover:bg-[var(--color-accent-subtle)] hover:text-[var(--color-accent)]"
+                            title="곡 정보 수정"
+                          >
+                            <Pencil className="h-4 w-4" strokeWidth={1.5} />
+                          </button>
                         </li>
                       );
                     })}
@@ -592,6 +603,23 @@ export default function MyPage() {
         )}
 
       </div>
+
+      {editingTrack && (
+        <EditTrackModal
+          track={editingTrack as unknown as DbTrack}
+          isOpen={true}
+          onClose={() => setEditingTrack(null)}
+          onSaved={async (newTitle, newArtist) => {
+            const supabase = createClient();
+            await supabase.from("tracks")
+              .update({ title: newTitle, artist: newArtist })
+              .eq("id", editingTrack.id);
+            setMyTracks((prev) =>
+              prev.map((t) => t.id === editingTrack.id ? { ...t, title: newTitle, artist: newArtist } : t)
+            );
+          }}
+        />
+      )}
     </>
   );
 }

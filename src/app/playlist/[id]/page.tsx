@@ -20,7 +20,6 @@ interface PlaylistInfo {
 }
 
 interface PlaylistTrackRow {
-  id: string;
   position: number;
   tracks: {
     id: string;
@@ -198,7 +197,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
               };
               return (
                 <TrackRow
-                  key={pt.id}
+                  key={t.id}
                   coverColor={pickCoverColor(t.id)}
                   title={t.title}
                   artist={t.artist}

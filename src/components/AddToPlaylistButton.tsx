@@ -28,6 +28,7 @@ export function AddToPlaylistButton({ trackId }: AddToPlaylistButtonProps) {
   const handleOpen = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setOpen(true);
+    setAdded({});
     setLoading(true);
     const res = await fetch("/api/playlists");
     const data = await res.json() as { playlists: Playlist[] };

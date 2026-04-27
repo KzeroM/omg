@@ -1,7 +1,7 @@
 # OMG 백로그
 
 > 관리자: Orchestrator
-> 마지막 업데이트: 2026-04-25
+> 마지막 업데이트: 2026-04-27
 > Q3 목표: "아티스트와 팬의 관계가 곡 재생을 넘어 상호작용으로 확장되는 커뮤니티 플랫폼으로 진화"
 > 핵심 지표: 플레이리스트 생성률 · 모바일 세션 30분+ · 알림 재방문율
 
@@ -16,6 +16,48 @@
 | `🔍 QA` | 리뷰 중 |
 | `✅ 완료` | 배포 가능 |
 | `🚫 보류` | 재검토 필요 |
+
+---
+
+## 🗺️ 통합 우선순위 로드맵 (2026-04-27 기준)
+
+```
+v9 핫픽스 완료 → v10A 즉시 버그 → v10B 리팩토링 → v10C 기능
+```
+
+### 즉시 (v10A — 버그, 리팩토링 전 처리)
+
+| # | 작업 | 이유 |
+|---|------|------|
+| 174 | `/playlist/[id]` 상세 페이지 생성 | 플레이리스트 추가 후 내용 확인 불가 → 사용자 혼란 |
+| 175 | `AddToPlaylistButton` added 상태 리셋 | 재오픈 시 "추가됨" 고착 → "추가" 버튼 안 보임 |
+| 176 | 마이페이지 내 트랙 편집(EditTrackModal) 복구 | library → /my 통합 후 편집 기능 사라짐 |
+
+### 리팩토링 (v10B — 기능 추가 전 코드 정비)
+
+> **리팩토링 먼저 하는 이유**: my/page.tsx(597), settings(590), PlayerContext(~700) 등 대형 파일에 기능을 계속 추가 중.
+> 분리 없이 계속 추가하면 버그 재발률과 개발 속도 저하가 가속화됨.
+> Phase 1(API 미들웨어)은 기계적이고 빠르며, 이후 모든 신규 라우트가 수혜.
+
+| # | Phase | 작업 | 파일 수 | 예상 효과 |
+|---|-------|------|--------|----------|
+| R1 | Phase 1 | API 인증 미들웨어 통합 (`requireAuth`, `requireAdmin`, `getAdminClient`) | ~20 라우트 | 반복 코드 -300줄, 신규 라우트 개발 속도 ↑ |
+| R2 | Phase 1 | API 공통 에러 핸들링 타입 (`ApiResponse<T>`, `ApiError`) | utils 1개 신규 | 타입 안전성 ↑ |
+| R3 | Phase 2 | `my/page.tsx` 분리 → `<ListenerTab>` + `<ArtistTab>` + `useMyPageData()` | 1→4 파일 | 597 LOC 파일 해소, 탭별 기능 추가 독립화 |
+| R4 | Phase 2 | `PlayerContext.tsx` 분리 → `useLikeTrack()` + `usePlayHistory()` | 1→3 파일 | ~700 LOC 파일 해소, 플레이어 로직 분리 |
+| R5 | Phase 3 | `UploadButton.tsx` → `useTrackUpload()` hook 추출 | 1→2 파일 | ID3·검증·업로드 로직 분리, 버그 수정 용이 |
+| R6 | Phase 3 | `AuthModal.tsx` → 화면별 분리 (`EmailVerificationScreen` 등) | 1→3 파일 | 408 LOC 해소 |
+| R7 | Phase 4 | `src/hooks/` 확장 (`useAuth`, `usePlaylistActions`) | 2개 신규 | 컴포넌트 재사용성 ↑ |
+| R8 | Phase 4 | `constants/ui.ts` 신규 — VISIBILITY_OPTIONS 등 상수 중앙화 | 1개 신규 | 하드코딩 제거 |
+
+### 기능 (v10C — 리팩토링 후)
+
+| # | 작업 | 상태 | 비고 |
+|---|------|------|------|
+| 177 | featured_artists 관리 UI (admin 페이지) | 📋 대기 | Supabase 대시보드 대체 |
+| 178 | 커버 이미지 TrackRow/PlayerBar 표시 | 📋 대기 | cover_url 이미 DB에 저장됨 |
+| 106 | Dark/Light 테마 토글 | 📋 대기 | 설정 토글 1개 |
+| 111 | 업로드 시 AI 자동 태그 생성 | 📋 대기 | Claude API 태그 후보 제안 |
 
 ---
 
@@ -156,6 +198,7 @@
 | 119 | 초대 코드 & 추천 보상 | 📋 대기 | 3 | 친구 초대 시 양쪽 보상 |
 | 116 | 트랙 전용 페이지 /track/[id] 고도화 | 📋 대기 | 2 | 가사+댓글+크레딧 풀페이지. SEO 강화 |
 | 134 | 트랙 탭 → 액션 선택 모드 | 🚫 보류 | 2 | #136 바텀시트로 대체 검토 |
+| 173 | 업로드 모달 위치 UX — 키보드 닫혔을 때 바닥 고정 해제, 중앙 정렬로 자연스럽게 전환 | 📋 대기 | 1 | VisualViewport API 또는 dvh 단위 활용 |
 
 ---
 

@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
 import { uploadTrackToSupabase, type TrackVisibility } from "@/utils/upload";
+import { useAuth } from "@/hooks/useAuth";
+import { createClient } from "@/utils/supabase/client";
 
 /** ID3v2 태그에서 TIT2(제목), TPE1(아티스트)를 추출합니다. */
 async function extractId3Tags(file: File): Promise<{ title?: string; artist?: string }> {
@@ -99,8 +100,7 @@ export function useTrackUpload({
 }): UseTrackUploadReturn {
   const { loadTracksFromDB } = usePlayer();
 
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-  const [profileNickname, setProfileNickname] = useState("");
+  const { isLoggedIn, profileNickname } = useAuth();
   const [loading, setLoading] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [trackTitle, setTrackTitle] = useState("");
@@ -110,29 +110,6 @@ export function useTrackUpload({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
-
-  // Auth state + nickname
-  useEffect(() => {
-    const supabase = createClient();
-    void supabase.auth.getUser().then(async ({ data: { user } }) => {
-      setIsLoggedIn(!!user);
-      if (user) {
-        const { data } = await supabase.from("users").select("nickname").eq("user_id", user.id).single();
-        if (data?.nickname) setProfileNickname(data.nickname as string);
-      }
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_e, session) => {
-      setIsLoggedIn(!!session?.user);
-      if (session?.user) {
-        const supabase2 = createClient();
-        const { data } = await supabase2.from("users").select("nickname").eq("user_id", session.user.id).single();
-        if (data?.nickname) setProfileNickname(data.nickname as string);
-      } else {
-        setProfileNickname("");
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
 
   // Cover preview ObjectURL
   useEffect(() => {

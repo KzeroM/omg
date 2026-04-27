@@ -4,11 +4,7 @@ import { useState, useEffect } from "react";
 import { ListPlus, X, Plus, Check } from "lucide-react";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { EmptyState } from "@/components/ui/EmptyState";
-
-interface Playlist {
-  id: string;
-  title: string;
-}
+import { usePlaylistActions } from "@/hooks/usePlaylistActions";
 
 interface AddToPlaylistButtonProps {
   trackId: string;
@@ -16,93 +12,26 @@ interface AddToPlaylistButtonProps {
 
 export function AddToPlaylistButton({ trackId }: AddToPlaylistButtonProps) {
   const [open, setOpen] = useState(false);
-  const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [creating, setCreating] = useState(false);
-  const [added, setAdded] = useState<Record<string, boolean>>({});
-  const [showCreate, setShowCreate] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    playlists, loading, newTitle, setNewTitle,
+    creating, added, showCreate, setShowCreate,
+    isSuccess, error,
+    fetchPlaylists, handleAdd, handleCreate,
+  } = usePlaylistActions(trackId);
+
+  // Auto-close after successful add
+  useEffect(() => {
+    if (isSuccess) {
+      const id = setTimeout(() => setOpen(false), 1000);
+      return () => clearTimeout(id);
+    }
+  }, [isSuccess]);
 
   const handleOpen = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setOpen(true);
-    setAdded({});
-    setLoading(true);
-    const res = await fetch("/api/playlists");
-    const data = await res.json() as { playlists: Playlist[] };
-    setPlaylists(data.playlists ?? []);
-    setLoading(false);
+    await fetchPlaylists();
   };
-
-  const handleAdd = async (playlistId: string) => {
-    try {
-      const res = await fetch(`/api/playlists/${playlistId}/tracks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ track_id: trackId }),
-      });
-      if (res.ok || res.status === 409) {
-        setAdded((prev) => ({ ...prev, [playlistId]: true }));
-        setIsSuccess(true);
-        setError(null);
-        // 추가 성공 후 1초 뒤 모달 자동 닫힘
-        setTimeout(() => setOpen(false), 1000);
-      } else {
-        const errorData = await res.json() as { error?: string };
-        const errorMsg = errorData.error || "플레이리스트에 추가할 수 없습니다.";
-        setError(errorMsg);
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "오류가 발생했습니다.";
-      setError(errorMsg);
-    }
-  };
-
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const title = newTitle.trim();
-    if (!title) return;
-    setCreating(true);
-    try {
-      const res = await fetch("/api/playlists", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }),
-      });
-      const data = await res.json() as { playlist?: Playlist };
-      if (data.playlist) {
-        setPlaylists((prev) => [data.playlist!, ...prev]);
-        setNewTitle("");
-        setShowCreate(false);
-        // immediately add the track
-        void handleAdd(data.playlist.id);
-      } else {
-        setError("플레이리스트를 생성할 수 없습니다.");
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "오류가 발생했습니다.";
-      setError(errorMsg);
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!isSuccess && !error) return;
-
-    let timerId: NodeJS.Timeout | undefined;
-    if (isSuccess) {
-      timerId = setTimeout(() => setIsSuccess(false), 2000);
-    } else if (error) {
-      timerId = setTimeout(() => setError(null), 3000);
-    }
-
-    return () => {
-      if (timerId) clearTimeout(timerId);
-    };
-  }, [isSuccess, error]);
 
   return (
     <>

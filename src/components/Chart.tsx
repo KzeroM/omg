@@ -19,16 +19,13 @@ import { TrackRow } from "./TrackRow";
 import { formatKoreanNumber } from "@/utils/formatNumber";
 import type { PlaylistTrack } from "@/types/player";
 import type { TagsByCategory } from "@/types/tag";
+import { CATEGORY_KO } from "@/constants/ui";
 
 const PERIOD_OPTIONS: { value: ChartPeriod; label: string }[] = [
   { value: 'daily',   label: '일간' },
   { value: 'weekly',  label: '주간' },
   { value: 'monthly', label: '월간' },
 ];
-
-const CATEGORY_KO: Record<string, string> = {
-  genre: '장르', mood: '무드', bpm: 'BPM', instrument: '악기',
-};
 
 const SHOW_INITIAL = 5;
 

@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { TrendingUp, BarChart2 } from "lucide-react";
 import { formatKoreanNumber } from "@/utils/formatNumber";
 import { LoadingState } from "@/components/ui/LoadingState";
+import { PERIOD_LABELS } from "@/constants/ui";
 
 type Period = '7d' | '30d' | '90d';
-const PERIOD_LABELS: Record<Period, string> = { '7d': '7일', '30d': '30일', '90d': '90일' };
 
 interface DailyPoint { label: string; count: number }
 interface TopTrack { id: string; title: string; play_count: number; like_count: number }

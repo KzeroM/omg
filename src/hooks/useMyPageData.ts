@@ -1,0 +1,171 @@
+"use client";
+
+import { useState, useCallback, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
+import { usePlayer } from "@/context/PlayerContext";
+import type { PlaylistTrack, HistoryTrack } from "@/types/player";
+import {
+  getLikedTracks,
+  getPlayHistory,
+  getFollowedArtists,
+  type FollowedArtist,
+} from "@/utils/supabase/tracks";
+import { getAlbumsByUserId, createAlbum } from "@/utils/supabase/albums";
+import type { DbAlbum } from "@/types/album";
+
+export interface UserInfo {
+  nickname: string | null;
+  bio: string | null;
+  artist_tier: string | null;
+}
+
+export interface MyTrack {
+  id: string;
+  user_id: string;
+  title: string;
+  artist: string;
+  play_count: number;
+  like_count: number;
+  cover_url: string | null;
+  created_at: string;
+}
+
+export interface UseMyPageDataReturn {
+  userInfo: UserInfo;
+  likedTracks: PlaylistTrack[];
+  recentHistory: HistoryTrack[];
+  followedArtists: FollowedArtist[];
+  recommendations: PlaylistTrack[];
+  playlists: { id: string; title: string; is_public: boolean }[];
+  myTracks: MyTrack[];
+  setMyTracks: React.Dispatch<React.SetStateAction<MyTrack[]>>;
+  myAlbums: DbAlbum[];
+  setMyAlbums: React.Dispatch<React.SetStateAction<DbAlbum[]>>;
+  showCreateAlbum: boolean;
+  setShowCreateAlbum: React.Dispatch<React.SetStateAction<boolean>>;
+  newAlbumTitle: string;
+  setNewAlbumTitle: React.Dispatch<React.SetStateAction<string>>;
+  creatingAlbum: boolean;
+  loading: boolean;
+  isLoggedIn: boolean | null;
+  loadData: () => Promise<void>;
+  handlePlay: (track: PlaylistTrack | HistoryTrack) => void;
+  handleCreateAlbum: (setToast: (msg: string) => void) => Promise<void>;
+  currentTrack: ReturnType<typeof usePlayer>["currentTrack"];
+  isPlaying: boolean;
+}
+
+export function useMyPageData(): UseMyPageDataReturn {
+  const [userInfo, setUserInfo] = useState<UserInfo>({ nickname: null, bio: null, artist_tier: null });
+  const [likedTracks, setLikedTracks] = useState<PlaylistTrack[]>([]);
+  const [recentHistory, setRecentHistory] = useState<HistoryTrack[]>([]);
+  const [followedArtists, setFollowedArtists] = useState<FollowedArtist[]>([]);
+  const [recommendations, setRecommendations] = useState<PlaylistTrack[]>([]);
+  const [playlists, setPlaylists] = useState<{ id: string; title: string; is_public: boolean }[]>([]);
+  const [myTracks, setMyTracks] = useState<MyTrack[]>([]);
+  const [myAlbums, setMyAlbums] = useState<DbAlbum[]>([]);
+  const [showCreateAlbum, setShowCreateAlbum] = useState(false);
+  const [newAlbumTitle, setNewAlbumTitle] = useState("");
+  const [creatingAlbum, setCreatingAlbum] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+  const { currentTrack, isPlaying, addTrack, playTrack, newReleases } = usePlayer();
+
+  const loadData = useCallback(async () => {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setIsLoggedIn(false);
+      setLoading(false);
+      return;
+    }
+    setIsLoggedIn(true);
+
+    const [{ data: profile }, liked, history, followed, recsRes, playlistsRes, { data: tracks }, albums] =
+      await Promise.all([
+        supabase.from("users").select("nickname, bio, artist_tier").eq("user_id", user.id).single(),
+        getLikedTracks().catch(() => [] as PlaylistTrack[]),
+        getPlayHistory(5).catch(() => [] as HistoryTrack[]),
+        getFollowedArtists().catch(() => [] as FollowedArtist[]),
+        fetch("/api/user/recommendations").then((r) => r.json() as Promise<{ tracks?: PlaylistTrack[] }>).catch(() => ({ tracks: [] })),
+        fetch("/api/playlists").then((r) => r.json() as Promise<{ playlists?: { id: string; title: string; is_public: boolean }[] }>).catch(() => ({ playlists: [] })),
+        supabase
+          .from("tracks")
+          .select("id, user_id, title, artist, play_count, like_count, cover_url, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }),
+        getAlbumsByUserId(user.id).catch(() => [] as DbAlbum[]),
+      ]);
+
+    if (profile) {
+      setUserInfo({
+        nickname: profile.nickname as string | null,
+        bio: profile.bio as string | null,
+        artist_tier: profile.artist_tier as string | null,
+      });
+    }
+    setLikedTracks(liked);
+    setRecentHistory(history);
+    setFollowedArtists(followed);
+    setRecommendations(recsRes.tracks ?? []);
+    setPlaylists(playlistsRes.playlists ?? []);
+    setMyTracks((tracks ?? []) as MyTrack[]);
+    setMyAlbums(albums);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    void loadData();
+    const supabase = createClient();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => { void loadData(); });
+    return () => subscription.unsubscribe();
+  }, [loadData]);
+
+  const handlePlay = (track: PlaylistTrack | HistoryTrack) => {
+    const pt = track as PlaylistTrack;
+    const existingIndex = newReleases.findIndex((t) => t.id === pt.id);
+    if (existingIndex !== -1) playTrack(existingIndex);
+    else addTrack(pt);
+  };
+
+  const handleCreateAlbum = async (setToast: (msg: string) => void) => {
+    if (!newAlbumTitle.trim()) return;
+    setCreatingAlbum(true);
+    try {
+      const album = await createAlbum({ title: newAlbumTitle.trim() });
+      setMyAlbums((prev) => [album, ...prev]);
+      setNewAlbumTitle("");
+      setShowCreateAlbum(false);
+    } catch {
+      setToast("앨범 생성에 실패했습니다.");
+    } finally {
+      setCreatingAlbum(false);
+    }
+  };
+
+  return {
+    userInfo,
+    likedTracks,
+    recentHistory,
+    followedArtists,
+    recommendations,
+    playlists,
+    myTracks,
+    setMyTracks,
+    myAlbums,
+    setMyAlbums,
+    showCreateAlbum,
+    setShowCreateAlbum,
+    newAlbumTitle,
+    setNewAlbumTitle,
+    creatingAlbum,
+    loading,
+    isLoggedIn,
+    loadData,
+    handlePlay,
+    handleCreateAlbum,
+    currentTrack,
+    isPlaying,
+  };
+}

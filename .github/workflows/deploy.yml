@@ -10,12 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Deploy to Vercel
         run: |
-          npm i -g vercel
-          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} \
-            --scope team_uAZZxZn6kiF6HKa50GCp4lnK
+          npm i -g vercel@latest
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: team_uAZZxZn6kiF6HKa50GCp4lnK
           VERCEL_PROJECT_ID: prj_fpnmfvlBUtbIK8asgbz9W3nVGUi0

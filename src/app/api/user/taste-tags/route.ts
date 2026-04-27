@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { requireAuth } from "@/utils/api/auth";
 
 export interface TasteTag {
   id: string;
@@ -11,12 +11,9 @@ export interface TasteTag {
 
 /** 사용자 취향 태그 Top 10 반환 (재생 + 좋아요 기반) */
 export async function GET() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { user, supabase } = auth;
 
   // 재생 이력 + 좋아요 트랙 ID 수집
   const [{ data: history }, { data: likes }] = await Promise.all([

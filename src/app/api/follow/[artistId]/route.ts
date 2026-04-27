@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { requireAuth } from "@/utils/api/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { createNotification } from "@/utils/notifications";
 import { checkRateLimit } from "@/utils/rateLimiter";
@@ -7,30 +7,15 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ artistId: string }> }
 ) {
+  const { artistId } = await params;
+  if (!artistId) {
+    return NextResponse.json({ error: "Artist ID is required" }, { status: 400 });
+  }
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { user, supabase } = auth;
+
   try {
-    const { artistId } = await params;
-
-    if (!artistId) {
-      return NextResponse.json(
-        { error: "Artist ID is required" },
-        { status: 400 }
-      );
-    }
-
-    // Supabase 클라이언트 (서버 사이드)
-    const supabase = await createClient();
-
-    // 현재 사용자 확인
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
     if (!await checkRateLimit(`follow:${user.id}`, 20, 60)) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }

@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { requireAdmin } from "@/utils/api/auth";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
@@ -13,17 +13,8 @@ const MUSIC_BUCKET = "omg-tracks";
 const BYTES_IN_MB = 1024 * 1024;
 
 export async function GET() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { data: profile } = await supabase
-    .from("users")
-    .select("is_admin")
-    .eq("user_id", user.id)
-    .single();
-
-  if (!profile?.is_admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const auth = await requireAdmin();
+  if (auth instanceof NextResponse) return auth;
 
   // 트랙 테이블에서 file_path, user_id, 업로더 닉네임 조회
   const { data: tracks } = await getAdminClient()

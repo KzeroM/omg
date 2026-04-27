@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { requireAdmin } from "@/utils/api/auth";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,17 +9,9 @@ function getAdminClient() {
   );
 }
 
-async function requireAdmin() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data: profile } = await supabase.from("users").select("is_admin").eq("user_id", user.id).single();
-  return profile?.is_admin ? user : null;
-}
-
 export async function POST(req: NextRequest) {
-  const admin = await requireAdmin();
-  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const auth = await requireAdmin();
+  if (auth instanceof NextResponse) return auth;
 
   const body = await req.json() as { title: string; body: string; type?: string; expires_at?: string };
   const { error } = await getAdminClient().from("announcements").insert({
@@ -35,8 +27,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-  const admin = await requireAdmin();
-  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const auth = await requireAdmin();
+  if (auth instanceof NextResponse) return auth;
 
   const { data, error } = await getAdminClient()
     .from("announcements")

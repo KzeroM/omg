@@ -1,13 +1,14 @@
-import { createClient } from "@/utils/supabase/server";
+import { requireAuth } from "@/utils/api/auth";
 import { NextRequest, NextResponse } from "next/server";
 
 const PERIOD_DAYS: Record<string, number> = { '7d': 7, '30d': 30, '90d': 90 };
 
 export async function GET(req: NextRequest) {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { user, supabase } = auth;
+
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const period = req.nextUrl.searchParams.get('period') ?? '7d';
     const days = PERIOD_DAYS[period] ?? 7;

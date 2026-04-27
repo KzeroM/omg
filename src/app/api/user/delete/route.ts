@@ -1,17 +1,13 @@
-import { createClient as createServerClient } from "@/utils/supabase/server";
+import { requireAuth } from "@/utils/api/auth";
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
 export async function DELETE() {
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { user } = auth;
+
   try {
-    // 현재 인증된 사용자 확인
-    const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     // Admin 클라이언트로 사용자 완전 삭제 (auth.users CASCADE로 public.users도 삭제)
     const adminClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

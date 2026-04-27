@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { requireAdmin } from "@/utils/api/auth";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,17 +9,9 @@ function getAdminClient() {
   );
 }
 
-async function requireAdmin() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data: profile } = await supabase.from("users").select("is_admin").eq("user_id", user.id).single();
-  return profile?.is_admin ? user : null;
-}
-
 export async function GET() {
-  const admin = await requireAdmin();
-  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const auth = await requireAdmin();
+  if (auth instanceof NextResponse) return auth;
 
   try {
     const { data } = await getAdminClient()
@@ -40,8 +32,8 @@ export async function GET() {
 
 /** PATCH: update report status — body: { id, status: "resolved"|"dismissed" } */
 export async function PATCH(req: NextRequest) {
-  const admin = await requireAdmin();
-  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const auth = await requireAdmin();
+  if (auth instanceof NextResponse) return auth;
 
   const body = await req.json() as { id: string; status: "resolved" | "dismissed" };
   if (!body.id || !["resolved", "dismissed"].includes(body.status)) {
@@ -59,8 +51,8 @@ export async function PATCH(req: NextRequest) {
 
 /** DELETE: delete the reported track + resolve report */
 export async function DELETE(req: NextRequest) {
-  const admin = await requireAdmin();
-  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const auth = await requireAdmin();
+  if (auth instanceof NextResponse) return auth;
 
   const body = await req.json() as { report_id: string; track_id: string };
   if (!body.report_id || !body.track_id) {

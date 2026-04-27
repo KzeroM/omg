@@ -1,13 +1,10 @@
-import { createClient } from "@/utils/supabase/server";
+import { requireAdmin } from "@/utils/api/auth";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-
-  const { data: profile } = await supabase.from("users").select("is_admin").eq("user_id", user.id).single();
-  if (!profile?.is_admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const auth = await requireAdmin();
+  if (auth instanceof NextResponse) return auth;
+  const { supabase } = auth;
 
   try {
     const { data } = await supabase

@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { requireAuth } from "@/utils/api/auth";
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { checkRateLimit } from "@/utils/rateLimiter";
@@ -17,20 +17,17 @@ const SYSTEM_PROMPT = `당신은 음악 취향 분석 전문가입니다.
 const CACHE_TTL_HOURS = 24;
 
 export async function POST() {
+  if (!process.env.GROQ_API_KEY) {
+    return NextResponse.json(
+      { error: "GROQ_API_KEY가 설정되지 않았습니다." },
+      { status: 503 }
+    );
+  }
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { user, supabase } = auth;
+
   try {
-    if (!process.env.GROQ_API_KEY) {
-      return NextResponse.json(
-        { error: "GROQ_API_KEY가 설정되지 않았습니다." },
-        { status: 503 }
-      );
-    }
-
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     if (!await checkRateLimit(`taste-desc:${user.id}`, 3, 3600)) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }

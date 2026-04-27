@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { requireAuth } from "@/utils/api/auth";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -37,11 +38,11 @@ export async function GET() {
 }
 
 export async function PATCH() {
-  try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await requireAuth();
+  if (auth instanceof NextResponse) return auth;
+  const { user, supabase } = auth;
 
+  try {
     await supabase
       .from("notifications")
       .update({ is_read: true })

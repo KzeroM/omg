@@ -263,10 +263,11 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
         />
       )}
 
-      {/* 곡 정보 입력 모달 */}
+      {/* 곡 정보 입력 모달 — 모바일 bottom sheet, 데스크톱 중앙 */}
       {pendingFile && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
+        <div className="fixed inset-0 z-[200] overflow-y-auto bg-black/60">
+          <div className="flex min-h-full items-end justify-center sm:items-center sm:p-4">
+          <div className="w-full max-w-sm rounded-t-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)] sm:rounded-2xl">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-semibold text-[var(--color-text-primary)]">곡 정보 입력</h3>
               <button
@@ -321,7 +322,6 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
               placeholder="곡 제목을 입력하세요"
               disabled={uploadStep !== null}
               className="mb-3 w-full rounded-xl bg-[var(--color-bg-elevated)] px-4 py-2.5 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none ring-1 ring-[var(--color-border)] focus:ring-[var(--color-accent)] disabled:opacity-60 disabled:cursor-not-allowed"
-              autoFocus
             />
 
             <div className="mb-1 flex items-center justify-between">
@@ -391,6 +391,7 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
                 </div>
               )}
             </div>
+          </div>
           </div>
         </div>
       )}

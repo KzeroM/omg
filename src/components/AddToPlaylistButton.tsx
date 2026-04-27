@@ -46,6 +46,8 @@ export function AddToPlaylistButton({ trackId }: AddToPlaylistButtonProps) {
         setAdded((prev) => ({ ...prev, [playlistId]: true }));
         setIsSuccess(true);
         setError(null);
+        // 추가 성공 후 1초 뒤 모달 자동 닫힘
+        setTimeout(() => setOpen(false), 1000);
       } else {
         const errorData = await res.json() as { error?: string };
         const errorMsg = errorData.error || "플레이리스트에 추가할 수 없습니다.";
@@ -151,19 +153,22 @@ export function AddToPlaylistButton({ trackId }: AddToPlaylistButtonProps) {
                 ) : (
                   <ul className="mb-3 max-h-52 space-y-1 overflow-y-auto">
                     {playlists.map((pl) => (
-                      <li key={pl.id}>
-                        <button
-                          type="button"
-                          onClick={() => void handleAdd(pl.id)}
-                          className={`flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm transition ${
-                            added[pl.id]
-                              ? "bg-[var(--color-accent-subtle)] text-[var(--color-accent)]"
-                              : "hover:bg-[var(--color-bg-hover)] text-[var(--color-text-primary)]"
-                          }`}
-                        >
-                          <span className="truncate">{pl.title}</span>
-                          {added[pl.id] && <Check className="h-4 w-4 shrink-0" strokeWidth={2} />}
-                        </button>
+                      <li key={pl.id} className="flex items-center gap-2 rounded-xl px-3 py-2 hover:bg-[var(--color-bg-hover)]">
+                        <span className="min-w-0 flex-1 truncate text-sm text-[var(--color-text-primary)]">{pl.title}</span>
+                        {added[pl.id] ? (
+                          <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-[var(--color-accent)]">
+                            <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+                            추가됨
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => void handleAdd(pl.id)}
+                            className="shrink-0 rounded-lg bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold text-white transition hover:opacity-90 active:scale-95"
+                          >
+                            추가
+                          </button>
+                        )}
                       </li>
                     ))}
                   </ul>

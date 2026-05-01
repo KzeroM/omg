@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { usePlayer } from "@/context/PlayerContext";
 import { uploadTrackToSupabase, type TrackVisibility } from "@/utils/upload";
+import { setTrackTags } from "@/utils/supabase/tags";
 import { useAuth } from "@/hooks/useAuth";
 import { createClient } from "@/utils/supabase/client";
 
@@ -84,6 +85,10 @@ export interface UseTrackUploadReturn {
   uploadError: string | null;
   coverFile: File | null;
   coverPreview: string | null;
+  selectedTagIds: string[];
+  setSelectedTagIds: (ids: string[]) => void;
+  isSuggestingTags: boolean;
+  suggestTags: () => Promise<void>;
   handleAudioChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleCoverChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   clearCover: () => void;
@@ -110,6 +115,8 @@ export function useTrackUpload({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [isSuggestingTags, setIsSuggestingTags] = useState(false);
 
   // Cover preview ObjectURL
   useEffect(() => {
@@ -184,14 +191,18 @@ export function useTrackUpload({
     if (hasSupabaseEnv && user) {
       setLoading(true);
       try {
-        await uploadTrackToSupabase(file, artist, title, (step) => {
+        const track = await uploadTrackToSupabase(file, artist, title, (step) => {
           setUploadStep(step);
         }, visibility, coverFile ?? undefined);
+        if (selectedTagIds.length > 0) {
+          await setTrackTags(track.id, selectedTagIds);
+        }
         await loadTracksFromDB();
         await onUploadSuccess?.();
         setPendingFile(null);
         setCoverFile(null);
         setUploadStep(null);
+        setSelectedTagIds([]);
       } catch (err) {
         const msg = err instanceof Error ? err.message
           : (err as { message?: string })?.message
@@ -206,6 +217,26 @@ export function useTrackUpload({
     }
   }, [pendingFile, artistName, trackTitle, visibility, coverFile, loadTracksFromDB, onUploadSuccess]);
 
+  const suggestTags = useCallback(async () => {
+    if (!trackTitle && !artistName) return;
+    setIsSuggestingTags(true);
+    try {
+      const res = await fetch("/api/tracks/suggest-tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: trackTitle, artist: artistName }),
+      });
+      const data = await res.json() as { tagIds?: string[] };
+      if (data.tagIds && data.tagIds.length > 0) {
+        setSelectedTagIds(data.tagIds);
+      }
+    } catch {
+      // AI 제안 실패는 조용히 처리 — 수동 선택으로 대체
+    } finally {
+      setIsSuggestingTags(false);
+    }
+  }, [trackTitle, artistName]);
+
   const clearCover = useCallback(() => setCoverFile(null), []);
 
   const cancelUpload = useCallback(() => {
@@ -213,6 +244,7 @@ export function useTrackUpload({
     setCoverFile(null);
     setUploadError(null);
     setUploadStep(null);
+    setSelectedTagIds([]);
   }, []);
 
   return {
@@ -220,6 +252,7 @@ export function useTrackUpload({
     pendingFile, trackTitle, setTrackTitle, artistName, setArtistName,
     visibility, setVisibility, uploadStep, uploadError,
     coverFile, coverPreview,
+    selectedTagIds, setSelectedTagIds, isSuggestingTags, suggestTags,
     handleAudioChange, handleCoverChange, clearCover, handleConfirm, cancelUpload,
   };
 }

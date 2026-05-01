@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, X, Globe, Users, Lock, ImagePlus } from "lucide-react";
+import { Upload, X, Globe, Users, Lock, ImagePlus, Sparkles } from "lucide-react";
 import { type TrackVisibility } from "@/utils/upload";
 import { useTrackUpload } from "@/hooks/useTrackUpload";
+import { TagSelector } from "./TagSelector";
 import { Toast } from "./Toast";
 import { AuthModal } from "./AuthModal";
 
@@ -24,6 +25,7 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
     pendingFile, trackTitle, setTrackTitle, artistName, setArtistName,
     visibility, setVisibility, uploadStep, uploadError,
     coverPreview,
+    selectedTagIds, setSelectedTagIds, isSuggestingTags, suggestTags,
     handleAudioChange, handleCoverChange, clearCover, handleConfirm, cancelUpload,
   } = useTrackUpload({ onUploadSuccess, onToast: setToast });
 
@@ -165,6 +167,36 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
                   {opt.label}
                 </button>
               ))}
+            </div>
+
+            {/* 태그 선택 */}
+            <div className="mb-4">
+              <div className="mb-2 flex items-center justify-between">
+                <label className="text-xs text-[var(--color-text-muted)]">태그 (선택사항)</label>
+                <button
+                  type="button"
+                  onClick={suggestTags}
+                  disabled={uploadStep !== null || isSuggestingTags || (!trackTitle && !artistName)}
+                  className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[var(--color-accent)] transition hover:bg-[var(--color-accent-subtle)] disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isSuggestingTags ? (
+                    <>
+                      <div className="h-3 w-3 animate-spin rounded-full border border-[var(--color-accent)] border-t-transparent" />
+                      분석 중…
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-3 w-3" />
+                      AI 태그 제안
+                    </>
+                  )}
+                </button>
+              </div>
+              <TagSelector
+                selectedTagIds={selectedTagIds}
+                onChange={setSelectedTagIds}
+                disabled={uploadStep !== null}
+              />
             </div>
 
             {uploadError && (

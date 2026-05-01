@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { PlaylistTrack, HistoryTrack } from "@/types/player";
 import { formatKoreanNumber } from "@/utils/formatNumber";
 import TasteAnalysisSection from "@/components/TasteAnalysis";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { FollowedArtist } from "@/utils/supabase/tracks";
 
 interface ListenerTabProps {
@@ -80,7 +81,7 @@ export function ListenerTab({
           <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">좋아요한 곡</h2>
         </div>
         {likedTracks.length === 0 ? (
-          <p className="text-sm text-[var(--color-text-muted)]">아직 좋아요한 곡이 없습니다.</p>
+          <EmptyState icon={Heart} title="좋아요한 곡이 없습니다" description="마음에 드는 곡의 ♥를 눌러 저장해 보세요" />
         ) : (
           <ul className="flex flex-col gap-1">
             {likedTracks.map((track) => {
@@ -171,7 +172,7 @@ export function ListenerTab({
           <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">내 플레이리스트</h2>
         </div>
         {playlists.length === 0 ? (
-          <p className="text-sm text-[var(--color-text-muted)]">아직 플레이리스트가 없습니다. 곡 목록에서 + 버튼으로 만들어 보세요.</p>
+          <EmptyState icon={ListMusic} title="플레이리스트가 없습니다" description="곡 목록의 + 버튼으로 나만의 플레이리스트를 만들어 보세요" />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {playlists.map((pl) => (

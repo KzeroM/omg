@@ -131,7 +131,10 @@ updated: 2026-05-01
 - [x] FAC-133 커버아트 업로드 (UploadButton 기존 구현 확인)
 - [x] FAC-173 업로드 모달 위치 UX (85dvh 기존 구현 확인)
 
-→ [[sprints/sprint-v11]] · PR #37
+**테마**
+- [x] FAC-118 Dark/Light 테마 토글 (next-themes + 설정 페이지 UI)
+
+→ [[sprints/sprint-v11]] · PR #37 · PR #38
 
 ---
 

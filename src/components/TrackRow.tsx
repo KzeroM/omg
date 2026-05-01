@@ -3,6 +3,7 @@ import { Play, Pause, Loader2 } from "lucide-react";
 
 interface TrackRowProps {
   coverColor: string;
+  coverUrl?: string;
   title: string;
   artist?: string;
   /** 아티스트 행을 JSX로 커스터마이징 (Link, 배지 등). 제공 시 artist 텍스트 대신 사용 */
@@ -23,6 +24,7 @@ interface TrackRowProps {
 
 export function TrackRow({
   coverColor,
+  coverUrl,
   title,
   artist,
   subtitle,
@@ -50,8 +52,12 @@ export function TrackRow({
 
       {/* 커버 아트 */}
       <div
-        className={`relative h-12 w-12 shrink-0 rounded-lg bg-gradient-to-br ${coverColor}`}
+        className={`relative h-12 w-12 shrink-0 overflow-hidden rounded-lg ${coverUrl ? "" : `bg-gradient-to-br ${coverColor}`}`}
       >
+        {coverUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+        )}
         {showPlayIcon && isActive && (
           <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/30">
             {isLoading ? (

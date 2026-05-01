@@ -90,6 +90,7 @@ export function NewReleases() {
               <TrackRow
                 key={track.id}
                 coverColor={pickCoverColor(track.id)}
+                coverUrl={track.cover_url ?? undefined}
                 title={track.title}
                 isActive={isActive}
                 onClick={() => handleTrackClick(track)}

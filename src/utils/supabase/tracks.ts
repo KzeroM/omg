@@ -9,7 +9,7 @@ export async function getTopChartTracks(limit = 5): Promise<ChartTrack[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("tracks")
-    .select("id, title, artist, play_count, file_path, users!user_id(artist_tier, nickname)")
+    .select("id, title, artist, play_count, file_path, cover_url, users!user_id(artist_tier, nickname)")
     .eq("visibility", "public")
     .order("play_count", { ascending: false })
     .limit(limit);
@@ -24,6 +24,7 @@ export async function getTopChartTracks(limit = 5): Promise<ChartTrack[]> {
     coverColor: pickCoverColor(row.id as string),
     isFoundingMember: false,
     file_path: (row.file_path as string | null) ?? undefined,
+    cover_url: (row.cover_url as string | null) ?? undefined,
     play_count: (row.play_count as number | null) ?? 0,
     artist_tier: (row.users as { artist_tier?: string; nickname?: string } | null)?.artist_tier as ArtistTier ?? 'basic',
     uploader_nickname: (row.users as { artist_tier?: string; nickname?: string } | null)?.nickname,
@@ -66,7 +67,7 @@ export async function getLatestTracks(limit = 20): Promise<ChartTrack[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('tracks')
-    .select('id, title, artist, play_count, like_count, file_path, created_at, users!user_id(artist_tier, nickname)')
+    .select('id, title, artist, play_count, like_count, file_path, cover_url, created_at, users!user_id(artist_tier, nickname)')
     .eq('visibility', 'public')
     .order('created_at', { ascending: false })
     .limit(limit);
@@ -81,6 +82,7 @@ export async function getLatestTracks(limit = 20): Promise<ChartTrack[]> {
     coverColor: pickCoverColor(row.id as string),
     isFoundingMember: false,
     file_path: (row.file_path as string | null) ?? undefined,
+    cover_url: (row.cover_url as string | null) ?? undefined,
     play_count: (row.play_count as number | null) ?? 0,
     like_count: (row.like_count as number | null) ?? 0,
     artist_tier: (row.users as { artist_tier?: string; nickname?: string } | null)?.artist_tier as ArtistTier ?? 'basic',
@@ -126,7 +128,7 @@ export async function loadPublicTracks(limit = 50): Promise<PlaylistTrack[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("tracks")
-    .select("id, file_path, title, artist, like_count, users!user_id(artist_tier, nickname)")
+    .select("id, file_path, title, artist, like_count, cover_url, users!user_id(artist_tier, nickname)")
     .eq("visibility", "public")
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -142,6 +144,7 @@ export async function loadPublicTracks(limit = 50): Promise<PlaylistTrack[]> {
     coverColor: pickCoverColor(row.id as string),
     isFoundingMember: false,
     file_path: (row.file_path as string | null) ?? undefined,
+    cover_url: (row.cover_url as string | null) ?? undefined,
     like_count: (row.like_count as number | null) ?? 0,
     artist_tier: (row.users as { artist_tier?: string; nickname?: string } | null)?.artist_tier as ArtistTier ?? 'basic',
     uploader_nickname: (row.users as { artist_tier?: string; nickname?: string } | null)?.nickname,
@@ -177,7 +180,7 @@ export async function getTracksByArtist(artistName: string): Promise<DbTrack[]> 
   const supabase = createClient();
   const { data, error } = await supabase
     .from("tracks")
-    .select("id, user_id, artist_id, file_path, title, artist, created_at, like_count, play_count, users!user_id(artist_tier)")
+    .select("id, user_id, artist_id, file_path, title, artist, created_at, like_count, play_count, cover_url, users!user_id(artist_tier)")
     .ilike("artist", artistName)
     .eq("visibility", "public")
     .order("created_at", { ascending: false });
@@ -194,6 +197,7 @@ export async function getTracksByArtist(artistName: string): Promise<DbTrack[]> 
     created_at: row.created_at as string,
     like_count: (row.like_count as number | null) ?? undefined,
     play_count: (row.play_count as number | null) ?? undefined,
+    cover_url: (row.cover_url as string | null) ?? undefined,
     artist_tier: (row.users as { artist_tier?: string } | null)?.artist_tier as ArtistTier ?? 'basic',
   })) as DbTrack[];
 }

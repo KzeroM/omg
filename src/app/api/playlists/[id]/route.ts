@@ -25,7 +25,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
     const { data: tracks } = await supabase
       .from("playlist_tracks")
-      .select("position, added_at, tracks ( id, title, artist, file_path, play_count, like_count, artist_tier )")
+      .select("position, added_at, tracks ( id, title, artist, file_path, play_count, like_count, artist_tier, cover_url )")
       .eq("playlist_id", id)
       .order("position", { ascending: true });
 

@@ -229,6 +229,7 @@ export function Chart() {
                 <TrackRow
                   key={track.id}
                   coverColor={track.coverColor}
+                  coverUrl={track.cover_url ?? undefined}
                   title={track.title}
                   isActive={isActive}
                   onClick={() => void playSingleTrack(track as PlaylistTrack)}

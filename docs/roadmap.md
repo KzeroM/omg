@@ -24,7 +24,6 @@ updated: 2026-05-01
 - [x] MP3 ID3 태그 자동 추출, 업로드 진행률, 검색, 재생 히스토리, 트랙 공유
 - [x] Shuffle / Repeat, 큐 패널, 아티스트 통계, RLS 전수 감사
 
-> v1 핵심 이슈 상세: [[specs]]
 > 스프린트 상세: [[sprints/sprint-v1]]
 
 ---
@@ -123,14 +122,14 @@ updated: 2026-05-01
 
 ---
 
-## v10 — 버그 수정 + 리팩토링 (2026-04-27)
+## v10 — 버그 수정 + 리팩토링 + 기능 추가 (2026-04-27 ~ 05-01)
 
-### v10A — 즉시 버그 수정
+**버그 수정**
 - [x] `/playlist/[id]` 상세 페이지 생성
 - [x] `AddToPlaylistButton` added 상태 리셋 버그
 - [x] 마이페이지 내 트랙 편집(EditTrackModal) 복구
 
-### v10B — 리팩토링 R1~R8
+**리팩토링 R1~R8**
 - [x] R1: `requireAuth`/`requireAdmin` 헬퍼 + 25개 API 라우트 적용 (-91줄)
 - [x] R2: `ApiResponse<T>` · `ApiError` · `apiError()` 타입 유틸 신규
 - [x] R3: `my/page.tsx` 625→212 LOC (`useMyPageData` + `ListenerTab` + `ArtistTab`)
@@ -140,13 +139,8 @@ updated: 2026-05-01
 - [x] R7: `useAuth` + `usePlaylistActions` 신규, `AddToPlaylistButton` 순수 UI화
 - [x] R8: `constants/ui.ts` 신규 — 레이블 상수 중앙화
 
-→ [[sprints/sprint-v10]]
-
----
-
-## v10C — 기능 추가 ✅ (2026-05-01)
-
-- [x] #177 featured_artists 관리 UI (admin/featured/page.tsx 이미 구현됨 확인)
-- [x] #178 커버 이미지 TrackRow/PlayerBar 표시 (PR #36)
+**기능 추가**
+- [x] FAC-177 featured_artists 관리 UI (이미 구현됨 확인)
+- [x] FAC-178 커버 이미지 TrackRow/PlayerBar 표시 (PR #36)
 
 → [[sprints/sprint-v10]]

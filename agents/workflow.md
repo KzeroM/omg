@@ -47,7 +47,7 @@
       - "마지막 커밋" sha + 메시지 갱신
       - (스프린트 완료 시) 완료 요약 섹션 추가
 
-[ ] C. Obsidian 볼트 (C:\Users\zerom\Documents\Obsidian Vault\omg)
+[ ] C. Obsidian 볼트 (C:\Users\zerom\Desktop\DevZero\omg\docs)
       - sprints/sprint-v{N}.md 생성 (구현 항목·DB 변경·신규 파일 기록)
       - roadmap.md 상태 갱신:
           - frontmatter updated: 날짜

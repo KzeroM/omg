@@ -119,7 +119,7 @@ export function ArtistAnalytics() {
             {data.topTracks.map((track, i) => (
               <li key={track.id} className="flex items-center gap-3">
                 <span className="w-4 shrink-0 text-xs font-bold text-[var(--color-text-muted)]">{i + 1}</span>
-                <p className="flex-1 truncate text-sm text-[var(--color-text-primary)]">{track.title}</p>
+                <p className="min-w-0 flex-1 truncate text-sm text-[var(--color-text-primary)]">{track.title}</p>
                 <span className="text-xs text-[var(--color-text-muted)]">{formatKoreanNumber(track.play_count)} 재생</span>
                 <span className="text-xs text-[var(--color-text-muted)]">{formatKoreanNumber(track.like_count)} ♥</span>
               </li>

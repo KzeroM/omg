@@ -254,7 +254,7 @@ export function Chart() {
                     </span>
                   }
                   subtitle={
-                    <p className="flex flex-wrap items-center gap-2 truncate text-sm text-[var(--color-text-secondary)]">
+                    <p className="flex min-w-0 flex-wrap items-center gap-2 truncate text-sm text-[var(--color-text-secondary)]">
                       <Link
                         href={`/artist/${encodeURIComponent(track.uploader_nickname ?? track.artist)}`}
                         onClick={(e) => e.stopPropagation()}
@@ -267,7 +267,7 @@ export function Chart() {
                     </p>
                   }
                   trailing={
-                    <span className="hidden sm:contents">
+                    <span className="contents">
                       {track.play_count != null && (
                         <span className="flex shrink-0 items-center gap-1 text-xs text-[var(--color-text-muted)]">
                           <Play className="h-3 w-3" strokeWidth={1.5} />

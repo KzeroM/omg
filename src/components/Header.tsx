@@ -41,7 +41,7 @@ export function Header() {
           {user ? (
             <>
               <NotificationBell />
-              <span className="max-w-[120px] truncate text-sm text-[var(--color-text-secondary)] lg:max-w-[200px]">
+              <span className="max-w-[80px] truncate text-sm text-[var(--color-text-secondary)] sm:max-w-[120px] lg:max-w-[200px]">
                 {user.user_metadata?.nickname || user.user_metadata?.name || user.email}
               </span>
               <button

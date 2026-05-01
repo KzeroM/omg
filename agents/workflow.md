@@ -21,6 +21,10 @@
 [ ] 4. backlog.md → 🔨 진행 중 + session.md 업데이트
 [ ] 5. 구현 (Orchestrator 직접 or 에이전트 스폰)
 [ ] 6. TypeScript 체크: npx tsc --noEmit
+[ ] 6-A. 크로스플랫폼 확인: 새 UI 기능이 모바일·데스크톱 양쪽에 있는가
+         → hidden sm:* / hidden lg:* 로 한쪽만 숨긴 경우 PR description에 이유 명시
+[ ] 6-B. 텍스트 오버플로우 확인: flex item에 min-w-0 · truncate 적용 여부
+         → 규칙 상세: docs/design-system.md ## 구현 규칙
 [ ] 7. 커밋 + 푸시
 [ ] 8. PR 생성 + 머지 (squash)
 [ ] 9. main sync: git checkout main && git pull

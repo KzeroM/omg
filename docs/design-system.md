@@ -281,3 +281,84 @@ flex flex-col items-center gap-3 py-12 text-[--color-text-muted]
 텍스트: text-sm
 CTA:    text-[--color-accent] hover:underline text-sm
 ```
+
+---
+
+## 구현 규칙
+
+### 크로스플랫폼 패리티 (Cross-Platform Parity)
+
+> 의도적으로 한쪽 전용인 기능을 제외하고, **모든 기능은 모바일·데스크톱 양쪽에서 동작해야 한다.**
+
+**의도적 예외** (아래만 허용):
+- `BottomNav` — 모바일 전용 탐색
+- `Sidebar` — 데스크톱 전용 탐색
+- `MobileFullscreenPlayer` — 모바일 전용 풀스크린
+- PlayerBar 레이아웃 이분화 — 모바일 간소화 / 데스크톱 풀 컨트롤
+
+**금지 패턴**:
+```tsx
+// ❌ 기능 버튼을 모바일에서 완전히 숨김
+<span className="hidden sm:contents">
+  <LikeButton />
+  <AddToPlaylistButton />
+</span>
+
+// ✅ 모든 화면에서 표시
+<LikeButton />
+<AddToPlaylistButton />
+```
+
+새 기능을 trailing / action 영역에 추가할 때 `hidden sm:*` 또는 `hidden lg:*` 로 특정 화면에서만 렌더링하는 경우, 반드시 PR description에 이유를 명시해야 한다.
+
+---
+
+### 텍스트 오버플로우 방지
+
+> flex 컨테이너 안에서 텍스트가 잘리거나 넘치는 것을 방지하는 필수 패턴.
+
+**규칙 1 — flex item에 `min-w-0` 필수**
+
+```tsx
+// ❌ min-w-0 없으면 flex item이 축소되지 않아 overflow 발생
+<div className="flex items-center gap-3">
+  <p className="flex-1 truncate">{title}</p>
+</div>
+
+// ✅ min-w-0 추가
+<div className="flex items-center gap-3">
+  <p className="min-w-0 flex-1 truncate">{title}</p>
+</div>
+```
+
+**규칙 2 — 중첩 flex에도 동일하게 적용**
+
+```tsx
+// ✅ 텍스트를 감싸는 모든 flex 중간 컨테이너에 min-w-0
+<div className="flex items-center gap-3">        {/* 외부 flex */}
+  <div className="min-w-0 flex-1">               {/* ← min-w-0 필수 */}
+    <p className="truncate font-medium">{title}</p>
+    <p className="truncate text-sm text-muted">{artist}</p>
+  </div>
+</div>
+```
+
+**규칙 3 — 반응형 고정 너비 금지**
+
+```tsx
+// ❌ 고정 너비는 작은 화면에서 잘림 유발
+<span className="max-w-[120px] truncate">{username}</span>
+
+// ✅ 반응형 너비
+<span className="max-w-[80px] truncate sm:max-w-[120px] lg:max-w-[160px]">{username}</span>
+```
+
+**규칙 4 — subtitle/아티스트명 flex 컨테이너**
+
+```tsx
+// ✅ 아티스트명 + 배지가 함께 있는 subtitle 패턴
+<p className="flex min-w-0 flex-wrap items-center gap-2 truncate text-sm text-[--color-text-secondary]">
+  <Link ...>{artist}</Link>
+  <TierBadge />
+</p>
+```

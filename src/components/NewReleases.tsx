@@ -106,7 +106,7 @@ export function NewReleases() {
                   </span>
                 }
                 subtitle={
-                  <p className="flex flex-wrap items-center gap-2 truncate text-sm text-[var(--color-text-secondary)]">
+                  <p className="flex min-w-0 flex-wrap items-center gap-2 truncate text-sm text-[var(--color-text-secondary)]">
                     <Link
                       href={`/artist/${encodeURIComponent(track.uploader_nickname ?? track.artist)}`}
                       onClick={(e) => e.stopPropagation()}
@@ -120,11 +120,9 @@ export function NewReleases() {
                 trailing={
                   <>
                     <LikeButton trackId={track.id} initialLikeCount={track.like_count ?? 0} />
-                    <span className="hidden sm:contents">
-                      <AddToPlaylistButton trackId={track.id} />
-                      <ShareButton trackId={track.id} artistName={track.artist} />
-                      <ReportButton trackId={track.id} />
-                    </span>
+                    <AddToPlaylistButton trackId={track.id} />
+                    <ShareButton trackId={track.id} artistName={track.artist} />
+                    <ReportButton trackId={track.id} />
                   </>
                 }
               />

@@ -1,7 +1,7 @@
 # OMG 백로그
 
 > 관리자: Orchestrator
-> 마지막 업데이트: 2026-04-27 (v10B 완료)
+> 마지막 업데이트: 2026-05-01 (v10C #177 #178 완료)
 > Q3 목표: "아티스트와 팬의 관계가 곡 재생을 넘어 상호작용으로 확장되는 커뮤니티 플랫폼으로 진화"
 > 핵심 지표: 플레이리스트 생성률 · 모바일 세션 30분+ · 알림 재방문율
 
@@ -22,15 +22,15 @@
 ## 🗺️ 통합 우선순위 로드맵 (2026-04-27 기준)
 
 ```
-v9 핫픽스 완료 → v10A ✅ → v10B ✅ → v10C 기능 🔨
+v9 핫픽스 완료 → v10A ✅ → v10B ✅ → v10C 기능 (#177 #178 ✅)
 ```
 
 ### 기능 (v10C — 리팩토링 후)
 
 | # | 작업 | 상태 | 비고 |
 |---|------|------|------|
-| 177 | featured_artists 관리 UI (admin 페이지) | 📋 대기 | Supabase 대시보드 대체 |
-| 178 | 커버 이미지 TrackRow/PlayerBar 표시 | 📋 대기 | cover_url 이미 DB에 저장됨 |
+| 177 | featured_artists 관리 UI (admin 페이지) | ✅ 완료 | admin/featured/page.tsx 이미 구현됨 |
+| 178 | 커버 이미지 TrackRow/PlayerBar 표시 | ✅ 완료 | PR#36 |
 | 106 | Dark/Light 테마 토글 | 📋 대기 | 설정 토글 1개 |
 | 111 | 업로드 시 AI 자동 태그 생성 | 📋 대기 | Claude API 태그 후보 제안 |
 
@@ -303,3 +303,5 @@ v9 핫픽스 완료 → v10A ✅ → v10B ✅ → v10C 기능 🔨
 | 128 | 앨범 단위 관리 — manage_album_tracks SECURITY DEFINER RPC + 마이페이지 아티스트 탭 앨범 섹션 + album/[id] 스켈레톤 | 2026-04-26 | PR#34 |
 | 141 | 트랙 공개 설정 — tracks.visibility 컬럼 + UploadButton 공개 범위 선택 UI + 차트/검색/아티스트 쿼리 필터 | 2026-04-26 | PR#35 |
 | 144 | 신곡 팔로워 알림 — 공개 업로드 완료 시 follows 조회 후 new_track 알림 일괄 발송 | 2026-04-26 | PR#35 |
+| 177 | featured_artists 관리 UI — admin/featured/page.tsx + /api/admin/featured 이미 구현됨 확인 | 2026-05-01 | — |
+| 178 | 커버 이미지 TrackRow/PlayerBar — coverUrl prop, img/gradient fallback, 5개 호출부 + tracks.ts SELECT 추가 | 2026-05-01 | PR#36 |

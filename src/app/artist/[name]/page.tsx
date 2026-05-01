@@ -349,6 +349,7 @@ export default function ArtistPage({
                     <TrackRow
                       key={track.id}
                       coverColor={pickCoverColor(track.id)}
+                      coverUrl={track.cover_url ?? undefined}
                       title={track.title ?? "제목 없음"}
                       artist={track.artist ?? "Unknown Artist"}
                       isActive={isCurrentTrack}

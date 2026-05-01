@@ -79,8 +79,13 @@ export function PlayerBar() {
             aria-label="플레이어 전체화면 열기"
           >
             <div
-              className={`h-10 w-10 shrink-0 rounded-lg bg-gradient-to-br lg:h-12 lg:w-12 ${current?.coverColor ?? "from-[var(--color-border)] to-[var(--color-bg-surface)]"}`}
-            />
+              className={`h-10 w-10 shrink-0 overflow-hidden rounded-lg lg:h-12 lg:w-12 ${current?.cover_url ? "" : `bg-gradient-to-br ${current?.coverColor ?? "from-[var(--color-border)] to-[var(--color-bg-surface)]"}`}`}
+            >
+              {current?.cover_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={current.cover_url} alt="" className="h-full w-full object-cover" />
+              )}
+            </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-[var(--color-text-primary)] lg:text-base">
                 {current?.title ?? "곡을 선택하세요"}

@@ -29,6 +29,7 @@ interface PlaylistTrackRow {
     play_count: number | null;
     like_count: number | null;
     artist_tier: string | null;
+    cover_url: string | null;
   } | null;
 }
 
@@ -199,6 +200,7 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
                 <TrackRow
                   key={t.id}
                   coverColor={pickCoverColor(t.id)}
+                  coverUrl={t.cover_url ?? undefined}
                   title={t.title}
                   artist={t.artist}
                   isActive={isActive}

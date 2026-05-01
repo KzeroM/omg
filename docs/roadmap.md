@@ -122,6 +122,19 @@ updated: 2026-05-01
 
 ---
 
+## v11 — 커뮤니티 + UX (2026-05-01~)
+
+**Empty State 통일**
+- [x] FAC-105 EmptyState 컴포넌트 action(CTA) prop 추가
+- [x] FollowedArtistsFeed 빈 상태 UI + "차트에서 아티스트 찾기" CTA
+- [x] ListenerTab 좋아요/플레이리스트 빈 상태 EmptyState로 통일
+- [x] FAC-133 커버아트 업로드 (UploadButton 기존 구현 확인)
+- [x] FAC-173 업로드 모달 위치 UX (85dvh 기존 구현 확인)
+
+→ [[sprints/sprint-v11]] · PR #37
+
+---
+
 ## v10 — 버그 수정 + 리팩토링 + 기능 추가 (2026-04-27 ~ 05-01)
 
 **버그 수정**

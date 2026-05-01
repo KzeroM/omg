@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Play, Users } from "lucide-react";
+import { Play, UserPlus, Users } from "lucide-react";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
 import { pickCoverColor } from "@/utils/coverColor";
@@ -57,8 +58,7 @@ export function FollowedArtistsFeed() {
     });
   }, []);
 
-  // 로그인 확인 전 or 팔로우 없음
-  if (!mounted || tracks.length === 0) return null;
+  if (!mounted) return null;
 
   const handlePlay = (track: FeedTrack) => {
     const pt: PlaylistTrack = {
@@ -82,6 +82,14 @@ export function FollowedArtistsFeed() {
         <h2 className="text-base font-semibold text-[var(--color-text-primary)]">팔로우 아티스트 신곡</h2>
       </div>
 
+      {tracks.length === 0 ? (
+        <EmptyState
+          icon={UserPlus}
+          title="팔로우한 아티스트의 신곡이 없습니다"
+          description="아티스트를 팔로우하면 신곡을 여기서 바로 확인할 수 있어요"
+          action={{ label: "차트에서 아티스트 찾기", href: "/chart" }}
+        />
+      ) : (
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {tracks.map((track) => {
           const isActive = currentTrack?.id === track.id;
@@ -139,6 +147,7 @@ export function FollowedArtistsFeed() {
           );
         })}
       </div>
+      )}
     </section>
   );
 }

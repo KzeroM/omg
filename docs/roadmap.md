@@ -134,7 +134,10 @@ updated: 2026-05-01
 **테마**
 - [x] FAC-118 Dark/Light 테마 토글 (next-themes + 설정 페이지 UI)
 
-→ [[sprints/sprint-v11]] · PR #37 · PR #38
+**AI 기능**
+- [x] FAC-120 업로드 AI 자동 태그 제안 (Groq + TagSelector 통합, 업로드 시 tag 저장)
+
+→ [[sprints/sprint-v11]] · PR #37 · PR #38 · PR #39
 
 ---
 

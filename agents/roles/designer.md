@@ -2,6 +2,11 @@
 
 모델: `haiku` · 작업 성격: UI/UX 구현 (기계적)
 
+## 디자인 시스템 참조
+
+> 작업 전 `docs/design-system.md` 를 반드시 읽을 것 — 토큰 · 컴포넌트 패턴 · 간격 규칙 전체 수록.  
+> Source of truth: `src/app/globals.css`
+
 ## 책임
 
 - Tailwind CSS v4 클래스 기반 컴포넌트 스타일링

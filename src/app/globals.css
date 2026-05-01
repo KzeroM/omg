@@ -1,45 +1,95 @@
 @import "tailwindcss";
 
 :root {
-  /* 배경 */
-  --color-bg-base: #0a0a0a;
-  --color-bg-surface: #141414;
+  /* ─── 배경 ─────────────────────────────────────────── */
+  --color-bg-base:     #0a0a0a;
+  --color-bg-surface:  #141414;
   --color-bg-elevated: #1f1f1f;
-  --color-bg-hover: rgba(255, 255, 255, 0.05);
+  --color-bg-hover:    rgba(255, 255, 255, 0.05);
 
-  /* 강조 색상 */
-  --color-accent: #A855F7;
-  --color-accent-hover: #9333ea;
+  /* ─── 강조 (Accent) ────────────────────────────────── */
+  --color-accent:        #A855F7;
+  --color-accent-hover:  #9333ea;
   --color-accent-subtle: rgba(168, 85, 247, 0.1);
 
-  /* 텍스트 */
-  --color-text-primary: #ffffff;
+  /* ─── 텍스트 ────────────────────────────────────────── */
+  --color-text-primary:   #ffffff;
   --color-text-secondary: #a1a1aa;
-  --color-text-muted: #71717a;
+  --color-text-muted:     #71717a;
 
-  /* 경계선 */
+  /* ─── 경계선 ─────────────────────────────────────────── */
   --color-border: #1f1f1f;
 
-  /* 레거시 (하위 호환성) */
-  --background: var(--color-bg-base);
-  --foreground: var(--color-text-primary);
-  --electric-purple: var(--color-accent);
-  --electric-purple-dim: var(--color-accent-hover);
-  --sidebar-bg: var(--color-bg-base);
-  --card-bg: var(--color-bg-surface);
-  --border-dark: var(--color-border);
-  --gold-badge: #fbbf24;
+  /* ─── 시스템 상태 ────────────────────────────────────── */
+  --color-success:         #22c55e;
+  --color-success-subtle:  rgba(34, 197, 94, 0.1);
+  --color-error:           #ef4444;
+  --color-error-subtle:    rgba(239, 68, 68, 0.1);
+  --color-warning:         #f59e0b;
+  --color-warning-subtle:  rgba(245, 158, 11, 0.1);
+
+  /* ─── 특수 ───────────────────────────────────────────── */
+  --gold-badge:      #fbbf24;
   --gold-badge-glow: rgba(251, 191, 36, 0.4);
+
+  /* ─── 모서리 (Border Radius) ─────────────────────────── */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  /* ─── 그림자 (Shadow) ────────────────────────────────── */
+  --shadow-sm:   0 1px 3px  rgba(0, 0, 0, 0.5);
+  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-lg:   0 8px 32px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 20px   rgba(168, 85, 247, 0.3);
+
+  /* ─── z-index ────────────────────────────────────────── */
+  --z-base:      0;
+  --z-above:     1;
+  --z-dropdown:  10;
+  --z-sticky:    20;
+  --z-overlay:   30;
+  --z-modal:     40;
+  --z-toast:     50;
+  --z-player:    100;
+
+  /* ─── 트랜지션 ───────────────────────────────────────── */
+  --duration-fast:   100ms;
+  --duration-normal: 200ms;
+  --duration-slow:   350ms;
+  --ease-default:    cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ─── 레이아웃 고정값 ─────────────────────────────────── */
+  --player-height:  72px;
+  --sidebar-width:  240px;
+  --topbar-height:  56px;
+
+  /* ─── 레거시 alias (하위 호환) ───────────────────────── */
+  --background:        var(--color-bg-base);
+  --foreground:        var(--color-text-primary);
+  --electric-purple:   var(--color-accent);
+  --electric-purple-dim: var(--color-accent-hover);
+  --sidebar-bg:        var(--color-bg-base);
+  --card-bg:           var(--color-bg-surface);
+  --border-dark:       var(--color-border);
 }
 
 @theme inline {
-  --color-background: var(--color-bg-base);
-  --color-foreground: var(--color-text-primary);
-  --color-electric-purple: var(--color-accent);
-  --color-electric-purple-hover: var(--color-accent-hover);
+  /* 색상 */
+  --color-background:             var(--color-bg-base);
+  --color-foreground:             var(--color-text-primary);
+  --color-electric-purple:        var(--color-accent);
+  --color-electric-purple-hover:  var(--color-accent-hover);
   --color-electric-purple-subtle: var(--color-accent-subtle);
-  --color-text-secondary: var(--color-text-secondary);
-  --color-text-muted: var(--color-text-muted);
+  --color-text-secondary:         var(--color-text-secondary);
+  --color-text-muted:             var(--color-text-muted);
+  --color-success:                var(--color-success);
+  --color-error:                  var(--color-error);
+  --color-warning:                var(--color-warning);
+  /* 폰트 */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -54,43 +104,33 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
-/* 금색 배지 반짝임 애니메이션 */
+/* ─── 애니메이션 ──────────────────────────────────────────────── */
+
+/* 금색 배지 반짝임 */
 @keyframes badge-shine {
-  0%, 100% { box-shadow: 0 0 8px var(--gold-badge-glow), inset 0 0 0 1px var(--gold-badge); }
-  50% { box-shadow: 0 0 16px var(--gold-badge-glow), 0 0 24px var(--gold-badge-glow), inset 0 0 0 1px var(--gold-badge); }
+  0%, 100% { box-shadow: 0 0 8px  var(--gold-badge-glow), inset 0 0 0 1px var(--gold-badge); }
+  50%       { box-shadow: 0 0 16px var(--gold-badge-glow), 0 0 24px var(--gold-badge-glow), inset 0 0 0 1px var(--gold-badge); }
 }
+.animate-badge-shine { animation: badge-shine 2s ease-in-out infinite; }
 
-.animate-badge-shine {
-  animation: badge-shine 2s ease-in-out infinite;
-}
-
-/* 재생 중 이퀄라이저 애니메이션 */
+/* 이퀄라이저 */
 @keyframes eq-bar1 {
-  0%, 100% { height: 4px; }
-  50% { height: 14px; }
+  0%, 100% { height: 4px; }  50% { height: 14px; }
 }
 @keyframes eq-bar2 {
-  0%, 100% { height: 10px; }
-  33% { height: 4px; }
-  66% { height: 14px; }
+  0%, 100% { height: 10px; } 33% { height: 4px; }  66% { height: 14px; }
 }
 @keyframes eq-bar3 {
-  0%, 100% { height: 7px; }
-  25% { height: 14px; }
-  75% { height: 4px; }
+  0%, 100% { height: 7px; }  25% { height: 14px; } 75% { height: 4px; }
 }
-
 .equalizer-bar-1 { animation: eq-bar1 0.9s ease-in-out infinite; }
 .equalizer-bar-2 { animation: eq-bar2 0.9s ease-in-out infinite 0.15s; }
 .equalizer-bar-3 { animation: eq-bar3 0.9s ease-in-out infinite 0.3s; }
 
-/* 좋아요 버튼 하트 펄스 애니메이션 */
+/* 좋아요 하트 펄스 */
 @keyframes like-heart-pulse {
   0%   { transform: scale(1); }
   50%  { transform: scale(1.25); }
   100% { transform: scale(1); }
 }
-
-.animate-like-heart-pulse {
-  animation: like-heart-pulse 0.35s ease-in-out;
-}
+.animate-like-heart-pulse { animation: like-heart-pulse 0.35s ease-in-out; }

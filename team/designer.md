@@ -14,17 +14,12 @@ PM 스펙 또는 Tech Lead 완료 보고를 받아 UI/UX를 구현하고, 디자
 
 ## 디자인 시스템
 
-| 토큰 | 값 | 용도 |
-|------|-----|------|
-| `--color-primary` | `#A855F7` | 강조·버튼·링크 |
-| `--color-bg` | `#0a0a0a` | 페이지 배경 |
-| `--color-bg-surface` | `#141414` | 카드·패널 |
-| `--color-border` | `#1f1f1f` | 구분선 |
-| `--color-text` | `#e5e5e5` | 본문 |
-| `--color-text-muted` | `#6b7280` | 보조 텍스트 |
+> **전체 스펙**: `docs/design-system.md` 반드시 먼저 읽을 것  
+> **Source of truth**: `src/app/globals.css`
 
-- 아이콘: `lucide-react` (`strokeWidth={1.5}`)
-- 폰트: 시스템 기본 (변경 금지)
+- 토큰: `--color-*`, `--radius-*`, `--shadow-*`, `--z-*`, `--duration-*` 사용
+- 아이콘: `lucide-react` (`strokeWidth={1.5}`, 기본 `size={18}`)
+- 폰트: Geist Sans (변경 금지)
 
 ## 작업 범위
 - `.tsx` 컴포넌트 파일의 JSX + className 수정

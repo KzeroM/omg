@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Instagram, Twitter, Youtube, Music, Lock, Trash2 } from "lucide-react";
+import { useTheme } from "next-themes";
+import { ArrowLeft, Instagram, Twitter, Youtube, Music, Lock, Trash2, Sun, Moon } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { Toast } from "@/components/Toast";
 import { validateNickname } from "@/utils/nickname";
@@ -12,6 +13,7 @@ import type { SocialLinks } from "@/types/user";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
   const [currentNickname, setCurrentNickname] = useState<string | null>(null);
   const [newNickname, setNewNickname] = useState("");
   const [nicknameError, setNicknameError] = useState<string | null>(null);
@@ -298,6 +300,46 @@ export default function SettingsPage() {
           </Link>
           <h1 className="text-2xl font-bold text-white">설정</h1>
         </div>
+
+        {/* 테마 */}
+        <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {theme === "light" ? (
+                <Sun className="h-4 w-4 text-[var(--color-text-muted)]" />
+              ) : (
+                <Moon className="h-4 w-4 text-[var(--color-text-muted)]" />
+              )}
+              <h2 className="text-sm font-semibold text-[var(--color-text-primary)]">테마</h2>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setTheme("dark")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                  theme === "dark"
+                    ? "bg-[var(--color-accent)] text-white"
+                    : "bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+                }`}
+              >
+                <Moon className="h-3 w-3" />
+                다크
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme("light")}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                  theme === "light"
+                    ? "bg-[var(--color-accent)] text-white"
+                    : "bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+                }`}
+              >
+                <Sun className="h-3 w-3" />
+                라이트
+              </button>
+            </div>
+          </div>
+        </section>
 
         <section className="rounded-2xl bg-[#141414] p-6 ring-1 ring-[#1f1f1f] space-y-6">
           <div>

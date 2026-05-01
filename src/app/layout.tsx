@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { PlayerBar } from "@/components/PlayerBar";
@@ -34,27 +35,30 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-[#0a0a0a] text-zinc-100 antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
+        style={{ background: "var(--color-bg-base)", color: "var(--color-text-primary)" }}
       >
-        <QueryProvider>
-          <ToastProvider>
-            <PlayerProvider>
-              <Suspense fallback={null}>
-                <AuthVerifiedToast />
-              </Suspense>
-              <OnboardingModal />
-              <Header />
-              <div className="flex min-h-screen">
-                <Sidebar />
-                <QueueAwareMain>{children}</QueueAwareMain>
-              </div>
-              <PlayerBar />
-              <BottomNav />
-            </PlayerProvider>
-          </ToastProvider>
-        </QueryProvider>
+        <ThemeProvider attribute="data-theme" defaultTheme="dark" disableTransitionOnChange>
+          <QueryProvider>
+            <ToastProvider>
+              <PlayerProvider>
+                <Suspense fallback={null}>
+                  <AuthVerifiedToast />
+                </Suspense>
+                <OnboardingModal />
+                <Header />
+                <div className="flex min-h-screen">
+                  <Sidebar />
+                  <QueueAwareMain>{children}</QueueAwareMain>
+                </div>
+                <PlayerBar />
+                <BottomNav />
+              </PlayerProvider>
+            </ToastProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

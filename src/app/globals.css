@@ -77,6 +77,24 @@
   --border-dark:       var(--color-border);
 }
 
+/* ─── 라이트 모드 오버라이드 ─────────────────────────────── */
+[data-theme="light"] {
+  --color-bg-base:     #f8f9fa;
+  --color-bg-surface:  #ffffff;
+  --color-bg-elevated: #f1f3f5;
+  --color-bg-hover:    rgba(0, 0, 0, 0.04);
+
+  --color-text-primary:   #111111;
+  --color-text-secondary: #52525b;
+  --color-text-muted:     #71717a;
+
+  --color-border: #e4e4e7;
+
+  --shadow-sm:   0 1px 3px  rgba(0, 0, 0, 0.08);
+  --shadow-md:   0 4px 12px rgba(0, 0, 0, 0.10);
+  --shadow-lg:   0 8px 32px rgba(0, 0, 0, 0.14);
+}
+
 @theme inline {
   /* 색상 */
   --color-background:             var(--color-bg-base);

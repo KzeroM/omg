@@ -1,5 +1,5 @@
 # Orchestrator 세션 체크포인트
-업데이트: 2026-04-27 v10B 완료
+업데이트: 2026-05-01 핫픽스 완료
 
 ## 현재 스프린트: v10C
 
@@ -15,13 +15,14 @@
 | R6 AuthModal 분리 | main | ✅ cb9f11f | 408→160 LOC |
 | R7 hooks 확장 | main | ✅ 8a5105a | useAuth + usePlaylistActions |
 | R8 constants 중앙화 | main | ✅ 3158e74 | constants/ui.ts |
+| 핫픽스 AlbumCard TypeError | main | ✅ 8f1c6bc | album.tracks undefined 수정 |
 | #177 featured_artists UI | 미착수 | 🔜 미착수 | v10C |
 | #178 커버 이미지 표시 | 미착수 | 🔜 미착수 | v10C |
 
 ## 다음 할 일
-1. CEO에게 v10B 완료 보고
+1. Vercel 재배포 확인 (GitHub 푸시로 자동 트리거)
 2. v10C 착수: #178 커버 이미지 표시 (TrackRow + PlayerBar, cover_url 이미 DB에 있음)
 3. 또는 #177 featured_artists 관리 UI (admin 페이지)
 
 ## 마지막 커밋
-main @ 3158e74 — refactor(R8): add constants/ui.ts and deduplicate shared constants
+main @ 8f1c6bc — fix: transform album_tracks→tracks in getPublicAlbums/getPublicAlbumsServer

@@ -165,7 +165,10 @@ updated: 2026-05-01
 - [x] FAC-138 플레이어 스와이프업 (바텀바 위 스와이프 → 풀스크린 진입)
 - [x] FAC-136 트랙 롱프레스 바텀시트 (useLongPress 훅 + TrackActionsSheet)
 
-→ [[sprints/sprint-v12]] · PR #44 · PR #45 · PR #46
+**아티스트 프로필**
+- [x] FAC-143 핀 트랙 (프로필 상단 고정 카드 + pin/unpin API)
+
+→ [[sprints/sprint-v12]] · PR #44 · PR #45 · PR #46 · PR #47
 
 ---
 

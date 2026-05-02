@@ -143,7 +143,10 @@ updated: 2026-05-01
 **재방문율**
 - [x] FAC-122 일일 로그인 스트릭 (users 컬럼 + API + 헤더 불꽃 배지 🔥N)
 
-→ [[sprints/sprint-v11]] · PR #37 · PR #38 · PR #39 · PR #40 · PR #41
+**운영**
+- [x] FAC-129 운영진 문의 기능 (support_tickets DB + 사용자 폼 + 어드민 답변 UI)
+
+→ [[sprints/sprint-v11]] · PR #37 · PR #38 · PR #39 · PR #40 · PR #41 · PR #42
 
 ---
 

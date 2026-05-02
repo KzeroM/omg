@@ -29,6 +29,8 @@ export function EditTrackModal({
   const [error, setError] = useState<string | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(track.cover_url ?? null);
+  const [lyrics, setLyrics] = useState(track.lyrics ?? "");
+  const [credits, setCredits] = useState(track.credits ?? "");
 
   // 모달 열릴 때 기존 태그 로드 + 커버 초기화
   useEffect(() => {
@@ -40,6 +42,16 @@ export function EditTrackModal({
     getTagsByTrackId(track.id)
       .then((tags) => setSelectedTagIds(tags.map((t) => t.id)))
       .catch(console.error);
+    // 가사·크레딧은 track prop에 없을 수 있으므로 DB에서 fetch
+    void createClient()
+      .from("tracks")
+      .select("lyrics, credits")
+      .eq("id", track.id)
+      .single()
+      .then(({ data }) => {
+        setLyrics((data?.lyrics as string | null) ?? "");
+        setCredits((data?.credits as string | null) ?? "");
+      });
   }, [isOpen, track]);
 
   // 커버 파일 ObjectURL 관리
@@ -87,6 +99,10 @@ export function EditTrackModal({
 
       await onSaved(title, artist);
       await setTrackTags(track.id, selectedTagIds);
+      await createClient()
+        .from("tracks")
+        .update({ lyrics: lyrics.trim() || null, credits: credits.trim() || null })
+        .eq("id", track.id);
       onClose();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "저장 실패";
@@ -173,6 +189,33 @@ export function EditTrackModal({
             disabled={loading}
           />
         </div>
+
+        <label className="mb-1 block text-xs text-[var(--color-text-muted)]">가사 (선택사항)</label>
+        <div className="relative mb-4">
+          <textarea
+            value={lyrics}
+            onChange={(e) => setLyrics(e.target.value)}
+            rows={6}
+            maxLength={10000}
+            disabled={loading}
+            placeholder={"가사를 입력하세요 (최대 10,000자)"}
+            className="w-full rounded-xl bg-[var(--color-bg-elevated)] px-4 py-2.5 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none ring-1 ring-[var(--color-border)] focus:ring-[var(--color-accent)] disabled:opacity-60 disabled:cursor-not-allowed resize-none"
+          />
+          <span className="absolute bottom-2 right-3 text-xs text-[var(--color-text-muted)]">
+            {lyrics.length} / 10,000
+          </span>
+        </div>
+
+        <label className="mb-1 block text-xs text-[var(--color-text-muted)]">크레딧 (선택사항)</label>
+        <textarea
+          value={credits}
+          onChange={(e) => setCredits(e.target.value)}
+          rows={3}
+          maxLength={2000}
+          disabled={loading}
+          placeholder={"Produced by: ...\nFeat. ...\nWritten by: ..."}
+          className="mb-4 w-full rounded-xl bg-[var(--color-bg-elevated)] px-4 py-2.5 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none ring-1 ring-[var(--color-border)] focus:ring-[var(--color-accent)] disabled:opacity-60 disabled:cursor-not-allowed resize-none"
+        />
 
         {error && (
           <p className="mb-3 text-sm text-red-400">{error}</p>

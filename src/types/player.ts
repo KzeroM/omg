@@ -23,6 +23,8 @@ export interface DbTrack {
   nickname?: string; // public.users.nickname (JOIN 시 존재)
   artist_tier?: ArtistTier;
   cover_url?: string | null;
+  lyrics?: string | null;
+  credits?: string | null;
 }
 
 /** 재생 히스토리 항목 (play_history 테이블 join 결과) */

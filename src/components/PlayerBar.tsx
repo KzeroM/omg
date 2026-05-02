@@ -1,11 +1,12 @@
 "use client";
 
 import { useRef, useCallback, useState } from "react";
-import { SkipBack, Play, Pause, SkipForward, Volume2, Loader2, Shuffle, Repeat, ListMusic, ChevronUp } from "lucide-react";
+import { SkipBack, Play, Pause, SkipForward, Volume2, Loader2, Shuffle, Repeat, ListMusic, ChevronUp, FileText } from "lucide-react";
 import { usePlayer, usePlayerTime } from "@/context/PlayerContext";
 import { QueuePanel } from "./QueuePanel";
 import { MobileFullscreenPlayer } from "./MobileFullscreenPlayer";
 import { EmojiReactions } from "./EmojiReactions";
+import { LyricsDrawer } from "./LyricsDrawer";
 
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -39,6 +40,7 @@ export function PlayerBar() {
   const { currentTime, duration } = usePlayerTime();
 
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
+  const [lyricsOpen, setLyricsOpen] = useState(false);
   const progressRef = useRef<HTMLDivElement>(null);
   const current = currentTrack;
   const canPlay = current?.blobUrl != null || current?.file_path != null;
@@ -216,6 +218,14 @@ export function PlayerBar() {
           />
           <button
             type="button"
+            onClick={() => setLyricsOpen(!lyricsOpen)}
+            className={`rounded-full p-2 transition ${lyricsOpen ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"}`}
+            aria-label="가사 보기"
+          >
+            <FileText className="h-5 w-5" strokeWidth={1.5} />
+          </button>
+          <button
+            type="button"
             onClick={() => setQueueOpen(!queueOpen)}
             className={`rounded-full p-2 transition ${queueOpen ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"}`}
             aria-label="재생 큐 열기"
@@ -256,6 +266,13 @@ export function PlayerBar() {
       <MobileFullscreenPlayer
         onClose={() => setFullscreenOpen(false)}
         onQueueOpen={() => setQueueOpen(true)}
+      />
+    )}
+    {lyricsOpen && (
+      <LyricsDrawer
+        trackId={current?.id}
+        trackTitle={current?.title ?? undefined}
+        onClose={() => setLyricsOpen(false)}
       />
     )}
     </>

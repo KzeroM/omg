@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, X, Globe, Users, Lock, ImagePlus, Sparkles } from "lucide-react";
+import { Upload, X, Globe, Users, Lock, ImagePlus, Sparkles, Plus, Loader2 } from "lucide-react";
 import { type TrackVisibility } from "@/utils/upload";
 import { useTrackUpload } from "@/hooks/useTrackUpload";
 import { TagSelector } from "./TagSelector";
@@ -14,7 +14,7 @@ const VISIBILITY_OPTIONS: { value: TrackVisibility; label: string; icon: React.R
   { value: "private",        label: "비공개",       icon: <Lock   className="h-3.5 w-3.5" />, desc: "나만 볼 수 있습니다" },
 ];
 
-export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void | Promise<void> }) {
+export function UploadButton({ onUploadSuccess, variant = "inline" }: { onUploadSuccess?: () => void | Promise<void>; variant?: "inline" | "fab" }) {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -42,7 +42,20 @@ export function UploadButton({ onUploadSuccess }: { onUploadSuccess?: () => void
         aria-hidden="true"
       />
 
-      {isLoggedIn === false ? (
+      {variant === "fab" ? (
+        <button
+          type="button"
+          onClick={() => isLoggedIn === false ? setShowAuthModal(true) : audioInputRef.current?.click()}
+          disabled={loading}
+          className="fixed bottom-32 right-4 z-45 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-accent)] text-white shadow-lg shadow-black/30 transition hover:bg-[var(--color-accent-hover)] disabled:opacity-60 lg:hidden"
+          aria-label="곡 올리기"
+        >
+          {loading
+            ? <Loader2 className="h-6 w-6 animate-spin" strokeWidth={2} />
+            : <Plus className="h-6 w-6" strokeWidth={2} />
+          }
+        </button>
+      ) : isLoggedIn === false ? (
         <button
           type="button"
           onClick={() => setShowAuthModal(true)}

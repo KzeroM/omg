@@ -12,6 +12,7 @@ import { PlayerProvider } from "@/context/PlayerContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { QueryProvider } from "@/components/QueryProvider";
 import { OnboardingModal } from "@/components/OnboardingModal";
+import { UploadButton } from "@/components/UploadButton";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -54,6 +55,7 @@ export default function RootLayout({
                   <QueueAwareMain>{children}</QueueAwareMain>
                 </div>
                 <PlayerBar />
+                <UploadButton variant="fab" />
                 <BottomNav />
               </PlayerProvider>
             </ToastProvider>

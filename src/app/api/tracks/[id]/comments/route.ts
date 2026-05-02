@@ -70,12 +70,23 @@ export async function DELETE(
   const commentId = searchParams.get("commentId");
   if (!commentId) return NextResponse.json({ error: "commentId required" }, { status: 400 });
 
+  // Allow: comment author OR track owner
+  const [{ data: comment }, { data: track }] = await Promise.all([
+    supabase.from("track_comments").select("user_id").eq("id", commentId).single(),
+    supabase.from("tracks").select("user_id").eq("id", id).single(),
+  ]);
+
+  const isAuthor = comment?.user_id === user.id;
+  const isTrackOwner = track?.user_id === user.id;
+  if (!isAuthor && !isTrackOwner) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { error } = await supabase
     .from("track_comments")
     .delete()
     .eq("id", commentId)
-    .eq("track_id", id)
-    .eq("user_id", user.id); // RLS도 보장하지만 이중 체크
+    .eq("track_id", id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });

@@ -137,7 +137,10 @@ updated: 2026-05-01
 **AI 기능**
 - [x] FAC-120 업로드 AI 자동 태그 제안 (Groq + TagSelector 통합, 업로드 시 tag 저장)
 
-→ [[sprints/sprint-v11]] · PR #37 · PR #38 · PR #39
+**커뮤니티**
+- [x] FAC-121 이모지 반응 (🔥😍🎵💯 — track_reactions DB + React Query 낙관적 업데이트 + 풀스크린/PlayerBar)
+
+→ [[sprints/sprint-v11]] · PR #37 · PR #38 · PR #39 · PR #40
 
 ---
 

@@ -22,6 +22,7 @@ import { TrackRow } from "@/components/TrackRow";
 import { TierBadge } from "@/components/TierBadge";
 import { pickCoverColor } from "@/utils/coverColor";
 import { ArtistAnalytics } from "@/components/ArtistAnalytics";
+import { ArtistPostFeed } from "@/components/ArtistPostFeed";
 
 const MUSIC_BUCKET = "omg-tracks";
 
@@ -404,6 +405,15 @@ export default function ArtistPage({
                 })}
               </ul>
             </section>
+
+            {/* 아티스트 소식 */}
+            {artistUserId && (
+              <ArtistPostFeed
+                artistUserId={artistUserId}
+                currentUserId={currentUserId}
+                isOwnProfile={currentUserId === artistUserId}
+              />
+            )}
           </>
         )}
       </div>

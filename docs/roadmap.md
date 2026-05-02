@@ -158,7 +158,10 @@ updated: 2026-05-01
 **가사**
 - [x] FAC-125 가사 드로어 (플레이어에서 가사 보기 — LyricsDrawer 컴포넌트, 모바일/데스크톱)
 
-→ [[sprints/sprint-v12]] · PR #44
+**아티스트 커뮤니티**
+- [x] FAC-126 아티스트 피드 (artist_posts DB + API + ArtistPostFeed 컴포넌트 + 프로필 통합)
+
+→ [[sprints/sprint-v12]] · PR #44 · PR #45
 
 ---
 

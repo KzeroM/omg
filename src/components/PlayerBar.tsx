@@ -5,6 +5,7 @@ import { SkipBack, Play, Pause, SkipForward, Volume2, Loader2, Shuffle, Repeat, 
 import { usePlayer, usePlayerTime } from "@/context/PlayerContext";
 import { QueuePanel } from "./QueuePanel";
 import { MobileFullscreenPlayer } from "./MobileFullscreenPlayer";
+import { EmojiReactions } from "./EmojiReactions";
 
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -93,6 +94,11 @@ export function PlayerBar() {
               <p className="truncate text-xs text-[var(--color-text-secondary)] lg:text-sm">
                 {current?.artist ?? ""}
               </p>
+              {current && (
+                <div className="pointer-events-auto hidden lg:block mt-1.5">
+                  <EmojiReactions trackId={current.id} />
+                </div>
+              )}
             </div>
             {current != null && (
               <ChevronUp className="h-4 w-4 shrink-0 text-[var(--color-text-muted)] lg:hidden" strokeWidth={2} />

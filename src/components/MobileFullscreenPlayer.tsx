@@ -3,6 +3,7 @@
 import { useRef, useCallback } from "react";
 import { ChevronDown, SkipBack, Play, Pause, SkipForward, Shuffle, Repeat, Loader2, ListMusic } from "lucide-react";
 import { usePlayer, usePlayerTime } from "@/context/PlayerContext";
+import { EmojiReactions } from "./EmojiReactions";
 
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -105,6 +106,9 @@ export function MobileFullscreenPlayer({ onClose, onQueueOpen }: Props) {
           <p className="mt-1 truncate text-base text-[var(--color-text-secondary)]">
             {current?.artist ?? "—"}
           </p>
+          {current && (
+            <EmojiReactions trackId={current.id} className="mt-3" />
+          )}
         </div>
 
         {/* Seekbar */}

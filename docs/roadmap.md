@@ -146,7 +146,10 @@ updated: 2026-05-01
 **운영**
 - [x] FAC-129 운영진 문의 기능 (support_tickets DB + 사용자 폼 + 어드민 답변 UI)
 
-→ [[sprints/sprint-v11]] · PR #37 · PR #38 · PR #39 · PR #40 · PR #41 · PR #42
+**트랙 페이지**
+- [x] FAC-124 트랙 전용 페이지 고도화 (커버아트·태그·EmojiReactions·가사·크레딧·SEO 메타)
+
+→ [[sprints/sprint-v11]] · PR #37 · PR #38 · PR #39 · PR #40 · PR #41 · PR #42 · PR #43
 
 ---
 

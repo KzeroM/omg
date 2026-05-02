@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { use } from "react";
-import { Trash2, Play, Heart, Pencil, ArrowLeft, Instagram, Twitter, Youtube, Music, MessageCircle } from "lucide-react";
+import { Trash2, Play, Heart, Pencil, ArrowLeft, Instagram, Twitter, Youtube, Music, MessageCircle, Pin, PinOff } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { getTracksByArtist, getTracksByUserId } from "@/utils/supabase/tracks";
@@ -58,6 +58,7 @@ export default function ArtistPage({
   const [isFollowing, setIsFollowing] = useState(false);
   const [artistBio, setArtistBio] = useState<string | null>(null);
   const [artistSocialLinks, setArtistSocialLinks] = useState<SocialLinks | null>(null);
+  const [pinnedTrackId, setPinnedTrackId] = useState<string | null>(null);
   const { currentTrack, addTrack, playTrack, newReleases, updateTrackMeta } = usePlayer();
 
   const fetchData = useCallback(async (decoded: string) => {
@@ -67,7 +68,7 @@ export default function ArtistPage({
     // 1차: nickname 기반 조회
     const { data: userRow } = await supabase
       .from("users")
-      .select("user_id, nickname, follower_count")
+      .select("user_id, nickname, follower_count, pinned_track_id")
       .ilike("nickname", decoded)
       .maybeSingle();
 
@@ -81,6 +82,7 @@ export default function ArtistPage({
       displayName = userRow.nickname;
       setArtistUserId(userRow.user_id);
       setFollowerCount(userRow.follower_count ?? 0);
+      setPinnedTrackId((userRow as { pinned_track_id?: string | null }).pinned_track_id ?? null);
 
       // 프로필 정보 조회
       const profileData = await fetchArtistProfile(supabase, userRow.user_id);
@@ -155,6 +157,15 @@ export default function ArtistPage({
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handlePinTrack = async (trackId: string | null) => {
+    const res = await fetch("/api/user/pin-track", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ track_id: trackId }),
+    });
+    if (res.ok) setPinnedTrackId(trackId);
   };
 
   const handleEditSaved = async (title: string, artist: string) => {
@@ -341,6 +352,42 @@ export default function ArtistPage({
               <ArtistAnalytics />
             )}
 
+            {/* 핀 트랙 */}
+            {pinnedTrackId && (() => {
+              const pinned = tracks.find((t) => t.id === pinnedTrackId);
+              if (!pinned) return null;
+              return (
+                <section className="rounded-2xl bg-[var(--color-bg-surface)] p-5 ring-1 ring-[var(--color-accent)]/30">
+                  <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--color-accent)]">
+                    <Pin className="h-4 w-4" strokeWidth={2} />
+                    핀 트랙
+                  </h2>
+                  <TrackRow
+                    coverColor={pickCoverColor(pinned.id)}
+                    coverUrl={pinned.cover_url ?? undefined}
+                    title={pinned.title ?? "제목 없음"}
+                    artist={pinned.artist ?? "Unknown Artist"}
+                    isActive={currentTrack?.id === pinned.id}
+                    onClick={() => handlePlay(pinned)}
+                    trackId={pinned.id}
+                    showPlayIcon
+                    trailing={
+                      <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)]">
+                        <span className="flex items-center gap-1">
+                          <Play className="h-3 w-3" strokeWidth={1.5} />
+                          {formatKoreanNumber(pinned.play_count ?? 0)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Heart className="h-3 w-3" strokeWidth={1.5} />
+                          {formatKoreanNumber(pinned.like_count ?? 0)}
+                        </span>
+                      </div>
+                    }
+                  />
+                </section>
+              );
+            })()}
+
             <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
               <ul className="grid grid-cols-1 gap-2">
                 {tracks.map((track) => {
@@ -354,6 +401,7 @@ export default function ArtistPage({
                       title={track.title ?? "제목 없음"}
                       artist={track.artist ?? "Unknown Artist"}
                       isActive={isCurrentTrack}
+                      trackId={track.id}
                       onClick={() => handlePlay(track)}
                       trailing={
                         <>
@@ -379,6 +427,17 @@ export default function ArtistPage({
                           {!canEdit && <ReportButton trackId={track.id} />}
                           {canEdit && (
                             <>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); void handlePinTrack(pinnedTrackId === track.id ? null : track.id); }}
+                                className={`rounded-lg p-2 transition ${pinnedTrackId === track.id ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)] hover:text-[var(--color-accent)]"}`}
+                                aria-label={pinnedTrackId === track.id ? "핀 해제" : "핀 설정"}
+                              >
+                                {pinnedTrackId === track.id
+                                  ? <PinOff className="h-4 w-4" strokeWidth={1.5} />
+                                  : <Pin className="h-4 w-4" strokeWidth={1.5} />
+                                }
+                              </button>
                               <button
                                 type="button"
                                 onClick={(e) => { e.stopPropagation(); setEditingTrack(track); }}

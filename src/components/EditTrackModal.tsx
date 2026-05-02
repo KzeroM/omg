@@ -31,6 +31,7 @@ export function EditTrackModal({
   const [coverPreview, setCoverPreview] = useState<string | null>(track.cover_url ?? null);
   const [lyrics, setLyrics] = useState(track.lyrics ?? "");
   const [credits, setCredits] = useState(track.credits ?? "");
+  const [linerNotes, setLinerNotes] = useState(track.liner_notes ?? "");
 
   // 모달 열릴 때 기존 태그 로드 + 커버 초기화
   useEffect(() => {
@@ -45,12 +46,13 @@ export function EditTrackModal({
     // 가사·크레딧은 track prop에 없을 수 있으므로 DB에서 fetch
     void createClient()
       .from("tracks")
-      .select("lyrics, credits")
+      .select("lyrics, credits, liner_notes")
       .eq("id", track.id)
       .single()
       .then(({ data }) => {
         setLyrics((data?.lyrics as string | null) ?? "");
         setCredits((data?.credits as string | null) ?? "");
+        setLinerNotes((data?.liner_notes as string | null) ?? "");
       });
   }, [isOpen, track]);
 
@@ -101,7 +103,7 @@ export function EditTrackModal({
       await setTrackTags(track.id, selectedTagIds);
       await createClient()
         .from("tracks")
-        .update({ lyrics: lyrics.trim() || null, credits: credits.trim() || null })
+        .update({ lyrics: lyrics.trim() || null, credits: credits.trim() || null, liner_notes: linerNotes.trim() || null })
         .eq("id", track.id);
       onClose();
     } catch (err) {
@@ -216,6 +218,22 @@ export function EditTrackModal({
           placeholder={"Produced by: ...\nFeat. ...\nWritten by: ..."}
           className="mb-4 w-full rounded-xl bg-[var(--color-bg-elevated)] px-4 py-2.5 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none ring-1 ring-[var(--color-border)] focus:ring-[var(--color-accent)] disabled:opacity-60 disabled:cursor-not-allowed resize-none"
         />
+
+        <label className="mb-1 block text-xs text-[var(--color-text-muted)]">라이너 노트 (선택사항)</label>
+        <div className="relative mb-4">
+          <textarea
+            value={linerNotes}
+            onChange={(e) => setLinerNotes(e.target.value)}
+            rows={4}
+            maxLength={3000}
+            disabled={loading}
+            placeholder={"앨범/트랙에 대한 이야기, 제작 비하인드, 감사 인사 등을 자유롭게 적어보세요."}
+            className="w-full rounded-xl bg-[var(--color-bg-elevated)] px-4 py-2.5 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none ring-1 ring-[var(--color-border)] focus:ring-[var(--color-accent)] disabled:opacity-60 disabled:cursor-not-allowed resize-none"
+          />
+          <span className="absolute bottom-2 right-3 text-xs text-[var(--color-text-muted)]">
+            {linerNotes.length} / 3,000
+          </span>
+        </div>
 
         {error && (
           <p className="mb-3 text-sm text-red-400">{error}</p>

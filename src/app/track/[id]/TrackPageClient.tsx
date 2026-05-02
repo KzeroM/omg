@@ -43,6 +43,7 @@ interface TrackDetail {
   cover_url: string | null;
   lyrics: string | null;
   credits: string | null;
+  liner_notes: string | null;
 }
 
 const TAG_CATEGORY_COLORS: Record<string, string> = {
@@ -92,7 +93,7 @@ export default function TrackPageClient({
     supabase
       .from("tracks")
       .select(
-        "id, title, artist, file_path, play_count, like_count, artist_tier, user_id, cover_url, lyrics, credits, users!tracks_user_id_public_users_fkey(nickname)"
+        "id, title, artist, file_path, play_count, like_count, artist_tier, user_id, cover_url, lyrics, credits, liner_notes, users!tracks_user_id_public_users_fkey(nickname)"
       )
       .eq("id", id)
       .single()
@@ -333,6 +334,16 @@ export default function TrackPageClient({
         </section>
       )}
 
+      {/* Liner Notes */}
+      {track.liner_notes && (
+        <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
+          <h2 className="mb-3 text-base font-semibold text-[var(--color-text-primary)]">라이너 노트</h2>
+          <p className="whitespace-pre-wrap text-sm leading-6 text-[var(--color-text-secondary)]">
+            {track.liner_notes}
+          </p>
+        </section>
+      )}
+
       {/* Comments */}
       <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-[var(--color-text-primary)]">
@@ -404,7 +415,7 @@ export default function TrackPageClient({
                     <span className="text-xs text-[var(--color-text-muted)]">
                       {timeAgo(c.created_at)}
                     </span>
-                    {currentUserId === c.user_id && (
+                    {(currentUserId === c.user_id || currentUserId === track.user_id) && (
                       <button
                         type="button"
                         onClick={() => void handleDeleteComment(c.id)}

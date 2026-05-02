@@ -1,5 +1,10 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { Play, Pause, Loader2 } from "lucide-react";
+import { useLongPress } from "@/hooks/useLongPress";
+import { TrackActionsSheet } from "./TrackActionsSheet";
 
 interface TrackRowProps {
   coverColor: string;
@@ -17,6 +22,8 @@ interface TrackRowProps {
   trailing?: ReactNode;
   /** 행 전체 클릭 (재생) */
   onClick?: () => void;
+  /** 트랙 ID — 제공 시 모바일 롱프레스로 액션 바텀시트 열림 */
+  trackId?: string;
   /** 커버에 재생/일시정지 아이콘 표시 여부 */
   showPlayIcon?: boolean;
   className?: string;
@@ -34,12 +41,20 @@ export function TrackRow({
   leading,
   trailing,
   onClick,
+  trackId,
   showPlayIcon = false,
   className = "",
 }: TrackRowProps) {
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const longPress = useLongPress(() => {
+    if (trackId) setSheetOpen(true);
+  });
+
   return (
+    <>
     <li
       onClick={onClick}
+      {...(trackId ? longPress : {})}
       className={`flex items-center gap-4 rounded-xl px-4 py-3 transition ${
         onClick ? "cursor-pointer" : ""
       } ${
@@ -87,5 +102,15 @@ export function TrackRow({
         </div>
       )}
     </li>
+    {sheetOpen && trackId && (
+      <TrackActionsSheet
+        trackId={trackId}
+        title={title}
+        artist={artist}
+        onPlay={onClick}
+        onClose={() => setSheetOpen(false)}
+      />
+    )}
+    </>
   );
 }

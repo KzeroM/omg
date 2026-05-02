@@ -140,7 +140,10 @@ updated: 2026-05-01
 **커뮤니티**
 - [x] FAC-121 이모지 반응 (🔥😍🎵💯 — track_reactions DB + React Query 낙관적 업데이트 + 풀스크린/PlayerBar)
 
-→ [[sprints/sprint-v11]] · PR #37 · PR #38 · PR #39 · PR #40
+**재방문율**
+- [x] FAC-122 일일 로그인 스트릭 (users 컬럼 + API + 헤더 불꽃 배지 🔥N)
+
+→ [[sprints/sprint-v11]] · PR #37 · PR #38 · PR #39 · PR #40 · PR #41
 
 ---
 

@@ -161,7 +161,11 @@ updated: 2026-05-01
 **아티스트 커뮤니티**
 - [x] FAC-126 아티스트 피드 (artist_posts DB + API + ArtistPostFeed 컴포넌트 + 프로필 통합)
 
-→ [[sprints/sprint-v12]] · PR #44 · PR #45
+**모바일 터치 UX**
+- [x] FAC-138 플레이어 스와이프업 (바텀바 위 스와이프 → 풀스크린 진입)
+- [x] FAC-136 트랙 롱프레스 바텀시트 (useLongPress 훅 + TrackActionsSheet)
+
+→ [[sprints/sprint-v12]] · PR #44 · PR #45 · PR #46
 
 ---
 

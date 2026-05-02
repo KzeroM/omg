@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useCallback } from "react";
-import { ChevronDown, SkipBack, Play, Pause, SkipForward, Shuffle, Repeat, Loader2, ListMusic } from "lucide-react";
+import { useRef, useCallback, useState } from "react";
+import { ChevronDown, SkipBack, Play, Pause, SkipForward, Shuffle, Repeat, Loader2, ListMusic, FileText } from "lucide-react";
 import { usePlayer, usePlayerTime } from "@/context/PlayerContext";
 import { EmojiReactions } from "./EmojiReactions";
+import { LyricsDrawer } from "./LyricsDrawer";
 
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -35,6 +36,7 @@ export function MobileFullscreenPlayer({ onClose, onQueueOpen }: Props) {
   } = usePlayer();
   const { currentTime, duration } = usePlayerTime();
 
+  const [showLyrics, setShowLyrics] = useState(false);
   const progressRef = useRef<HTMLDivElement>(null);
   const current = currentTrack;
   const canPlay = current?.blobUrl != null || current?.file_path != null;
@@ -79,15 +81,34 @@ export function MobileFullscreenPlayer({ onClose, onQueueOpen }: Props) {
           <ChevronDown className="h-6 w-6" strokeWidth={2} />
         </button>
         <p className="text-sm font-medium text-[var(--color-text-primary)]">지금 재생 중</p>
-        <button
-          type="button"
-          onClick={() => { onClose(); onQueueOpen(); }}
-          className="rounded-full p-2 text-[var(--color-text-secondary)]"
-          aria-label="재생 큐"
-        >
-          <ListMusic className="h-5 w-5" strokeWidth={1.5} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setShowLyrics(true)}
+            className="rounded-full p-2 text-[var(--color-text-secondary)]"
+            aria-label="가사 보기"
+          >
+            <FileText className="h-5 w-5" strokeWidth={1.5} />
+          </button>
+          <button
+            type="button"
+            onClick={() => { onClose(); onQueueOpen(); }}
+            className="rounded-full p-2 text-[var(--color-text-secondary)]"
+            aria-label="재생 큐"
+          >
+            <ListMusic className="h-5 w-5" strokeWidth={1.5} />
+          </button>
+        </div>
       </div>
+
+      {/* Lyrics drawer */}
+      {showLyrics && (
+        <LyricsDrawer
+          trackId={current?.id}
+          trackTitle={current?.title}
+          onClose={() => setShowLyrics(false)}
+        />
+      )}
 
       {/* Album art */}
       <div className="relative flex flex-1 items-center justify-center px-10">

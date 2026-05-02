@@ -42,6 +42,8 @@ export function PlayerBar() {
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
   const [lyricsOpen, setLyricsOpen] = useState(false);
   const progressRef = useRef<HTMLDivElement>(null);
+  const touchStartY = useRef(0);
+  const touchStartX = useRef(0);
   const current = currentTrack;
   const canPlay = current?.blobUrl != null || current?.file_path != null;
   const progressFraction = duration > 0 ? currentTime / duration : 0;
@@ -57,9 +59,27 @@ export function PlayerBar() {
     [canPlay, seek]
   );
 
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      const dy = touchStartY.current - e.changedTouches[0].clientY;
+      const dx = Math.abs(touchStartX.current - e.changedTouches[0].clientX);
+      if (dy > 60 && dx < 60 && current != null) setFullscreenOpen(true);
+    },
+    [current]
+  );
+
   return (
     <>
-    <footer className="fixed bottom-14 left-0 right-0 z-50 border-t border-[var(--color-border)] bg-[var(--color-bg-base)]/95 backdrop-blur lg:bottom-0">
+    <footer
+      className="fixed bottom-14 left-0 right-0 z-50 border-t border-[var(--color-border)] bg-[var(--color-bg-base)]/95 backdrop-blur lg:bottom-0"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* 모바일 seekbar — footer 상단 얇은 progress bar */}
       <div
         className="absolute top-0 left-0 right-0 h-0.5 cursor-pointer bg-zinc-800 lg:hidden"

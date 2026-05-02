@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import { LayoutDashboard, Music, Users, Star, HardDrive, Megaphone, Flag, Sparkles } from "lucide-react";
+import { LayoutDashboard, Music, Users, Star, HardDrive, Megaphone, Flag, Sparkles, MessageSquare } from "lucide-react";
 
 const adminNavItems = [
   { label: "대시보드", href: "/admin", icon: LayoutDashboard },
@@ -12,6 +12,7 @@ const adminNavItems = [
   { label: "Storage", href: "/admin/storage", icon: HardDrive },
   { label: "공지사항", href: "/admin/announcements", icon: Megaphone },
   { label: "신고 처리", href: "/admin/reports", icon: Flag },
+  { label: "문의 관리", href: "/admin/support", icon: MessageSquare },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

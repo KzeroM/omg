@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LogIn, UserPlus, LogOut } from "lucide-react";
+import { LogIn, UserPlus, LogOut, Flame } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { AuthModal } from "./AuthModal";
 import { NotificationBell } from "./NotificationBell";
+import { useLoginStreak } from "@/hooks/useLoginStreak";
 import Link from "next/link";
 
 export type AuthModalMode = "login" | "signup";
@@ -14,6 +15,7 @@ export function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<AuthModalMode>("login");
+  const streak = useLoginStreak(!!user);
 
   useEffect(() => {
     const supabase = createClient();
@@ -40,6 +42,12 @@ export function Header() {
         <div className="flex items-center gap-2">
           {user ? (
             <>
+              {streak >= 2 && (
+                <span className="flex items-center gap-1 rounded-full bg-orange-500/15 px-2 py-1 text-xs font-semibold text-orange-400 ring-1 ring-orange-500/30">
+                  <Flame className="h-3.5 w-3.5" strokeWidth={2} />
+                  {streak}
+                </span>
+              )}
               <NotificationBell />
               <span className="max-w-[80px] truncate text-sm text-[var(--color-text-secondary)] sm:max-w-[120px] lg:max-w-[200px]">
                 {user.user_metadata?.nickname || user.user_metadata?.name || user.email}

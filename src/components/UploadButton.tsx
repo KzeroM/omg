@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, X, Globe, Users, Lock, ImagePlus, Sparkles, Plus, Loader2 } from "lucide-react";
+import { Upload, X, Globe, Users, Lock, ImagePlus, Sparkles, Plus, Loader2, Calendar } from "lucide-react";
 import { type TrackVisibility } from "@/utils/upload";
 import { useTrackUpload } from "@/hooks/useTrackUpload";
 import { TagSelector } from "./TagSelector";
@@ -23,7 +23,7 @@ export function UploadButton({ onUploadSuccess, variant = "inline" }: { onUpload
   const {
     isLoggedIn, loading, profileNickname,
     pendingFile, trackTitle, setTrackTitle, artistName, setArtistName,
-    visibility, setVisibility, uploadStep, uploadError,
+    visibility, setVisibility, publishAt, setPublishAt, uploadStep, uploadError,
     coverPreview,
     selectedTagIds, setSelectedTagIds, isSuggestingTags, suggestTags,
     handleAudioChange, handleCoverChange, clearCover, handleConfirm, cancelUpload,
@@ -180,6 +180,32 @@ export function UploadButton({ onUploadSuccess, variant = "inline" }: { onUpload
                   {opt.label}
                 </button>
               ))}
+            </div>
+
+            {/* 출시 예약 */}
+            <div className="mb-4">
+              <div className="mb-2 flex items-center justify-between">
+                <label className="text-xs text-[var(--color-text-muted)]">출시 예약</label>
+                <button
+                  type="button"
+                  onClick={() => setPublishAt(publishAt ? null : new Date(Date.now() + 86400000).toISOString().slice(0, 16))}
+                  disabled={uploadStep !== null}
+                  className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition disabled:opacity-40 ${publishAt ? "bg-[var(--color-accent-subtle)] text-[var(--color-accent)]" : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"}`}
+                >
+                  <Calendar className="h-3 w-3" />
+                  {publishAt ? "예약 설정됨" : "날짜 지정"}
+                </button>
+              </div>
+              {publishAt && (
+                <input
+                  type="datetime-local"
+                  value={publishAt}
+                  min={new Date().toISOString().slice(0, 16)}
+                  onChange={(e) => setPublishAt(e.target.value || null)}
+                  disabled={uploadStep !== null}
+                  className="w-full rounded-xl bg-[var(--color-bg-elevated)] px-4 py-2.5 text-sm text-[var(--color-text-primary)] outline-none ring-1 ring-[var(--color-accent)]/40 focus:ring-[var(--color-accent)] disabled:opacity-60"
+                />
+              )}
             </div>
 
             {/* 태그 선택 */}

@@ -81,6 +81,8 @@ export interface UseTrackUploadReturn {
   setArtistName: (v: string) => void;
   visibility: TrackVisibility;
   setVisibility: (v: TrackVisibility) => void;
+  publishAt: string | null;
+  setPublishAt: (v: string | null) => void;
   uploadStep: null | "uploading" | "inserting";
   uploadError: string | null;
   coverFile: File | null;
@@ -111,6 +113,7 @@ export function useTrackUpload({
   const [trackTitle, setTrackTitle] = useState("");
   const [artistName, setArtistName] = useState("");
   const [visibility, setVisibility] = useState<TrackVisibility>("public");
+  const [publishAt, setPublishAt] = useState<string | null>(null);
   const [uploadStep, setUploadStep] = useState<null | "uploading" | "inserting">(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -193,7 +196,7 @@ export function useTrackUpload({
       try {
         const track = await uploadTrackToSupabase(file, artist, title, (step) => {
           setUploadStep(step);
-        }, visibility, coverFile ?? undefined);
+        }, visibility, coverFile ?? undefined, publishAt);
         if (selectedTagIds.length > 0) {
           await setTrackTags(track.id, selectedTagIds);
         }
@@ -203,6 +206,7 @@ export function useTrackUpload({
         setCoverFile(null);
         setUploadStep(null);
         setSelectedTagIds([]);
+        setPublishAt(null);
       } catch (err) {
         const msg = err instanceof Error ? err.message
           : (err as { message?: string })?.message
@@ -245,12 +249,13 @@ export function useTrackUpload({
     setUploadError(null);
     setUploadStep(null);
     setSelectedTagIds([]);
+    setPublishAt(null);
   }, []);
 
   return {
     isLoggedIn, loading, profileNickname,
     pendingFile, trackTitle, setTrackTitle, artistName, setArtistName,
-    visibility, setVisibility, uploadStep, uploadError,
+    visibility, setVisibility, publishAt, setPublishAt, uploadStep, uploadError,
     coverFile, coverPreview,
     selectedTagIds, setSelectedTagIds, isSuggestingTags, suggestTags,
     handleAudioChange, handleCoverChange, clearCover, handleConfirm, cancelUpload,

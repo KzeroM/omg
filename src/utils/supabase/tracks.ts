@@ -11,6 +11,7 @@ export async function getTopChartTracks(limit = 5): Promise<ChartTrack[]> {
     .from("tracks")
     .select("id, title, artist, play_count, file_path, cover_url, users!user_id(artist_tier, nickname)")
     .eq("visibility", "public")
+    .or(`publish_at.is.null,publish_at.lte.${new Date().toISOString()}`)
     .order("play_count", { ascending: false })
     .limit(limit);
 
@@ -69,6 +70,7 @@ export async function getLatestTracks(limit = 20): Promise<ChartTrack[]> {
     .from('tracks')
     .select('id, title, artist, play_count, like_count, file_path, cover_url, created_at, users!user_id(artist_tier, nickname)')
     .eq('visibility', 'public')
+    .or(`publish_at.is.null,publish_at.lte.${new Date().toISOString()}`)
     .order('created_at', { ascending: false })
     .limit(limit);
 
@@ -130,6 +132,7 @@ export async function loadPublicTracks(limit = 50): Promise<PlaylistTrack[]> {
     .from("tracks")
     .select("id, file_path, title, artist, like_count, cover_url, users!user_id(artist_tier, nickname)")
     .eq("visibility", "public")
+    .or(`publish_at.is.null,publish_at.lte.${new Date().toISOString()}`)
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -183,6 +186,7 @@ export async function getTracksByArtist(artistName: string): Promise<DbTrack[]> 
     .select("id, user_id, artist_id, file_path, title, artist, created_at, like_count, play_count, cover_url, users!user_id(artist_tier)")
     .ilike("artist", artistName)
     .eq("visibility", "public")
+    .or(`publish_at.is.null,publish_at.lte.${new Date().toISOString()}`)
     .order("created_at", { ascending: false });
 
   if (error || !data) return [];
@@ -210,7 +214,10 @@ export async function getTracksByUserId(userId: string, includePrivate = true): 
     .select("id, user_id, artist_id, file_path, title, artist, created_at, like_count, play_count, users!user_id(artist_tier)")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
-  if (!includePrivate) query = query.neq("visibility", "private");
+  if (!includePrivate) {
+    query = query.neq("visibility", "private")
+      .or(`publish_at.is.null,publish_at.lte.${new Date().toISOString()}`);
+  }
   const { data, error } = await query;
 
   if (error || !data) return [];

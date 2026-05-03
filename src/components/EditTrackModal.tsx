@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, ImagePlus } from "lucide-react";
+import { X, ImagePlus, Calendar } from "lucide-react";
 import type { DbTrack } from "@/types/player";
 import { createClient } from "@/utils/supabase/client";
 import { TagSelector } from "./TagSelector";
@@ -32,6 +32,7 @@ export function EditTrackModal({
   const [lyrics, setLyrics] = useState(track.lyrics ?? "");
   const [credits, setCredits] = useState(track.credits ?? "");
   const [linerNotes, setLinerNotes] = useState(track.liner_notes ?? "");
+  const [publishAt, setPublishAt] = useState<string | null>(null);
 
   // 모달 열릴 때 기존 태그 로드 + 커버 초기화
   useEffect(() => {
@@ -46,13 +47,15 @@ export function EditTrackModal({
     // 가사·크레딧은 track prop에 없을 수 있으므로 DB에서 fetch
     void createClient()
       .from("tracks")
-      .select("lyrics, credits, liner_notes")
+      .select("lyrics, credits, liner_notes, publish_at")
       .eq("id", track.id)
       .single()
       .then(({ data }) => {
         setLyrics((data?.lyrics as string | null) ?? "");
         setCredits((data?.credits as string | null) ?? "");
         setLinerNotes((data?.liner_notes as string | null) ?? "");
+        const pa = data?.publish_at as string | null;
+        setPublishAt(pa ? new Date(pa).toISOString().slice(0, 16) : null);
       });
   }, [isOpen, track]);
 
@@ -103,7 +106,7 @@ export function EditTrackModal({
       await setTrackTags(track.id, selectedTagIds);
       await createClient()
         .from("tracks")
-        .update({ lyrics: lyrics.trim() || null, credits: credits.trim() || null, liner_notes: linerNotes.trim() || null })
+        .update({ lyrics: lyrics.trim() || null, credits: credits.trim() || null, liner_notes: linerNotes.trim() || null, publish_at: publishAt ? new Date(publishAt).toISOString() : null })
         .eq("id", track.id);
       onClose();
     } catch (err) {
@@ -233,6 +236,32 @@ export function EditTrackModal({
           <span className="absolute bottom-2 right-3 text-xs text-[var(--color-text-muted)]">
             {linerNotes.length} / 3,000
           </span>
+        </div>
+
+        {/* 출시 예약 */}
+        <div className="mb-4">
+          <div className="mb-2 flex items-center justify-between">
+            <label className="text-xs text-[var(--color-text-muted)]">출시 예약</label>
+            <button
+              type="button"
+              onClick={() => setPublishAt(publishAt ? null : new Date(Date.now() + 86400000).toISOString().slice(0, 16))}
+              disabled={loading}
+              className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition disabled:opacity-40 ${publishAt ? "bg-[var(--color-accent-subtle)] text-[var(--color-accent)]" : "text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"}`}
+            >
+              <Calendar className="h-3 w-3" />
+              {publishAt ? "예약 설정됨" : "날짜 지정"}
+            </button>
+          </div>
+          {publishAt && (
+            <input
+              type="datetime-local"
+              value={publishAt}
+              min={new Date().toISOString().slice(0, 16)}
+              onChange={(e) => setPublishAt(e.target.value || null)}
+              disabled={loading}
+              className="w-full rounded-xl bg-[var(--color-bg-elevated)] px-4 py-2.5 text-sm text-[var(--color-text-primary)] outline-none ring-1 ring-[var(--color-accent)]/40 focus:ring-[var(--color-accent)] disabled:opacity-60"
+            />
+          )}
         </div>
 
         {error && (

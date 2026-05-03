@@ -73,6 +73,9 @@ export function useMyPageData(): UseMyPageDataReturn {
   const { currentTrack, isPlaying, addTrack, playTrack, newReleases } = usePlayer();
 
   const loadData = useCallback(async () => {
+    const fetchWithTimeout = <T,>(p: Promise<T>, fallback: T, ms = 10_000): Promise<T> =>
+      Promise.race([p, new Promise<T>((res) => setTimeout(() => res(fallback), ms))]);
+
     try {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -88,8 +91,14 @@ export function useMyPageData(): UseMyPageDataReturn {
           getLikedTracks().catch(() => [] as PlaylistTrack[]),
           getPlayHistory(5).catch(() => [] as HistoryTrack[]),
           getFollowedArtists().catch(() => [] as FollowedArtist[]),
-          fetch("/api/user/recommendations").then((r) => r.ok ? r.json() as Promise<{ tracks?: PlaylistTrack[] }> : { tracks: [] }).catch(() => ({ tracks: [] })),
-          fetch("/api/playlists").then((r) => r.ok ? r.json() as Promise<{ playlists?: { id: string; title: string; is_public: boolean }[] }> : { playlists: [] }).catch(() => ({ playlists: [] })),
+          fetchWithTimeout(
+            fetch("/api/user/recommendations").then((r) => r.ok ? r.json() as Promise<{ tracks?: PlaylistTrack[] }> : { tracks: [] as PlaylistTrack[] }).catch(() => ({ tracks: [] as PlaylistTrack[] })),
+            { tracks: [] as PlaylistTrack[] }
+          ),
+          fetchWithTimeout(
+            fetch("/api/playlists").then((r) => r.ok ? r.json() as Promise<{ playlists?: { id: string; title: string; is_public: boolean }[] }> : { playlists: [] as { id: string; title: string; is_public: boolean }[] }).catch(() => ({ playlists: [] as { id: string; title: string; is_public: boolean }[] })),
+            { playlists: [] as { id: string; title: string; is_public: boolean }[] }
+          ),
           supabase
             .from("tracks")
             .select("id, user_id, title, artist, play_count, like_count, cover_url, created_at")
@@ -122,7 +131,11 @@ export function useMyPageData(): UseMyPageDataReturn {
   useEffect(() => {
     void loadData();
     const supabase = createClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => { void loadData(); });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+        void loadData();
+      }
+    });
     return () => subscription.unsubscribe();
   }, [loadData]);
 

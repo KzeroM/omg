@@ -52,8 +52,8 @@ export function Chart() {
   }, [queryClient]);
   const { pulling, pullProgress, refreshing } = usePullToRefresh(handleRefresh);
 
-  const { data, isSuccess } = useChartTracks(period, selectedTagIds, 50);
-  const allTracks = isSuccess && data && data.length > 0 ? data : TOP_CHART;
+  const { data, isSuccess, isPending } = useChartTracks(period, selectedTagIds, 50);
+  const allTracks = isSuccess && data && data.length > 0 ? data : (!isPending ? TOP_CHART : []);
   const visible   = showAll ? allTracks : allTracks.slice(0, SHOW_INITIAL);
   const live      = isSuccess && !!data && data.length > 0;
 
@@ -261,7 +261,20 @@ export function Chart() {
       )}
 
       {/* 트랙 목록 */}
-      {allTracks.length === 0 ? (
+      {isPending ? (
+        <ul className="grid grid-cols-1 gap-2">
+          {Array.from({ length: SHOW_INITIAL }).map((_, i) => (
+            <li key={i} className="flex items-center gap-3 rounded-xl px-3 py-2">
+              <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-[var(--color-bg-elevated)]" />
+              <div className="h-10 w-10 shrink-0 animate-pulse rounded-lg bg-[var(--color-bg-elevated)]" />
+              <div className="flex flex-1 flex-col gap-1.5">
+                <div className="h-3.5 w-1/3 animate-pulse rounded bg-[var(--color-bg-elevated)]" />
+                <div className="h-3 w-1/5 animate-pulse rounded bg-[var(--color-bg-elevated)]" />
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : allTracks.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[var(--color-border)] py-12 text-center">
           <p className="text-sm text-[var(--color-text-muted)]">해당 조건의 곡이 없습니다.</p>
           {selectedTagIds.length > 0 && (

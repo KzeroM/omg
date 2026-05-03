@@ -4,7 +4,7 @@ tags: [omg, sprint, v13, quality]
 period: 2026-05-03 ~
 status: 진행 중
 items: 5
-commits: [9d3fcc9, 7063695, 0e4e4fe, 35debac, 6b6cd51]
+commits: [9d3fcc9, 7063695, 0e4e4fe, 35debac, 6b6cd51, 10151ec, 0c34ce5]
 ---
 
 # Sprint v13 — 품질 개선
@@ -46,3 +46,16 @@ commits: [9d3fcc9, 7063695, 0e4e4fe, 35debac, 6b6cd51]
 |---|------|------|
 | 150 | 카운트업 애니메이션 | `AnimatedNumber` 컴포넌트 (ease-out cubic). 차트 재생횟수에 적용 |
 | 140 | 풀-투-리프레시 | `usePullToRefresh` 훅. 차트 페이지에서 위로 당기면 React Query 무효화 |
+
+## PR #53 — 업로드 UI + 프로필 개선
+
+| # | 작업 | 비고 |
+|---|------|------|
+| 154 | 업로드 스텝 UI | UploadButton 모달에 2단계 진행 표시줄 (파일 업로드 → 저장) |
+| 159 | 아티스트 프로필 개선 | 팔로워 카운트에 `AnimatedNumber` 적용 |
+
+## PR #54 — 트랙 순서 재배열
+
+| # | 작업 | 비고 |
+|---|------|------|
+| 149 | 프로필 내 트랙 순서 재배열 | DB `display_order` 컬럼 + `PATCH /api/tracks/reorder` + 아티스트 페이지 DnD UI (GripVertical) |

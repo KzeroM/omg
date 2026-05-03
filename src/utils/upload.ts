@@ -47,6 +47,7 @@ export async function uploadTrackToSupabase(
   onProgress?: (step: 'uploading' | 'inserting') => void,
   visibility: TrackVisibility = "public",
   coverFile?: File,
+  publishAt?: string | null,
 ): Promise<PlaylistTrack> {
   if (file.size > MAX_FILE_SIZE_BYTES) {
     throw new Error("파일 크기는 50MB를 초과할 수 없습니다.");
@@ -94,6 +95,7 @@ export async function uploadTrackToSupabase(
       artist,
       visibility,
       ...(coverUrl ? { cover_url: coverUrl } : {}),
+      ...(publishAt ? { publish_at: new Date(publishAt).toISOString() } : {}),
     })
     .select("id, file_path, title, artist, cover_url")
     .single();

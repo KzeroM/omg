@@ -39,6 +39,8 @@ export function Chart() {
   const [showAll, setShowAll]         = useState(false);
   const [filterOpen, setFilterOpen]   = useState(false);
   const [tagsByCategory, setTagsByCategory] = useState<TagsByCategory>({ genre: [], mood: [], bpm: [], instrument: [] });
+  const [isPrefApplied, setIsPrefApplied] = useState(false);
+  const prefLoadedRef = useRef(false);
 
   const queryClient = useQueryClient();
   const { playSingleTrack, currentTrack } = usePlayer();
@@ -52,6 +54,29 @@ export function Chart() {
   // 태그 목록 로드
   useEffect(() => {
     getAllTagsByCategory().then(setTagsByCategory).catch(() => {});
+  }, []);
+
+  // 로그인 사용자 preferred_tag_ids 자동 적용 (URL 태그가 없을 때만, 마운트 1회)
+  useEffect(() => {
+    if (prefLoadedRef.current || selectedTagIds.length > 0) return;
+    prefLoadedRef.current = true;
+    const supabase = createClient();
+    void supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      void supabase
+        .from('users')
+        .select('preferred_tag_ids')
+        .eq('user_id', user.id)
+        .single()
+        .then(({ data: row }) => {
+          const pref = (row as { preferred_tag_ids?: string[] } | null)?.preferred_tag_ids;
+          if (pref && pref.length > 0) {
+            setSelectedTagIds(pref);
+            setIsPrefApplied(true);
+          }
+        });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 리얼타임 구독 — tracks 변경 시 현재 period/tags 쿼리 무효화
@@ -82,7 +107,7 @@ export function Chart() {
     setShowAll(false);
   };
 
-  const clearTags = () => { setSelectedTagIds([]); setShowAll(false); };
+  const clearTags = () => { setSelectedTagIds([]); setShowAll(false); setIsPrefApplied(false); };
 
   const allTags = Object.values(tagsByCategory).flat();
 
@@ -92,6 +117,11 @@ export function Chart() {
       <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-bold text-[var(--color-text-primary)]">인기 차트</h2>
+          {isPrefApplied && (
+            <span className="rounded-full bg-[var(--color-accent-subtle)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-accent)]">
+              맞춤
+            </span>
+          )}
           {live && (
             <span className="flex items-center gap-1.5 rounded-full bg-[var(--color-accent-subtle)] px-3 py-1 text-xs font-medium text-[var(--color-accent)]">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)] animate-pulse" />

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Play, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Play, Filter, X, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { TOP_CHART } from "@/data/chart";
@@ -10,13 +10,14 @@ import { createClient } from "@/utils/supabase/client";
 import { usePlayer } from "@/context/PlayerContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useChartTracks, type ChartPeriod } from "@/hooks/useChartTracks";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { FoundingMemberBadge } from "./FoundingMemberBadge";
 import { TierBadge } from "./TierBadge";
 import { ShareButton } from "./ShareButton";
 import { ReportButton } from "./ReportButton";
 import { AddToPlaylistButton } from "./AddToPlaylistButton";
 import { TrackRow } from "./TrackRow";
-import { formatKoreanNumber } from "@/utils/formatNumber";
+import { AnimatedNumber } from "./AnimatedNumber";
 import type { PlaylistTrack } from "@/types/player";
 import type { TagsByCategory } from "@/types/tag";
 import { CATEGORY_KO } from "@/constants/ui";
@@ -45,6 +46,11 @@ export function Chart() {
   const queryClient = useQueryClient();
   const { playSingleTrack, currentTrack } = usePlayer();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['tracks', 'chart'] });
+  }, [queryClient]);
+  const { pulling, pullProgress, refreshing } = usePullToRefresh(handleRefresh);
 
   const { data, isSuccess } = useChartTracks(period, selectedTagIds, 50);
   const allTracks = isSuccess && data && data.length > 0 ? data : TOP_CHART;
@@ -113,6 +119,20 @@ export function Chart() {
 
   return (
     <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
+      {/* 풀-투-리프레시 인디케이터 */}
+      {(pulling || refreshing) && (
+        <div className="mb-3 flex items-center justify-center gap-2 text-xs text-[var(--color-text-muted)]">
+          {refreshing ? (
+            <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+          ) : (
+            <div
+              className="h-4 w-4 rounded-full border-2 border-[var(--color-accent)] border-t-transparent"
+              style={{ transform: `rotate(${pullProgress * 360}deg)` }}
+            />
+          )}
+          {refreshing ? "새로고침 중…" : "당겨서 새로고침"}
+        </div>
+      )}
       {/* 헤더 */}
       <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
@@ -301,7 +321,7 @@ export function Chart() {
                       {track.play_count != null && (
                         <span className="flex shrink-0 items-center gap-1 text-xs text-[var(--color-text-muted)]">
                           <Play className="h-3 w-3" strokeWidth={1.5} />
-                          {formatKoreanNumber(track.play_count)}
+                          <AnimatedNumber value={track.play_count} />
                         </span>
                       )}
                       <AddToPlaylistButton trackId={track.id} />

@@ -9,6 +9,7 @@ import { getTracksByArtist, getTracksByUserId } from "@/utils/supabase/tracks";
 import { usePlayer } from "@/context/PlayerContext";
 import { fetchArtistProfile } from "@/utils/user";
 import { formatKoreanNumber } from "@/utils/formatNumber";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { FollowButton } from "@/components/FollowButton";
 import { TrackListSkeleton } from "@/components/skeletons/SkeletonRow";
 import type { DbTrack, PlaylistTrack } from "@/types/player";
@@ -240,7 +241,7 @@ export default function ArtistPage({
                     <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 ring-1 ring-white/20">
                       <span className="text-xs sm:text-sm text-[var(--color-text-secondary)]">팔로워</span>
                       <span className="font-bold text-white text-sm sm:text-base">
-                        {formatKoreanNumber(followerCount)}명
+                        <AnimatedNumber value={followerCount} />명
                       </span>
                     </div>
                   )}

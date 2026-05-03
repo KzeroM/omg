@@ -86,30 +86,38 @@ export default function TrackPageClient({
   useEffect(() => {
     const supabase = createClient();
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setCurrentUserId(user?.id ?? null);
-    });
-
-    supabase
-      .from("tracks")
-      .select(
-        "id, title, artist, file_path, play_count, like_count, artist_tier, user_id, cover_url, lyrics, credits, liner_notes, users!tracks_user_id_public_users_fkey(nickname)"
-      )
-      .eq("id", id)
-      .single()
-      .then(({ data }) => {
+    const load = async () => {
+      try {
+        const [{ data: { user } }, { data }] = await Promise.all([
+          supabase.auth.getUser(),
+          supabase
+            .from("tracks")
+            .select(
+              "id, title, artist, file_path, play_count, like_count, artist_tier, user_id, cover_url, lyrics, credits, liner_notes, users!tracks_user_id_public_users_fkey(nickname)"
+            )
+            .eq("id", id)
+            .single(),
+        ]);
+        setCurrentUserId(user?.id ?? null);
         if (data) {
           const row = data as unknown as TrackDetail & {
             users: { nickname: string } | null;
           };
           setTrack({ ...row, uploader_nickname: row.users?.nickname ?? null });
         }
+      } catch (err) {
+        console.error("[TrackPage] fetch 실패:", err);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    void load();
 
     fetch(`/api/tracks/${id}/comments`)
-      .then((r) => r.json())
-      .then((d: { comments: Comment[] }) => setComments(d.comments ?? []));
+      .then((r) => r.ok ? r.json() as Promise<{ comments: Comment[] }> : { comments: [] as Comment[] })
+      .then((d) => setComments(d.comments ?? []))
+      .catch(() => {});
 
     getTagsByTrackId(id).then(setTags).catch(() => {});
   }, [id]);

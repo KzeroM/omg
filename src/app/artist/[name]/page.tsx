@@ -65,6 +65,7 @@ export default function ArtistPage({
   const { currentTrack, addTrack, playTrack, newReleases, updateTrackMeta } = usePlayer();
 
   const fetchData = useCallback(async (decoded: string) => {
+    try {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -117,7 +118,11 @@ export default function ArtistPage({
     setArtistName(displayName);
     setTracks(tracksResult);
     setCurrentUserId(user?.id ?? null);
-    setLoading(false);
+    } catch (err) {
+      console.error("[ArtistPage] fetchData 실패:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {

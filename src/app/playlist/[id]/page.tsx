@@ -50,12 +50,13 @@ export default function PlaylistPage({ params }: { params: Promise<{ id: string 
     });
 
     fetch(`/api/playlists/${id}`)
-      .then((r) => r.json())
-      .then((d: { playlist?: PlaylistInfo; tracks?: PlaylistTrackRow[]; error?: string }) => {
+      .then((r) => r.ok ? r.json() as Promise<{ playlist?: PlaylistInfo; tracks?: PlaylistTrackRow[]; error?: string }> : Promise.reject(new Error(`${r.status}`)))
+      .then((d) => {
         if (d.error) { setError(d.error); }
         else { setPlaylist(d.playlist ?? null); setTracks(d.tracks ?? []); }
-        setLoading(false);
-      });
+      })
+      .catch(() => setError("플레이리스트를 불러올 수 없습니다."))
+      .finally(() => setLoading(false));
   }, [id]);
 
   const playAll = () => {

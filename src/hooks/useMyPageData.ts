@@ -73,46 +73,50 @@ export function useMyPageData(): UseMyPageDataReturn {
   const { currentTrack, isPlaying, addTrack, playTrack, newReleases } = usePlayer();
 
   const loadData = useCallback(async () => {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      setIsLoggedIn(false);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsLoggedIn(false);
+        return;
+      }
+      setIsLoggedIn(true);
+
+      const [{ data: profile }, liked, history, followed, recsRes, playlistsRes, { data: tracks }, albums] =
+        await Promise.all([
+          supabase.from("users").select("nickname, bio, artist_tier").eq("user_id", user.id).single(),
+          getLikedTracks().catch(() => [] as PlaylistTrack[]),
+          getPlayHistory(5).catch(() => [] as HistoryTrack[]),
+          getFollowedArtists().catch(() => [] as FollowedArtist[]),
+          fetch("/api/user/recommendations").then((r) => r.ok ? r.json() as Promise<{ tracks?: PlaylistTrack[] }> : { tracks: [] }).catch(() => ({ tracks: [] })),
+          fetch("/api/playlists").then((r) => r.ok ? r.json() as Promise<{ playlists?: { id: string; title: string; is_public: boolean }[] }> : { playlists: [] }).catch(() => ({ playlists: [] })),
+          supabase
+            .from("tracks")
+            .select("id, user_id, title, artist, play_count, like_count, cover_url, created_at")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false }),
+          getAlbumsByUserId(user.id).catch(() => [] as DbAlbum[]),
+        ]);
+
+      if (profile) {
+        setUserInfo({
+          nickname: profile.nickname as string | null,
+          bio: profile.bio as string | null,
+          artist_tier: profile.artist_tier as string | null,
+        });
+      }
+      setLikedTracks(liked);
+      setRecentHistory(history);
+      setFollowedArtists(followed);
+      setRecommendations(recsRes.tracks ?? []);
+      setPlaylists(playlistsRes.playlists ?? []);
+      setMyTracks((tracks ?? []) as MyTrack[]);
+      setMyAlbums(albums);
+    } catch (err) {
+      console.error("[useMyPageData] loadData 실패:", err);
+    } finally {
       setLoading(false);
-      return;
     }
-    setIsLoggedIn(true);
-
-    const [{ data: profile }, liked, history, followed, recsRes, playlistsRes, { data: tracks }, albums] =
-      await Promise.all([
-        supabase.from("users").select("nickname, bio, artist_tier").eq("user_id", user.id).single(),
-        getLikedTracks().catch(() => [] as PlaylistTrack[]),
-        getPlayHistory(5).catch(() => [] as HistoryTrack[]),
-        getFollowedArtists().catch(() => [] as FollowedArtist[]),
-        fetch("/api/user/recommendations").then((r) => r.json() as Promise<{ tracks?: PlaylistTrack[] }>).catch(() => ({ tracks: [] })),
-        fetch("/api/playlists").then((r) => r.json() as Promise<{ playlists?: { id: string; title: string; is_public: boolean }[] }>).catch(() => ({ playlists: [] })),
-        supabase
-          .from("tracks")
-          .select("id, user_id, title, artist, play_count, like_count, cover_url, created_at")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false }),
-        getAlbumsByUserId(user.id).catch(() => [] as DbAlbum[]),
-      ]);
-
-    if (profile) {
-      setUserInfo({
-        nickname: profile.nickname as string | null,
-        bio: profile.bio as string | null,
-        artist_tier: profile.artist_tier as string | null,
-      });
-    }
-    setLikedTracks(liked);
-    setRecentHistory(history);
-    setFollowedArtists(followed);
-    setRecommendations(recsRes.tracks ?? []);
-    setPlaylists(playlistsRes.playlists ?? []);
-    setMyTracks((tracks ?? []) as MyTrack[]);
-    setMyAlbums(albums);
-    setLoading(false);
   }, []);
 
   useEffect(() => {

@@ -244,6 +244,25 @@ export function UploadButton({ onUploadSuccess, variant = "inline" }: { onUpload
               </p>
             )}
 
+            {/* 업로드 진행 단계 */}
+            {uploadStep !== null && (
+              <div className="mb-3 flex items-center gap-2">
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent)] text-[10px] font-bold text-white">
+                  {uploadStep === "uploading"
+                    ? <div className="h-2.5 w-2.5 animate-spin rounded-full border border-white border-t-transparent" />
+                    : "✓"}
+                </div>
+                <span className={`text-xs ${uploadStep === "uploading" ? "text-[var(--color-text-primary)] font-medium" : "text-[var(--color-text-muted)]"}`}>파일 업로드</span>
+                <div className={`h-px flex-1 transition-colors ${uploadStep === "inserting" ? "bg-[var(--color-accent)]" : "bg-[var(--color-border)]"}`} />
+                <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-colors ${uploadStep === "inserting" ? "bg-[var(--color-accent)] text-white" : "bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)] ring-1 ring-[var(--color-border)]"}`}>
+                  {uploadStep === "inserting"
+                    ? <div className="h-2.5 w-2.5 animate-spin rounded-full border border-white border-t-transparent" />
+                    : "2"}
+                </div>
+                <span className={`text-xs ${uploadStep === "inserting" ? "text-[var(--color-text-primary)] font-medium" : "text-[var(--color-text-muted)]"}`}>저장</span>
+              </div>
+            )}
+
             <div className="flex gap-2">
               <button
                 type="button"

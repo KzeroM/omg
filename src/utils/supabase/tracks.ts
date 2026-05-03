@@ -211,8 +211,9 @@ export async function getTracksByUserId(userId: string, includePrivate = true): 
   const supabase = createClient();
   let query = supabase
     .from("tracks")
-    .select("id, user_id, artist_id, file_path, title, artist, created_at, like_count, play_count, users!user_id(artist_tier)")
+    .select("id, user_id, artist_id, file_path, title, artist, created_at, like_count, play_count, cover_url, users!user_id(artist_tier)")
     .eq("user_id", userId)
+    .order("display_order", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
   if (!includePrivate) {
     query = query.neq("visibility", "private")
@@ -232,6 +233,7 @@ export async function getTracksByUserId(userId: string, includePrivate = true): 
     created_at: row.created_at as string,
     like_count: (row.like_count as number | null) ?? undefined,
     play_count: (row.play_count as number | null) ?? undefined,
+    cover_url: (row.cover_url as string | null) ?? undefined,
     artist_tier: (row.users as { artist_tier?: string } | null)?.artist_tier as ArtistTier ?? 'basic',
   })) as DbTrack[];
 }

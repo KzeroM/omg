@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { use } from "react";
-import { Trash2, Play, Heart, Pencil, ArrowLeft, Instagram, Twitter, Youtube, Music, MessageCircle, Pin, PinOff } from "lucide-react";
+import { Trash2, Play, Heart, Pencil, ArrowLeft, Instagram, Twitter, Youtube, Music, MessageCircle, Pin, PinOff, GripVertical, ListOrdered } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { getTracksByArtist, getTracksByUserId } from "@/utils/supabase/tracks";
@@ -60,6 +60,8 @@ export default function ArtistPage({
   const [artistBio, setArtistBio] = useState<string | null>(null);
   const [artistSocialLinks, setArtistSocialLinks] = useState<SocialLinks | null>(null);
   const [pinnedTrackId, setPinnedTrackId] = useState<string | null>(null);
+  const [isReorderMode, setIsReorderMode] = useState(false);
+  const dragIdRef = useRef<string | null>(null);
   const { currentTrack, addTrack, playTrack, newReleases, updateTrackMeta } = usePlayer();
 
   const fetchData = useCallback(async (decoded: string) => {
@@ -184,6 +186,26 @@ export default function ArtistPage({
       setToast("곡 정보 업데이트에 실패했습니다.");
     }
   };
+
+  const handleDrop = useCallback(async (dropTargetId: string) => {
+    const dragId = dragIdRef.current;
+    if (!dragId || dragId === dropTargetId) return;
+    dragIdRef.current = null;
+    setTracks((prev) => {
+      const from = prev.findIndex((t) => t.id === dragId);
+      const to = prev.findIndex((t) => t.id === dropTargetId);
+      if (from === -1 || to === -1) return prev;
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(to, 0, item);
+      void fetch("/api/tracks/reorder", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trackIds: next.map((t) => t.id) }),
+      });
+      return next;
+    });
+  }, []);
 
 
   return (
@@ -390,6 +412,24 @@ export default function ArtistPage({
             })()}
 
             <section className="rounded-2xl bg-[var(--color-bg-surface)] p-6 ring-1 ring-[var(--color-border)]">
+              {/* 내 트랙 섹션 헤더 — 정렬 모드 토글 */}
+              {currentUserId !== null && currentUserId === artistUserId && (
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-sm font-semibold text-[var(--color-text-muted)]">트랙 목록</h2>
+                  <button
+                    type="button"
+                    onClick={() => setIsReorderMode((v) => !v)}
+                    className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ring-1 ${
+                      isReorderMode
+                        ? "bg-[var(--color-accent-subtle)] text-[var(--color-accent)] ring-[var(--color-accent)]/30"
+                        : "text-[var(--color-text-muted)] ring-[var(--color-border)] hover:text-[var(--color-text-primary)]"
+                    }`}
+                  >
+                    <ListOrdered className="h-3.5 w-3.5" />
+                    {isReorderMode ? "순서 저장 완료" : "순서 변경"}
+                  </button>
+                </div>
+              )}
               <ul className="grid grid-cols-1 gap-2">
                 {tracks.map((track) => {
                   const isCurrentTrack = currentTrack?.id === track.id;
@@ -402,8 +442,15 @@ export default function ArtistPage({
                       title={track.title ?? "제목 없음"}
                       artist={track.artist ?? "Unknown Artist"}
                       isActive={isCurrentTrack}
-                      trackId={track.id}
-                      onClick={() => handlePlay(track)}
+                      trackId={isReorderMode ? undefined : track.id}
+                      onClick={isReorderMode ? undefined : () => handlePlay(track)}
+                      draggable={canEdit && isReorderMode}
+                      onDragStart={() => { dragIdRef.current = track.id; }}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={() => void handleDrop(track.id)}
+                      leading={canEdit && isReorderMode ? (
+                        <GripVertical className="h-4 w-4 shrink-0 text-[var(--color-text-muted)]" strokeWidth={1.5} />
+                      ) : undefined}
                       trailing={
                         <>
                           <div className="flex items-center gap-3 shrink-0 text-xs text-[var(--color-text-muted)]">

@@ -30,6 +30,12 @@ interface TrackRowProps {
   /** 커버에 재생/일시정지 아이콘 표시 여부 */
   showPlayIcon?: boolean;
   className?: string;
+  /** 드래그앤드롭 정렬용 */
+  draggable?: boolean;
+  onDragStart?: (e: React.DragEvent<HTMLLIElement>) => void;
+  onDragOver?: (e: React.DragEvent<HTMLLIElement>) => void;
+  onDrop?: (e: React.DragEvent<HTMLLIElement>) => void;
+  onDragEnd?: (e: React.DragEvent<HTMLLIElement>) => void;
 }
 
 export function TrackRow({
@@ -47,6 +53,11 @@ export function TrackRow({
   trackId,
   showPlayIcon = false,
   className = "",
+  draggable: isDraggable,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
 }: TrackRowProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [swipeDelta, setSwipeDelta] = useState(0);
@@ -106,9 +117,14 @@ export function TrackRow({
     <li
       onClick={handleClick}
       {...swipeHandlers}
+      draggable={isDraggable}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
       className={`relative overflow-hidden flex items-center gap-4 rounded-xl px-4 py-3 transition ${
         onClick ? "cursor-pointer" : ""
-      } ${
+      } ${isDraggable ? "cursor-grab active:cursor-grabbing" : ""} ${
         isActive
           ? "bg-white/10 ring-1 ring-[var(--color-accent)]/30"
           : "hover:bg-[var(--color-bg-hover)]"

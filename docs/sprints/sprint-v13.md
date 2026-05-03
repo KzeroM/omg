@@ -4,7 +4,7 @@ tags: [omg, sprint, v13, quality]
 period: 2026-05-03 ~
 status: 진행 중
 items: 5
-commits: [9d3fcc9, 7063695, 0e4e4fe]
+commits: [9d3fcc9, 7063695, 0e4e4fe, 35debac, 6b6cd51]
 ---
 
 # Sprint v13 — 품질 개선
@@ -33,3 +33,16 @@ commits: [9d3fcc9, 7063695, 0e4e4fe]
 | # | 작업 | 비고 |
 |---|------|------|
 | 137 | 트랙 행 스와이프 제스처 | 오른쪽→좋아요 (`toggleTrackLike`), 왼쪽→플리추가 (`addToUserPlaylist`). 방향 잠금으로 스크롤 충돌 방지 |
+
+## PR #51 — 맞춤 차트
+
+| # | 작업 | 비고 |
+|---|------|------|
+| 110 | 맞춤 차트 | 마운트 시 `preferred_tag_ids` 자동 로드 → `selectedTagIds` 초기값. "맞춤" 배지 표시 |
+
+## PR #52 — 애니메이션 + 풀-투-리프레시
+
+| # | 작업 | 비고 |
+|---|------|------|
+| 150 | 카운트업 애니메이션 | `AnimatedNumber` 컴포넌트 (ease-out cubic). 차트 재생횟수에 적용 |
+| 140 | 풀-투-리프레시 | `usePullToRefresh` 훅. 차트 페이지에서 위로 당기면 React Query 무효화 |

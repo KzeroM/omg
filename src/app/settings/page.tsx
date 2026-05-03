@@ -64,46 +64,50 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const loadUserProfile = async () => {
-      const supabase = createClient();
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser();
+      try {
+        const supabase = createClient();
+        const {
+          data: { user: authUser },
+        } = await supabase.auth.getUser();
 
-      if (!authUser) {
-        router.push("/");
-        return;
+        if (!authUser) {
+          router.push("/");
+          return;
+        }
+
+        setUser(authUser);
+
+        // 현재 닉네임 로드
+        const { data } = await supabase
+          .from("users")
+          .select("nickname")
+          .eq("user_id", authUser.id)
+          .single();
+
+        if (data) {
+          setCurrentNickname(data.nickname as string);
+          setNewNickname(data.nickname as string);
+        }
+
+        // 현재 프로필 로드
+        const profileData = await fetchUserProfile(supabase);
+        if (profileData) {
+          setCurrentBio(profileData.bio ?? null);
+          setNewBio(profileData.bio ?? "");
+          setCurrentSocialLinks(profileData.social_links ?? null);
+          setNewSocialLinks(profileData.social_links ?? {});
+        }
+
+        // 기존 문의 내역 로드
+        void fetch("/api/support")
+          .then((res) => res.ok ? res.json() as Promise<{ tickets: SupportTicket[] }> : { tickets: [] })
+          .then((d) => setSupportTickets(d.tickets ?? []))
+          .catch(() => {});
+      } catch (err) {
+        console.error("[Settings] loadUserProfile 실패:", err);
+      } finally {
+        setLoading(false);
       }
-
-      setUser(authUser);
-
-      // 현재 닉네임 로드
-      const { data } = await supabase
-        .from("users")
-        .select("nickname")
-        .eq("user_id", authUser.id)
-        .single();
-
-      if (data) {
-        setCurrentNickname(data.nickname as string);
-        setNewNickname(data.nickname as string);
-      }
-
-      // 현재 프로필 로드
-      const profileData = await fetchUserProfile(supabase);
-      if (profileData) {
-        setCurrentBio(profileData.bio ?? null);
-        setNewBio(profileData.bio ?? "");
-        setCurrentSocialLinks(profileData.social_links ?? null);
-        setNewSocialLinks(profileData.social_links ?? {});
-      }
-
-      setLoading(false);
-
-      // 기존 문의 내역 로드
-      void fetch("/api/support").then(async (res) => {
-        const data = await res.json() as { tickets: SupportTicket[] };
-        setSupportTickets(data.tickets ?? []);
-      });
     };
 
     void loadUserProfile();

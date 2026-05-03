@@ -31,13 +31,14 @@ export function DiscoverySection({ initialTags }: { initialTags?: TagWithCount[]
       setTags(initialTags);
       return;
     }
-    const supabase = createClient();
-    void supabase
-      .from("track_tags")
-      .select("tag_id, tags(id, name, category), tracks!track_id(id, title, artist, play_count)")
-      .limit(500)
-      .then(({ data }) => {
-        if (!data) { setLoading(false); return; }
+    const load = async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("track_tags")
+          .select("tag_id, tags(id, name, category), tracks!track_id(id, title, artist, play_count)")
+          .limit(500);
+        if (!data) return;
         const countMap = new Map<string, TagWithRep>();
         const repMap = new Map<string, { title: string; artist: string; play_count: number }>();
 
@@ -50,7 +51,6 @@ export function DiscoverySection({ initialTags }: { initialTags?: TagWithCount[]
           if (existing) existing.track_count += 1;
           else countMap.set(tag.id, { id: tag.id, name: tag.name, category: tag.category ?? "", track_count: 1 });
 
-          // 대표곡: play_count 가장 높은 트랙
           if (track?.title && track.artist) {
             const pc = track.play_count ?? 0;
             const cur = repMap.get(tag.id);
@@ -67,8 +67,13 @@ export function DiscoverySection({ initialTags }: { initialTags?: TagWithCount[]
             return { ...t, rep_title: rep?.title, rep_artist: rep?.artist };
           });
         setTags(sorted);
+      } catch (err) {
+        console.error("[DiscoverySection] load 실패:", err);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    void load();
   }, [initialTags]);
 
   if (loading || tags.length === 0) return null;

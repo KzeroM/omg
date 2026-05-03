@@ -28,11 +28,10 @@ export function ArtistPostFeed({ artistUserId, currentUserId, isOwnProfile }: Pr
   useEffect(() => {
     if (!artistUserId) { setLoading(false); return; }
     void fetch(`/api/artist-posts?userId=${artistUserId}`)
-      .then((r) => r.json())
-      .then((d: { posts: ArtistPost[] }) => {
-        setPosts(d.posts ?? []);
-        setLoading(false);
-      });
+      .then((r) => r.ok ? r.json() as Promise<{ posts: ArtistPost[] }> : { posts: [] as ArtistPost[] })
+      .then((d) => setPosts(d.posts ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [artistUserId]);
 
   const handleSubmit = async (e: React.FormEvent) => {

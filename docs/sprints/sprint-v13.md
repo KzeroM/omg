@@ -4,7 +4,7 @@ tags: [omg, sprint, v13, quality]
 period: 2026-05-03 ~
 status: 진행 중
 items: 5
-commits: [9d3fcc9, 7063695]
+commits: [9d3fcc9, 7063695, 0e4e4fe]
 ---
 
 # Sprint v13 — 품질 개선
@@ -27,3 +27,9 @@ commits: [9d3fcc9, 7063695]
 |---|------|------|
 | 142 | 트랙 출시 예약 | `publish_at` datetime picker (업로드/편집 모달) + 공개 쿼리 필터 |
 | 109 | pgvector 설정 | `vector` 확장 + `embedding vector(1536)` 컬럼. #120·#121 언블록 |
+
+## PR #50 — 스와이프 제스처
+
+| # | 작업 | 비고 |
+|---|------|------|
+| 137 | 트랙 행 스와이프 제스처 | 오른쪽→좋아요 (`toggleTrackLike`), 왼쪽→플리추가 (`addToUserPlaylist`). 방향 잠금으로 스크롤 충돌 방지 |

@@ -5,7 +5,6 @@
 ## 책임
 
 - TypeScript 타입 오류 확인 (`npx tsc --noEmit`)
-- Playwright E2E 테스트 작성 · 실행
 - 버그 재현 및 원인 위치 특정
 - API 응답 형식 검증
 - RLS 정책 누락 · 권한 오류 탐지
@@ -21,27 +20,8 @@ TechLead가 핸드오프에 `## 보안 감사 결과`를 전달하면 아래 항
 
 ## 작업 범위
 
-- `tests/e2e/**/*.spec.ts` 파일 작성 · 수정
 - 타입 오류 수정: 기존 인터페이스·타입의 필드 누락·오타 수정만. 제네릭·유틸 타입 재설계 필요 시 Dev에 핸드오프
 - 버그 위치 특정 후 핸드오프에 기록
-
-## Playwright 실행
-
-```bash
-# 전체 E2E (로컬 dev 서버 자동 기동)
-npm run test:e2e
-
-# 데스크톱만
-npm run test:e2e:desktop
-
-# 모바일만
-npm run test:e2e:mobile
-
-# TypeScript 타입 체크
-npx tsc --noEmit
-```
-
-> **생성 아티팩트** (`test-results/`, `tests/e2e/report/`) 는 `.gitignore` 처리됨 — 커밋 금지.
 
 ## 테스트 실패 원인 분류
 

@@ -1,7 +1,7 @@
 ---
 title: OMG — 로드맵
 tags: [omg, roadmap]
-updated: 2026-05-01
+updated: 2026-05-03
 ---
 
 # 로드맵
@@ -153,35 +153,6 @@ updated: 2026-05-01
 
 ---
 
-## v13 — 품질 개선 (2026-05-03~)
-
-- [x] FAC-139 업로드 FAB — 모바일 전역 고정 + 버튼 (UploadButton variant="fab")
-- [x] FAC-146 라이너 노트 — tracks.liner_notes + 편집 모달 + 트랙 페이지 표시
-- [x] FAC-148 댓글 관리 권한 — 트랙 소유자가 자기 트랙의 모든 댓글 삭제 가능
-
-→ PR #48
-
----
-
-## v12 — 오디오 + 발견 (2026-05-02~)
-
-**가사**
-- [x] FAC-125 가사 드로어 (플레이어에서 가사 보기 — LyricsDrawer 컴포넌트, 모바일/데스크톱)
-
-**아티스트 커뮤니티**
-- [x] FAC-126 아티스트 피드 (artist_posts DB + API + ArtistPostFeed 컴포넌트 + 프로필 통합)
-
-**모바일 터치 UX**
-- [x] FAC-138 플레이어 스와이프업 (바텀바 위 스와이프 → 풀스크린 진입)
-- [x] FAC-136 트랙 롱프레스 바텀시트 (useLongPress 훅 + TrackActionsSheet)
-
-**아티스트 프로필**
-- [x] FAC-143 핀 트랙 (프로필 상단 고정 카드 + pin/unpin API)
-
-→ [[sprints/sprint-v12]] · PR #44 · PR #45 · PR #46 · PR #47
-
----
-
 ## v10 — 버그 수정 + 리팩토링 + 기능 추가 (2026-04-27 ~ 05-01)
 
 **버그 수정**
@@ -204,3 +175,50 @@ updated: 2026-05-01
 - [x] FAC-178 커버 이미지 TrackRow/PlayerBar 표시 (PR #36)
 
 → [[sprints/sprint-v10]]
+
+---
+
+## v12 — 오디오 + 발견 (2026-05-02)
+
+**가사**
+- [x] FAC-125 가사 드로어 (플레이어에서 가사 보기 — LyricsDrawer 컴포넌트, 모바일/데스크톱)
+
+**아티스트 커뮤니티**
+- [x] FAC-126 아티스트 피드 (artist_posts DB + API + ArtistPostFeed 컴포넌트 + 프로필 통합)
+
+**모바일 터치 UX**
+- [x] FAC-138 플레이어 스와이프업 (바텀바 위 스와이프 → 풀스크린 진입)
+- [x] FAC-136 트랙 롱프레스 바텀시트 (useLongPress 훅 + TrackActionsSheet)
+
+**아티스트 프로필**
+- [x] FAC-143 핀 트랙 (프로필 상단 고정 카드 + pin/unpin API)
+
+→ [[sprints/sprint-v12]] · PR #44 · PR #45 · PR #46 · PR #47
+
+---
+
+## v13 — 품질 개선 (2026-05-03) ✅
+
+**콘텐츠 관리**
+- [x] FAC-139 업로드 FAB — 모바일 전역 고정 + 버튼 (UploadButton variant="fab")
+- [x] FAC-146 라이너 노트 — tracks.liner_notes + 편집 모달 + 트랙 페이지 표시
+- [x] FAC-148 댓글 관리 권한 — 트랙 소유자가 자기 트랙의 모든 댓글 삭제 가능
+- [x] FAC-154 업로드 스텝 UI — 2단계 진행 표시줄 (파일 업로드 → 저장)
+
+**출시 / 발견**
+- [x] FAC-142 트랙 출시 예약 — publish_at datetime picker + 공개 쿼리 필터
+- [x] FAC-109 pgvector 기반 설정 — vector 확장 + embedding vector(1536) (#120·#121 언블록)
+- [x] FAC-110 맞춤 차트 — preferred_tag_ids 자동 적용 + 맞춤 배지
+
+**모바일 UX**
+- [x] FAC-137 트랙 행 스와이프 제스처 — 오른쪽→좋아요, 왼쪽→플리 추가
+- [x] FAC-140 풀-투-리프레시 — usePullToRefresh 훅, 차트 페이지 적용
+
+**UI 애니메이션**
+- [x] FAC-150 카운트업 애니메이션 — AnimatedNumber 컴포넌트 (ease-out cubic)
+- [x] FAC-159 아티스트 프로필 개선 — 팔로워 수 AnimatedNumber 적용
+
+**프로필 관리**
+- [x] FAC-149 트랙 순서 재배열 — display_order 컬럼 + PATCH /api/tracks/reorder + DnD UI
+
+→ [[sprints/sprint-v13]] · PR #48 · PR #49 · PR #50 · PR #51 · PR #52 · PR #53 · PR #54

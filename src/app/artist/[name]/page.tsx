@@ -126,6 +126,7 @@ export default function ArtistPage({
   }, []);
 
   useEffect(() => {
+    const safetyTimer = setTimeout(() => setLoading(false), 12_000);
     try {
       const decoded = decodeURIComponent(encodedName);
       void fetchData(decoded);
@@ -133,6 +134,7 @@ export default function ArtistPage({
       console.error(e);
       setLoading(false);
     }
+    return () => clearTimeout(safetyTimer);
   }, [encodedName, fetchData]);
 
   const handlePlay = (track: DbTrack) => {

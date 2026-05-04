@@ -73,12 +73,16 @@ export function useMyPageData(): UseMyPageDataReturn {
   const { currentTrack, isPlaying, addTrack, playTrack, newReleases } = usePlayer();
 
   const loadData = useCallback(async () => {
-    const fetchWithTimeout = <T,>(p: Promise<T>, fallback: T, ms = 10_000): Promise<T> =>
-      Promise.race([p, new Promise<T>((res) => setTimeout(() => res(fallback), ms))]);
+    const withTimeout = <T,>(p: PromiseLike<T>, fallback: T, ms = 8_000): Promise<T> =>
+      Promise.race([Promise.resolve(p), new Promise<T>((res) => setTimeout(() => res(fallback), ms))]);
 
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const authResult = await withTimeout(
+        supabase.auth.getUser(),
+        { data: { user: null }, error: null } as unknown as Awaited<ReturnType<typeof supabase.auth.getUser>>
+      );
+      const user = authResult.data.user;
       if (!user) {
         setIsLoggedIn(false);
         return;
@@ -91,11 +95,11 @@ export function useMyPageData(): UseMyPageDataReturn {
           getLikedTracks().catch(() => [] as PlaylistTrack[]),
           getPlayHistory(5).catch(() => [] as HistoryTrack[]),
           getFollowedArtists().catch(() => [] as FollowedArtist[]),
-          fetchWithTimeout(
+          withTimeout(
             fetch("/api/user/recommendations").then((r) => r.ok ? r.json() as Promise<{ tracks?: PlaylistTrack[] }> : { tracks: [] as PlaylistTrack[] }).catch(() => ({ tracks: [] as PlaylistTrack[] })),
             { tracks: [] as PlaylistTrack[] }
           ),
-          fetchWithTimeout(
+          withTimeout(
             fetch("/api/playlists").then((r) => r.ok ? r.json() as Promise<{ playlists?: { id: string; title: string; is_public: boolean }[] }> : { playlists: [] as { id: string; title: string; is_public: boolean }[] }).catch(() => ({ playlists: [] as { id: string; title: string; is_public: boolean }[] })),
             { playlists: [] as { id: string; title: string; is_public: boolean }[] }
           ),

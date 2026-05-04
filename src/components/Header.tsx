@@ -29,8 +29,16 @@ export function Header() {
   }, []);
 
   const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    setUser(null);
+    try {
+      const supabase = createClient();
+      await Promise.race([
+        supabase.auth.signOut(),
+        new Promise<void>((_, rej) => setTimeout(() => rej(new Error("timeout")), 5_000)),
+      ]);
+    } catch {
+      // signOut failed or timed out — local state already cleared above
+    }
   };
 
   return (

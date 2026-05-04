@@ -78,11 +78,8 @@ export function useMyPageData(): UseMyPageDataReturn {
 
     try {
       const supabase = createClient();
-      const authResult = await withTimeout(
-        supabase.auth.getUser(),
-        { data: { user: null }, error: null } as unknown as Awaited<ReturnType<typeof supabase.auth.getUser>>
-      );
-      const user = authResult.data.user;
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user ?? null;
       if (!user) {
         setIsLoggedIn(false);
         return;

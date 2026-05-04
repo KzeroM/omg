@@ -67,7 +67,8 @@ export default function ArtistPage({
   const fetchData = useCallback(async (decoded: string) => {
     try {
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user ?? null;
 
     // 1차: nickname 기반 조회
     const { data: userRow } = await supabase

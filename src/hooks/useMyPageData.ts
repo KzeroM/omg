@@ -89,12 +89,15 @@ export function useMyPageData(): UseMyPageDataReturn {
       }
       setIsLoggedIn(true);
 
-      const [{ data: profile }, liked, history, followed, recsRes, playlistsRes, { data: tracks }, albums] =
+      type ProfileRow = { nickname: string | null; bio: string | null; artist_tier: string | null } | null;
+      type TracksRow = { id: string; user_id: string; title: string | null; artist: string | null; play_count: number | null; like_count: number | null; cover_url: string | null; created_at: string }[];
+      const [profileResult, liked, history, followed, recsRes, playlistsRes, tracksResult, albums] =
         await Promise.all([
-          supabase.from("users").select("nickname, bio, artist_tier").eq("user_id", user.id).single(),
-          getLikedTracks().catch(() => [] as PlaylistTrack[]),
-          getPlayHistory(5).catch(() => [] as HistoryTrack[]),
-          getFollowedArtists().catch(() => [] as FollowedArtist[]),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          withTimeout(supabase.from("users").select("nickname, bio, artist_tier").eq("user_id", user.id).single(), { data: null, error: null } as any),
+          withTimeout(getLikedTracks(), [] as PlaylistTrack[]).catch(() => [] as PlaylistTrack[]),
+          withTimeout(getPlayHistory(5), [] as HistoryTrack[]).catch(() => [] as HistoryTrack[]),
+          withTimeout(getFollowedArtists(), [] as FollowedArtist[]).catch(() => [] as FollowedArtist[]),
           withTimeout(
             fetch("/api/user/recommendations").then((r) => r.ok ? r.json() as Promise<{ tracks?: PlaylistTrack[] }> : { tracks: [] as PlaylistTrack[] }).catch(() => ({ tracks: [] as PlaylistTrack[] })),
             { tracks: [] as PlaylistTrack[] }
@@ -103,13 +106,12 @@ export function useMyPageData(): UseMyPageDataReturn {
             fetch("/api/playlists").then((r) => r.ok ? r.json() as Promise<{ playlists?: { id: string; title: string; is_public: boolean }[] }> : { playlists: [] as { id: string; title: string; is_public: boolean }[] }).catch(() => ({ playlists: [] as { id: string; title: string; is_public: boolean }[] })),
             { playlists: [] as { id: string; title: string; is_public: boolean }[] }
           ),
-          supabase
-            .from("tracks")
-            .select("id, user_id, title, artist, play_count, like_count, cover_url, created_at")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: false }),
-          getAlbumsByUserId(user.id).catch(() => [] as DbAlbum[]),
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          withTimeout(supabase.from("tracks").select("id, user_id, title, artist, play_count, like_count, cover_url, created_at").eq("user_id", user.id).order("created_at", { ascending: false }), { data: [], error: null } as any),
+          withTimeout(getAlbumsByUserId(user.id), [] as DbAlbum[]).catch(() => [] as DbAlbum[]),
         ]);
+      const profile = profileResult.data;
+      const tracks = tracksResult.data;
 
       if (profile) {
         setUserInfo({

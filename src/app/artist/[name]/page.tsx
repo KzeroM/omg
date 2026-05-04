@@ -126,14 +126,12 @@ export default function ArtistPage({
   }, []);
 
   useEffect(() => {
-    const safetyTimer = setTimeout(() => setLoading(false), 12_000);
-    try {
-      const decoded = decodeURIComponent(encodedName);
-      void fetchData(decoded);
-    } catch (e) {
-      console.error(e);
+    const decoded = (() => { try { return decodeURIComponent(encodedName); } catch { return encodedName; } })();
+    const safetyTimer = setTimeout(() => {
       setLoading(false);
-    }
+      setArtistName((prev) => prev ?? decoded);
+    }, 12_000);
+    void fetchData(decoded);
     return () => clearTimeout(safetyTimer);
   }, [encodedName, fetchData]);
 
